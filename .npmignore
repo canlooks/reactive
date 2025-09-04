@@ -1,0 +1,12 @@
+/*
+
+# Ignore all files except those.(means include those)
+!/dist
+!/forage
+!/react
+!/index.d.ts
+
+# Generic files
+!/LICENSE
+!/package.json
+!/README.md

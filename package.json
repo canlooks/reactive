@@ -1,0 +1,70 @@
+{
+  "name": "@canlooks/reactive",
+  "version": "4.3.0",
+  "author": "C.CanLiang <canlooks@gmail.com>",
+  "description": "A react tool for responding data and managing state.",
+  "keywords": [
+    "react",
+    "reactive",
+    "responsive",
+    "automatic",
+    "dynamic",
+    "state management"
+  ],
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    },
+    "./react": {
+      "types": "./react/index.d.ts",
+      "import": "./react/index.js",
+      "require": "./react/index.cjs"
+    },
+    "./forage": {
+      "types": "./forage/index.d.ts",
+      "import": "./forage/index.js",
+      "require": "./forage/index.cjs"
+    }
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gitee.com/canlooks/c_reactive"
+  },
+  "homepage": "https://gitee.com/canlooks/c_reactive",
+  "bugs": {
+    "url": "https://gitee.com/canlooks/c_reactive/issues",
+    "email": "canlooks@gmail.com"
+  },
+  "license": "MIT",
+  "scripts": {
+    "clean": "npx shx rm -rf dist",
+    "build": "tsc -m esnext --outDir dist/esm & tsc -m commonjs --outDir dist/cjs",
+    "rebuild": "npm run clean && npm run build",
+    "test:browser": "vite -c test/vite.config.mts",
+    "test:unit": "npx ts-node test/unit.ts",
+    "test:js": "node test/index.js"
+  },
+  "dependencies": {
+    "tslib": "^2.8.1"
+  },
+  "devDependencies": {
+    "@emotion/react": "^11.14.0",
+    "@types/node": "^24.3.0",
+    "@types/react": "^19.1.11",
+    "@types/react-dom": "^19.1.8",
+    "localforage": "^1.10.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.3"
+  }
+}
