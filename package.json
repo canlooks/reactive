@@ -37,11 +37,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://gitee.com/canlooks/c_reactive"
+    "url": "https://github.com/canlooks/reactive"
   },
-  "homepage": "https://gitee.com/canlooks/c_reactive",
+  "homepage": "https://github.com/canlooks/reactive",
   "bugs": {
-    "url": "https://gitee.com/canlooks/c_reactive/issues",
+    "url": "https://github.com/canlooks/reactive/issues",
     "email": "canlooks@gmail.com"
   },
   "license": "MIT",
