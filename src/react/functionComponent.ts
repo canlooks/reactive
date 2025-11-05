@@ -1,4 +1,4 @@
-import {FC, forwardRef, memo, useEffect, useMemo, useRef, useState} from 'react'
+import {FC, forwardRef, memo, useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react'
 import {Effect, Proxyable} from '../core'
 import {assignProps} from '../utils'
 import {logPrefix} from '../utils/logHandler'
@@ -55,6 +55,12 @@ export function useRenderEffect<T>(render: () => T, force?: boolean) {
  * 得到一个可以刷新组件的方法
  */
 function useUpdate() {
+    const mounted = useRef(false)
+
+    useLayoutEffect(() => {
+        mounted.current = true
+    }, [])
+
     const [, setState] = useState<symbol>()
-    return () => setState(Symbol())
+    return () => mounted.current && setState(Symbol())
 }
