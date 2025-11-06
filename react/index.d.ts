@@ -59,6 +59,13 @@ declare namespace ReactiveForReact {
 
     function StrictChip(props: ChipProps): ReactElement
 
+    /**
+     * Render after `useEffect`,
+     * Avoid triggering updates before component mounted,
+     * which may cause `React` throw an error
+     */
+    const AsyncChip: typeof Chip
+
     // chip function
 
     function chip(render: () => ReactNode): ReactElement
