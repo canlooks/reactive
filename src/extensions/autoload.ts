@@ -27,12 +27,16 @@ export abstract class Autoload<D = any> {
 
     abstract loadData(...args: any[]): D | undefined | Promise<D | undefined>
 
+    onLoad?(): void
+
     update = defineLoading(function (this: any) {
         return this.loading
     }, async function (this: any, ...args: any) {
         autoLoad_cached.set(this, true)
         try {
-            return this._data = await this.loadData(...args)
+            this._data = await this.loadData(...args)
+            this.onLoad?.()
+            return this._data
         } catch (e) {
             autoLoad_cached.set(this, false)
             throw e

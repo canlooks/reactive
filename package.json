@@ -1,6 +1,6 @@
 {
   "name": "@canlooks/reactive",
-  "version": "4.3.2",
+  "version": "4.4.0",
   "author": "C.CanLiang <canlooks@gmail.com>",
   "description": "A react tool for responding data and managing state.",
   "keywords": [
