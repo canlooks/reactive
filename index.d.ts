@@ -57,6 +57,7 @@ declare namespace Reactive {
         data: D | undefined
         setData(v: D | undefined): void
         abstract loadData(...args: A[]): D | undefined | Promise<D | undefined>
+        onLoad?(): void
         update(...args: A[]): Promise<D | undefined>
     }
 
