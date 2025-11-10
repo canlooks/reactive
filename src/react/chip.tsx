@@ -26,15 +26,13 @@ Chip.Strict = StrictChip
 export const AsyncChip = (props: {
     children(): ReactNode
 }) => {
-    const effected = useAsyncChip()
-    return effected && <Chip>{props.children}</Chip>
+    return useAsyncChip() && <Chip>{props.children}</Chip>
 }
 
 export const AsyncStrictChip = memo((props: {
     children(): ReactNode
 }) => {
-    const effected = useAsyncChip()
-    return effected && <Chip.Strict>{props.children}</Chip.Strict>
+    return useAsyncChip() && <Chip.Strict>{props.children}</Chip.Strict>
 })
 
 AsyncChip.Strict = AsyncStrictChip
