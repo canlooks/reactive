@@ -1,27 +1,25 @@
 import {useEffect, useState, useSyncExternalStore} from 'react'
 import {Effect} from '../core'
-import {Fn} from '../../index'
 
 class ExternalStore {
-    static listeners = new Set<Fn>()
+    private onStoreChange?: () => void
 
-    static subscribe(listener: Fn) {
-        ExternalStore.listeners.add(listener)
+    subscribe = (onStoreChange: () => void) => {
+        this.onStoreChange = onStoreChange
         return () => {
-            ExternalStore.listeners.delete(listener)
         }
     }
 
-    static snapshot = Symbol()
+    private snapshot = Symbol()
 
-    static getSnapshot() {
-        return ExternalStore.snapshot
+    getSnapshot = () => {
+        return this.snapshot
     }
 
-    static update() {
-        ExternalStore.snapshot = Symbol()
-        for (const listener of ExternalStore.listeners) {
-            listener()
+    update = () => {
+        if (this.onStoreChange) {
+            this.snapshot = Symbol()
+            this.onStoreChange()
         }
     }
 }
@@ -30,9 +28,11 @@ class ExternalStore {
  * 一个强制更新组件的方法
  */
 function useUpdate() {
-    useSyncExternalStore(ExternalStore.subscribe, ExternalStore.getSnapshot)
+    const [externalStore] = useState(() => new ExternalStore())
 
-    return ExternalStore.update
+    useSyncExternalStore(externalStore.subscribe, externalStore.getSnapshot)
+
+    return externalStore.update
 }
 
 /**
