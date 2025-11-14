@@ -1,11 +1,12 @@
-import {useMemo, useEffect, useCallback, FC, ComponentClass} from 'react'
+import { useEffect, useCallback, FC, ComponentClass, useState} from 'react'
 import {ReactiveOptions, ReactorOptions, Fn} from '../..'
 import {allocateReact} from './allocateReact'
-import {createReactFunctionComponent, useRenderEffect} from './functionComponent'
+import {createReactFunctionComponent} from './functionComponent'
 import {defineAction} from '../core'
 import {createReactClassComponent} from './classComponent'
 import {autorun, reactor} from '../api'
 import {allocateTargets} from '../core/allocateTargets'
+import {useRenderEffect} from './useRenderEffect'
 
 export function reactiveComponent<T extends object>(target: T): T
 export function reactiveComponent(): <T extends object>(target: T) => T
@@ -46,10 +47,10 @@ reactiveClass.deep = (target: ComponentClass) => createReactClassComponent(targe
 export function useReactive<T extends object>(initialValue: () => T, options?: ReactiveOptions): T
 export function useReactive<T extends object>(initialValue: T, options?: ReactiveOptions): T
 export function useReactive(initialValue: any, options?: ReactiveOptions) {
-    return useMemo(() => {
+    return useState(() => {
         const target = typeof initialValue === 'function' ? initialValue() : initialValue
         return allocateTargets(target, options)
-    }, [])
+    })[0]
 }
 
 export function useAutorun(fn: () => void) {

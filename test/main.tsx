@@ -2,7 +2,7 @@ import React, {useTransition, startTransition, useState, useMemo, useEffect, FC,
 import {createRoot} from 'react-dom/client'
 import {AsyncChip, Chip, RC} from '../src/react'
 import {Effect, reactive} from '../src'
-import {logPrefix} from '../src/utils/logHandler'
+import {logPrefix} from '../src/utils/logHelper'
 
 @reactive
 class AStore {

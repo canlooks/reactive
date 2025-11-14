@@ -1,4 +1,11 @@
-const str = null
+const obj = {
+    a: {
+        b: 1
+    }
+}
 
-// @ts-ignore
-console.log(typeof str.default)
+const proxy = new Proxy(structuredClone(obj), {})
+
+proxy.a.b = 2
+
+console.log(obj)

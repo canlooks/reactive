@@ -1,6 +1,6 @@
 import {ReactiveOptions} from '../..'
 import {isClass} from '../utils'
-import {logPrefix} from '../utils/logHandler'
+import {logPrefix} from '../utils/logHelper'
 import {implementDecorator} from './decoratorHelper'
 import {distributeProperties} from './distributeProperties'
 import {Proxyable} from './proxy'

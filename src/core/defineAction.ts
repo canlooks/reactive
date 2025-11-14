@@ -1,6 +1,5 @@
 import {Fn} from '../..'
-import {isPromise} from '../utils'
-import {printError} from '../utils/logHandler'
+import {isPromise, printError} from '../utils'
 import {Batch} from './batch'
 
 /**

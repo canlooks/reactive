@@ -1,5 +1,5 @@
 import {createElement, memo, ReactNode, useEffect, useState} from 'react'
-import {useRenderEffect} from './functionComponent'
+import {useRenderEffect} from './useRenderEffect'
 
 /**
  * ----------------------------------------------------------------------------------------

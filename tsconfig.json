@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
-    "moduleResolution": "Node10",
+    "moduleResolution": "node",
     "importHelpers": true,
     "esModuleInterop": true,
     "jsx": "react-jsx",
@@ -12,6 +12,6 @@
     "noImplicitOverride": true
   },
   "include": [
-    "src/**/*.ts"
+    "src/**/*"
   ]
 }

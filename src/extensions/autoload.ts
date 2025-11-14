@@ -2,7 +2,7 @@ import {ReactiveOptions} from '../..'
 import {allocateTargets} from '../core/allocateTargets'
 import {defineLoading} from './loading'
 
-// 不能将cached属性挂载实例上，否则会导致cached变化触发effect，导致循环调用
+// 不能将cached属性挂载实例上，否则cached变化触发effect，导致循环调用
 const autoLoad_cached = new WeakMap<Autoload, boolean>()
 
 export abstract class Autoload<D = any> {
