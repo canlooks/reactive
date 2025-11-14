@@ -50,7 +50,9 @@ declare namespace ReactiveForReact {
 
     // chip component
 
-    type ChipProps = {children(): ReactNode}
+    type ChipProps = {
+        children(): ReactNode
+    }
 
     const Chip: {
         (props: ChipProps): ReactElement
@@ -64,12 +66,23 @@ declare namespace ReactiveForReact {
      * Avoid triggering updates before component mounted,
      * which may cause `React` throw an error
      */
-    const AsyncChip: typeof Chip
+    interface AsyncChipProps extends ChipProps {
+        fallback?: ReactNode
+    }
+
+    const AsyncChip: {
+        (props: AsyncChipProps): ReactElement
+        Strict: typeof AsyncStrictChip
+    }
+
+    function AsyncStrictChip(props: AsyncChipProps): ReactElement
 
     // chip function
 
     function chip(render: () => ReactNode): ReactElement
     function strictChip(render: () => ReactNode): ReactElement
+    function asyncChip(render: () => ReactNode): ReactElement
+    function asyncStrictChip(render: () => ReactNode): ReactElement
 
     /**
      * ----------------------------------------------------------------------

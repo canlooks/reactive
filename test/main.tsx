@@ -1,40 +1,55 @@
-import React, {ComponentProps, useCallback} from 'react'
+import React, {useTransition} from 'react'
 import {createRoot} from 'react-dom/client'
-import {defineModel, RC, useReactive} from '../src/react'
-import {Model} from '../react'
-import {Autoload, reactive} from '../src'
-
-const WrapInput = (props: ComponentProps<'input'>) => <input {...props}/>
-
-const InputModel = defineModel(WrapInput)
+import {AsyncChip, Chip, RC} from '../src/react'
+import {reactive} from '../src'
 
 @reactive
-class TestStore extends Autoload {
-    async loadData() {
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        return 'ok'
-    }
-
-    onLoad() {
-        console.log('onLoad', this.data)
-    }
+class AStore {
+    static a?: number
+    static b = 2
 }
 
-const t = new TestStore()
-
 const App = RC(() => {
-    const state = useReactive({
-        data: 'hello'
-    })
+    const [loading, load] = useTransition()
+
+    const onClick = async () => {
+        load(() => {
+            AStore.a = 1
+            setTimeout(() => {
+                AStore.b = 3
+            }, 1)
+        })
+    }
 
     return (
         <>
-            <h1>{state.data}</h1>
-            <h2>{t.data}</h2>
-            <Model refer={() => state.data}>
-                <WrapInput type="number"/>
-            </Model>
-            <InputModel refer={useCallback(() => state.data, [])} placeholder="test"/>
+            <h1>Hello World!</h1>
+            <button onClick={onClick}>button</button>
+            {!AStore.a
+                ? <h1>Placeholder</h1>
+                : <>
+                    {loading
+                        ? <h2>Loading...</h2>
+                        : <Child/>
+                    }
+                </>
+            }
+        </>
+    )
+})
+
+const Child = RC(() => {
+    return (
+        <>
+            <h2>This is Child: {AStore.a} {AStore.b}</h2>
+            <AsyncChip.Strict fallback="falling">{() =>
+                Array(10_000).fill(void 0).map((_, i) =>
+                    <span key={i}>{i * AStore.b}</span>
+                )
+            }</AsyncChip.Strict>
+            {/*{Array(10_000).fill(void 0).map((_, i) =>*/}
+            {/*    <span key={i}>{i * AStore.b}</span>*/}
+            {/*)}*/}
         </>
     )
 })

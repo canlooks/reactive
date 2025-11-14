@@ -1,6 +1,6 @@
 {
   "name": "@canlooks/reactive",
-  "version": "4.4.1",
+  "version": "4.4.3",
   "author": "C.CanLiang <canlooks@gmail.com>",
   "description": "A react tool for responding data and managing state.",
   "keywords": [
@@ -62,6 +62,8 @@
     "@types/react": "^19.1.11",
     "@types/react-dom": "^19.1.8",
     "localforage": "^1.10.0",
+    "mobx": "^6.15.0",
+    "mobx-react": "^9.2.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "typescript": "^5.9.2",
