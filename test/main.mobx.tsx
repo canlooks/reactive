@@ -1,8 +1,6 @@
-import React, {useDeferredValue, useTransition} from 'react'
+import React, {useTransition, useDeferredValue} from 'react'
 import {createRoot} from 'react-dom/client'
-import {RC} from '../src/react'
-import {reactive} from '../src'
-import {makeAutoObservable, action} from 'mobx'
+import {makeAutoObservable, observable} from 'mobx'
 import {observer} from 'mobx-react'
 
 class AStore {
@@ -17,48 +15,38 @@ class AStore {
 const aStore = new AStore()
 
 const App = observer(() => {
-    const [loading, load] = useTransition()
-
-    const setA = action(() => {
+    const onClick1 = () => {
         aStore.a = 1
-    })
-
-    const setB = action(() => {
-        aStore.b = 3
-    })
-
-    const onClick = async () => {
-        load(() => {
-            setA()
-            // setTimeout(() => {
-                setB()
-            // }, 1)
-        })
+        setTimeout(() => {
+            aStore.b++
+        }, 1)
     }
+
+    const deferredA = useDeferredValue(aStore.a)
 
     return (
         <>
             <h1>Hello World!</h1>
-            <button onClick={onClick}>button</button>
+            <button onClick={onClick1}>button</button>
             {!aStore.a
                 ? <h1>Placeholder</h1>
-                : loading
-                    ? <h2>Loading...</h2>
+                : aStore.a && !deferredA
+                    ? <h1>Loading...</h1>
                     : <Child/>
             }
         </>
     )
 })
 
-const Child = RC(() => {
+const Child = observer(() => {
     return (
         <>
             <h2>This is Child: {aStore.a} {aStore.b}</h2>
-            {/*<Chip.Strict>{() =>*/}
+            {/*<AsyncChip.Strict fallback="falling">{() =>*/}
             {/*    Array(10_000).fill(void 0).map((_, i) =>*/}
-            {/*        <span key={i}>{i * AStore.n}</span>*/}
+            {/*        <span key={i}>{i * aStore.b}</span>*/}
             {/*    )*/}
-            {/*}</Chip.Strict>*/}
+            {/*}</AsyncChip.Strict>*/}
             {Array(10_000).fill(void 0).map((_, i) =>
                 <span key={i}>{i * aStore.b}</span>
             )}

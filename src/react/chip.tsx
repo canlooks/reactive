@@ -15,7 +15,7 @@ export const Chip = (props: {
 export const StrictChip = memo((props: {
     children(): ReactNode
 }) => {
-    return useRenderEffect(props.children, true)
+    return useRenderEffect(props.children)
 }, () => true)
 
 Chip.Strict = StrictChip

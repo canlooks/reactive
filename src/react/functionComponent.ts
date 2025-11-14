@@ -1,7 +1,7 @@
-import {FC, forwardRef, memo, useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react'
+import {FC, forwardRef, memo, useEffect, useMemo, useRef, useSyncExternalStore} from 'react'
 import {Effect, Proxyable} from '../core'
 import {assignProps} from '../utils'
-import {logPrefix} from '../utils/logHandler'
+import {Fn} from '../../index'
 
 export function createReactFunctionComponent<P extends object>(target: FC<P>, isForwardedRef?: boolean) {
     const namedComponent = {
@@ -27,18 +27,15 @@ export function createReactFunctionComponent<P extends object>(target: FC<P>, is
 }
 
 /**
- * 用于触发渲染副作用
+ * 渲染副作用
  * @param render
- * @param force 若为true，则会绕过skipRender，强制刷新
  */
-export function useRenderEffect<T>(render: () => T, force?: boolean) {
+export function useRenderEffect<T>(render: () => T) {
     const update = useUpdate()
 
     const effect = useMemo(() => {
         return new Effect(({skipRender}) => {
-            // force与skipRender同时为true，表示props属性改变触发的chip更新，会导致react报错
-            force && skipRender && console.error(logPrefix + 'Don\'t wrap "props" in <Chip.Strict>, use <Chip> instead.')
-            if (force || !skipRender) {
+            if (!skipRender) {
                 update()
             }
         })
@@ -52,15 +49,34 @@ export function useRenderEffect<T>(render: () => T, force?: boolean) {
 }
 
 /**
- * 得到一个可以刷新组件的方法
+ * 获得一个强制更新组件的方法
  */
 function useUpdate() {
-    const mounted = useRef(false)
+    useSyncExternalStore(ExternalStore.subscribe, ExternalStore.getSnapshot)
 
-    useLayoutEffect(() => {
-        mounted.current = true
-    }, [])
+    return ExternalStore.update
+}
 
-    const [, setState] = useState<symbol>()
-    return () => mounted.current && setState(Symbol())
+class ExternalStore {
+    static listeners = new Set<Fn>()
+
+    static subscribe(listener: Fn) {
+        ExternalStore.listeners.add(listener)
+        return () => {
+            ExternalStore.listeners.delete(listener)
+        }
+    }
+
+    static snapshot = Symbol()
+
+    static getSnapshot() {
+        return ExternalStore.snapshot
+    }
+
+    static update() {
+        ExternalStore.snapshot = Symbol()
+        for (const listener of ExternalStore.listeners) {
+            listener()
+        }
+    }
 }
