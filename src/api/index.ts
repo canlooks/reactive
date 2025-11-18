@@ -1,24 +1,26 @@
-import {Fn, ReactorOptions} from '../..'
+import {Fn, ReactiveOptions, ReactorOptions} from '../..'
 import {defineAction, Effect} from '../core'
-import {allocateTargets} from '../core/allocateTargets'
+import {allocateTargets, targetIsClass, targetIsObject} from '../core/allocateTargets'
 
-export function reactive<T extends object>(target: T): T
-export function reactive(): <T extends object>(target: T) => T
-export function reactive(a?: any) {
+export function reactive(a?: any, options?: ReactiveOptions) {
     return a
-        ? allocateTargets(a)
-        : (target: object) => allocateTargets(target)
+        ? allocateTargets(a, options)
+        : (target: any) => allocateTargets(target, options)
 }
 
-reactive.deep = deep
-
-function deep<T extends object>(target: T): T
-function deep(): <T extends object>(target: T) => T
-function deep(a?: any) {
+export function reactiveClass(a?: any, options?: ReactiveOptions) {
     return a
-        ? allocateTargets(a, {deep: true})
-        : (target: object) => allocateTargets(target, {deep: true})
+        ? targetIsClass(a, options)
+        : (target: any) => targetIsClass(target, options)
 }
+
+export function reactiveObject(target: any, options?: ReactiveOptions) {
+    return targetIsObject(target, options)
+}
+
+reactive.deep = (a?: any) => reactive(a, {deep: true})
+reactiveClass.deep = (a?: any) => reactiveClass(a, {deep: true})
+reactiveObject.deep = (a?: any) => reactiveObject(a, {deep: true})
 
 export function reactor<T>(refer: () => T, effect: (newValue: T, oldValue?: T) => void, options?: ReactorOptions) {
     let calledOnce = false

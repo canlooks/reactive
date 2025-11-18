@@ -1,5 +1,5 @@
 import {reactor} from '../api'
-import {allocateTargets} from '../core/allocateTargets'
+import {targetIsClass} from '../core/allocateTargets'
 import {Autoload} from '../extensions'
 import localforage from 'localforage'
 import {ReactiveOptions} from '../..'
@@ -22,7 +22,7 @@ export class Forage<D = any> extends Autoload<D> {
 }
 
 export function defineForage<D = any>(name: string, initialValue?: D, options?: ReactiveOptions) {
-    const Allocated = allocateTargets(
+    const Allocated = targetIsClass(
         class extends Forage<D> {
             constructor() {
                 super(name, initialValue)

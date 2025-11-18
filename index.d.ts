@@ -3,15 +3,15 @@ declare namespace Reactive {
     type Obj<T = any> = {[P in PropertyKey]: T}
     type ClassType<T = any, A = any> = new (...args: A[]) => T
 
-    type ClassDecorator = <T extends Function>(target: T) => T
     type ReactiveOverload = {
-        <T extends object>(target: T): T
-        (): ClassDecorator
-    }
-
-    const reactive: ReactiveOverload & {
+        <T extends object>(target: T, options?: ReactiveOptions): T
+        (): <T extends Function>(target: T) => T
         deep: ReactiveOverload
     }
+
+    const reactive: ReactiveOverload
+    const reactiveClass: ReactiveOverload
+    const reactiveObject: ReactiveOverload
 
     type ReactiveOptions = {
         deep?: boolean

@@ -4,7 +4,7 @@ export function isClass(fn: Function | ClassType): fn is ClassType {
     if (fn.prototype?.constructor !== fn) {
         return false
     }
-    return /^class/.test(fn.toString())
+    return Function.prototype.toString.call(fn).startsWith('class')
 }
 
 /**

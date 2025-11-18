@@ -1,6 +1,6 @@
 import {ReactiveOptions} from '../..'
 import {isClass} from '../utils'
-import {logPrefix} from '../utils/logHelper'
+import {logPrefix} from '../utils'
 import {implementDecorator} from './decoratorHelper'
 import {distributeProperties} from './distributeProperties'
 import {Proxyable} from './proxy'
@@ -13,23 +13,30 @@ import {Proxyable} from './proxy'
 export function allocateTargets(target: any, options?: ReactiveOptions) {
     if (typeof target === 'function') {
         if (isClass(target)) {
-            // target is a class
-            const {proxy: ProxyClass} = distributeProperties(new Proxyable(target, options))
-            return {
-                [target.name]: class extends ProxyClass {
-                    constructor(...args: any[]) {
-                        super(...args)
-                        const proxyable = distributeProperties(new Proxyable(this, options), ProxyClass.prototype)
-                        implementDecorator(ProxyClass.prototype, proxyable)
-                        return proxyable.proxy
-                    }
-                }
-            }[target.name]
+            return targetIsClass(target)
         }
+        throw TypeError(logPrefix + '"function" cannot pass in "reactive()". if it is "class", use "reactiveClass()" instead.')
     }
     if (typeof target === 'object' && target !== null) {
-        const {proxy} = distributeProperties(new Proxyable(target, options))
-        return proxy
+        return targetIsObject(target, options)
     }
-    throw TypeError(logPrefix + 'Invalid parameter at "reactive()"')
+    throw TypeError(logPrefix + 'Invalid parameter of "reactive()"')
+}
+
+export function targetIsClass(target: any, options?: ReactiveOptions) {
+    const {proxy: ProxyClass} = distributeProperties(new Proxyable(target, options))
+    return {
+        [target.name]: class extends ProxyClass {
+            constructor(...args: any[]) {
+                super(...args)
+                const proxyable = distributeProperties(new Proxyable(this, options), ProxyClass.prototype)
+                implementDecorator(ProxyClass.prototype, proxyable)
+                return proxyable.proxy
+            }
+        }
+    }[target.name]
+}
+
+export function targetIsObject(target: any, options?: ReactiveOptions) {
+    return distributeProperties(new Proxyable(target, options)).proxy
 }

@@ -1,5 +1,5 @@
 import {ReactiveOptions} from '../..'
-import {allocateTargets} from '../core/allocateTargets'
+import {targetIsClass} from '../core/allocateTargets'
 import {defineLoading} from './loading'
 
 // 不能将cached属性挂载实例上，否则cached变化触发effect，导致循环调用
@@ -44,8 +44,8 @@ export abstract class Autoload<D = any> {
     })
 }
 
-export function defineAutoload<D = any>(loadData: (...args: any[]) => D | Promise<D>, options?: ReactiveOptions): Autoload<D> {
-    const Allocated = allocateTargets(
+export function defineAutoload<D = any>(loadData: (...args: any[]) => D | Promise<D>, options?: ReactiveOptions) {
+    const Allocated = targetIsClass(
         class extends Autoload<D> {
             loadData = loadData
         },
