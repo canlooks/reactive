@@ -70,7 +70,7 @@ declare namespace Reactive {
 
     type StorageEngine<T> = {
         setItem(key: string, value: T): void
-        getItem(key: string): T | undefined
+        getItem(key: string): T | undefined | null
         removeItem(key: string): void
     }
 
@@ -85,6 +85,25 @@ declare namespace Reactive {
     }
 
     function defineStorage<T extends object>(name: string, initialValues?: T, options?: StorageOptions): T
+
+    /**
+     * ----------------------------------------------------------------------
+     * extensions - async storage
+     */
+
+    type AsyncStorageEngine<T> = {
+        setItem(key: string, value: T): | Promise<void>
+        getItem(key: string): Promise<T | undefined | null>
+        removeItem(key: string): Promise<void>
+    }
+
+    function registerAsyncStorageEngine<T = any>(engine: AsyncStorageEngine<T> | undefined): void
+
+    interface AsyncStorageOptions extends ReactiveOptions {
+        debounce?: number
+    }
+
+    function defineAsyncStorage<T extends object>(name: string, initialValues?: T, options?: AsyncStorageOptions): Promise<T>
 }
 
 export = Reactive

@@ -43,5 +43,6 @@ export function defineStorage<T extends object>(name: string, initialValues?: T,
         onDeleteProperty: handler,
         deep: options.deep
     })
+
     return proxy
 }

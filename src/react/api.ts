@@ -33,11 +33,11 @@ export function reactiveFC(target: FC) {
     return createReactFunctionComponent(target)
 }
 
-export function reactiveClass(target: ComponentClass) {
+export function reactiveClassComponent(target: ComponentClass) {
     return createReactClassComponent(target)
 }
 
-reactiveClass.deep = (target: ComponentClass) => createReactClassComponent(target, {deep: true})
+reactiveClassComponent.deep = (target: ComponentClass) => createReactClassComponent(target, {deep: true})
 
 /**
  * --------------------------------------------------------------------

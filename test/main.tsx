@@ -1,10 +1,10 @@
 import React, {useTransition, startTransition, useState, useMemo, useEffect, FC, memo, useRef, useLayoutEffect, useDeferredValue} from 'react'
 import {createRoot} from 'react-dom/client'
 import {AsyncChip, Chip, RC} from '../src/react'
-import {Effect, reactive} from '../src'
+import {Effect, reactive, reactiveClass} from '../src'
 import {logPrefix} from '../src/utils/logHelper'
 
-@reactive
+@reactiveClass.deep
 class AStore {
     static a?: number
     static b = 2

@@ -1,4 +1,4 @@
-import {ReactiveOptions} from '../..'
+import {ClassType, ReactiveOptions} from '../..'
 import {isClass} from '../utils'
 import {logPrefix} from '../utils'
 import {implementDecorator} from './decoratorHelper'
@@ -23,7 +23,7 @@ export function allocateTargets(target: any, options?: ReactiveOptions) {
     throw TypeError(logPrefix + 'Invalid parameter of "reactive()"')
 }
 
-export function targetIsClass(target: any, options?: ReactiveOptions) {
+export function targetIsClass<T extends ClassType>(target: T, options?: ReactiveOptions): T {
     const {proxy: ProxyClass} = distributeProperties(new Proxyable(target, options))
     return {
         [target.name]: class extends ProxyClass {
@@ -37,6 +37,6 @@ export function targetIsClass(target: any, options?: ReactiveOptions) {
     }[target.name]
 }
 
-export function targetIsObject(target: any, options?: ReactiveOptions) {
+export function targetIsObject<T extends object>(target: T, options?: ReactiveOptions): T {
     return distributeProperties(new Proxyable(target, options)).proxy
 }

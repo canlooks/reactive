@@ -21,7 +21,7 @@ export class Forage<D = any> extends Autoload<D> {
     }
 }
 
-export function defineForage<D = any>(name: string, initialValue?: D, options?: ReactiveOptions) {
+export function defineForage<D = any>(name: string, initialValue?: D, options?: ReactiveOptions): Forage<D> {
     const Allocated = targetIsClass(
         class extends Forage<D> {
             constructor() {

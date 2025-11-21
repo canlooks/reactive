@@ -1,3 +1,4 @@
+export * from './asyncStorage'
 export * from './autoload'
 export * from './loading'
 export * from './storage'

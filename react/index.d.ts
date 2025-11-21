@@ -11,7 +11,7 @@ declare namespace ReactiveForReact {
         deep: ReactiveOverload
     }
 
-    // alias for reactiveComponent
+    /** @alias {@link reactiveComponent} */
     const RC: typeof reactiveComponent
 
     /**
@@ -21,10 +21,10 @@ declare namespace ReactiveForReact {
 
     function reactiveFC<T extends FC>(target: T): T
 
-    type ReactiveClass = <T extends ComponentClass>(target: T) => T
+    type ReactiveClassComponent = <T extends ComponentClass>(target: T) => T
 
-    const reactiveClass: ReactiveClass & {
-        deep: ReactiveClass
+    const reactiveClassComponent: ReactiveClassComponent & {
+        deep: ReactiveClassComponent
     }
 
     /**
