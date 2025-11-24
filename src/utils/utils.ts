@@ -20,7 +20,8 @@ export function isMapOrSet(target: any): target is Map<any, any> | Set<any> | We
  * @param o
  */
 export function getAllPropertyDescriptors(o: any): {[p: PropertyKey]: PropertyDescriptor} {
-    const {constructor, ...desc} = Object.getOwnPropertyDescriptors(o)
+    // 排除可能存在的原生属性
+    const {constructor, caller, arguments: _, ...desc} = Object.getOwnPropertyDescriptors(o)
     const prototype = Object.getPrototypeOf(o)
     if (prototype !== Object.prototype && prototype !== Array.prototype && prototype !== Function.prototype) {
         return {
