@@ -1,6 +1,6 @@
 {
   "name": "@canlooks/reactive",
-  "version": "4.7.2",
+  "version": "4.7.3",
   "author": "C.CanLiang <canlooks@gmail.com>",
   "description": "A react tool for responding data and managing state.",
   "keywords": [
@@ -22,13 +22,13 @@
     },
     "./react": {
       "types": "./react/index.d.ts",
-      "import": "./react/index.js",
-      "require": "./react/index.cjs"
+      "import": "./react/index.mjs",
+      "require": "./react/index.js"
     },
     "./forage": {
       "types": "./forage/index.d.ts",
-      "import": "./forage/index.js",
-      "require": "./forage/index.cjs"
+      "import": "./forage/index.mjs",
+      "require": "./forage/index.js"
     }
   },
   "publishConfig": {
