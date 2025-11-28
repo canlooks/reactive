@@ -29,9 +29,9 @@ export abstract class Autoload<D = any> {
 
     onLoad?(): void
 
-    update = defineLoading(function (this: any) {
+    update = defineLoading(function (this) {
         return this.loading
-    }, async function (this: any, ...args: any) {
+    }, async function (this, ...args) {
         autoLoad_cached.set(this, true)
         try {
             this._data = await this.loadData(...args)

@@ -1,63 +1,63 @@
-import React, {useTransition, startTransition, useState, useMemo, useEffect, FC, memo, useRef, useLayoutEffect, useDeferredValue} from 'react'
+import React, {useDeferredValue} from 'react'
 import {createRoot} from 'react-dom/client'
-import {AsyncChip, Chip, RC} from '../src/react'
-import {Effect, reactive, reactiveClass} from '../src'
-import {logPrefix} from '../src/utils/logHelper'
+import {Autoload, loading, reactive} from '../src'
+import {RC, useReactive, useReactor} from '../src/react'
 
-@reactiveClass.deep
-class AStore {
-    static a?: number
-    static b = 2
-    static c = 123
+@reactive
+class TestStore extends Autoload {
+    loadData() {
+        return new Promise(resolve => setTimeout(() => resolve(123), 1000))
+    }
+
+    get double() {
+        return this.data && this.data * 2
+    }
+
+    showChild = false
+    multiple = 1
 }
 
-const App = RC(() => {
-    const onClick1 = async () => {
-        AStore.a = 1
-        // setTimeout(() => {
-        //     AStore.b++
-        // }, 1)
+const testStore = new TestStore()
+
+const App = RC(function App() {
+    const state = useReactive({
+        get many() {
+            return testStore.double && testStore.double * 3
+        }
+    })
+
+    console.log('app')
+    const onClick = () => {
+        testStore.showChild = true
+        setTimeout(() => {
+            testStore.multiple++
+        }, 1)
     }
 
-    const deferredA = useDeferredValue(AStore.a)
+    const deferredShowChild = useDeferredValue(testStore.showChild)
 
-    const onClick2 = () => {
-        AStore.c++
-    }
+    useReactor(() => state.many, () => {
+        console.log(state.many)
+    })
 
     return (
         <>
-            <h1>Hello World!</h1>
-            <button onClick={onClick1}>button1</button>
-            <button onClick={onClick2}>button2</button>
-            {!AStore.a
-                ? <h1>Placeholder</h1>
-                    : AStore.a && !deferredA
-                        ? <h1>Loading...</h1>
-                        : <Child c={AStore.c}/>
+            <h1>Hello {testStore.data} {state.many}</h1>
+            <button onClick={onClick}>button</button>
+            {testStore.loading &&
+                <h2>Loading...</h2>
+            }
+            {deferredShowChild &&
+                <Child/>
             }
         </>
     )
 })
 
-const Child = RC((props: {
-    c: number
-}) => {
-    return (
-        <>
-            <h2>This is Child: {AStore.a} {AStore.b}</h2>
-            {/*<AsyncChip.Strict fallback="falling">{() =>*/}
-            {/*    Array(10_000).fill(void 0).map((_, i) =>*/}
-            {/*        <span key={i}>{i * AStore.b}</span>*/}
-            {/*    )*/}
-            {/*}</AsyncChip.Strict>*/}
-            {Array(10_000).fill(void 0).map((_, i) =>
-                <span key={i}>{i * AStore.b}</span>
-            )}
-            <Chip>{() =>
-                <h3>{props.c}</h3>
-            }</Chip>
-        </>
+const Child = RC(function Child() {
+    console.log('Child')
+    return Array(10_000).fill(void 0).map((_, i) =>
+        <div key={i}>{i * testStore.multiple}</div>
     )
 })
 

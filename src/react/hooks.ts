@@ -1,4 +1,4 @@
-import {RefObject, useEffect, useRef} from 'react'
+import {RefObject, useEffect, useRef, useState} from 'react'
 
 /**
  * 组件卸载后得到{current: true}
@@ -6,9 +6,9 @@ import {RefObject, useEffect, useRef} from 'react'
 export function useUnmounted() {
     const isUnmounted = useRef(false)
 
-    useEffect(() => () => {
+    useExternalClass(() => void 0, () => {
         isUnmounted.current = true
-    }, [])
+    })
 
     return isUnmounted
 }
@@ -20,4 +20,22 @@ export function useSync<T>(value: T): RefObject<T> {
     const sync = useRef<T>(value)
     sync.current = value
     return sync
+}
+
+/**
+ * 使用外部类，该方法可避免`StrictMode`下，React渲染行为与外部类实例生命周期不同步的问题
+ */
+export function useExternalClass<T>(setup: () => T, cleanup: (instance: T) => void): T {
+    const mountTimes = useRef(0)
+
+    const [instance] = useState(() => {
+        mountTimes.current++
+        return setup()
+    })
+
+    useEffect(() => () => {
+        !--mountTimes.current && cleanup(instance)
+    }, [])
+
+    return instance
 }

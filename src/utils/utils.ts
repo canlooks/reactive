@@ -73,18 +73,6 @@ export function isPromise<T>(it: any): it is Promise<T> {
 }
 
 /**
- * 获取promise的状态
- * @param promise
- */
-export function getPromiseState(promise: Promise<any>): Promise<'pending' | 'fulfilled' | 'rejected'>
-export function getPromiseState(promise: Promise<any>) {
-    const s = Symbol()
-    return Promise.race([promise, s]).then(res => {
-        return res === s ? 'pending' : 'fulfilled'
-    }).catch(() => 'rejected')
-}
-
-/**
  * 从onChange回调中获取值
  * @param e
  * @param prevValue 传入当前的值作为参考

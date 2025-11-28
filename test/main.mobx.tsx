@@ -1,56 +1,55 @@
-import React, {useTransition, useDeferredValue} from 'react'
+import React, {useDeferredValue} from 'react'
 import {createRoot} from 'react-dom/client'
-import {makeAutoObservable, observable} from 'mobx'
-import {observer} from 'mobx-react'
+import {Autoload, loading, reactive} from '../src'
+import {makeAutoObservable} from 'mobx'
+import {observer} from './mobx-react-lite'
 
-class AStore {
-    a?: number
-    b = 2
-
+class TestStore {
     constructor() {
         makeAutoObservable(this)
     }
+
+    async loadData() {
+        console.log('loadData')
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        return 'World'
+    }
+
+    showChild = false
+    multiple = 1
 }
 
-const aStore = new AStore()
+const testStore = new TestStore()
 
-const App = observer(() => {
-    const onClick1 = () => {
-        aStore.a = 1
+const App = observer(function App() {
+    console.log('app')
+    const onClick = () => {
+        testStore.showChild = true
         setTimeout(() => {
-            aStore.b++
+            testStore.multiple++
         }, 1)
     }
 
-    const deferredA = useDeferredValue(aStore.a)
+    const deferredShowChild = useDeferredValue(testStore.showChild)
 
     return (
         <>
-            <h1>Hello World!</h1>
-            <button onClick={onClick1}>button</button>
-            {!aStore.a
-                ? <h1>Placeholder</h1>
-                : aStore.a && !deferredA
-                    ? <h1>Loading...</h1>
-                    : <Child/>
+            {/*<h1>Hello {testStore.data}</h1>*/}
+            <button onClick={onClick}>button</button>
+            {/*{testStore.loading &&*/}
+            {/*    <h2>Loading...</h2>*/}
+            {/*}*/}
+            {deferredShowChild &&
+                <Child/>
             }
         </>
     )
 })
 
-const Child = observer(() => {
-    return (
-        <>
-            <h2>This is Child: {aStore.a} {aStore.b}</h2>
-            {/*<AsyncChip.Strict fallback="falling">{() =>*/}
-            {/*    Array(10_000).fill(void 0).map((_, i) =>*/}
-            {/*        <span key={i}>{i * aStore.b}</span>*/}
-            {/*    )*/}
-            {/*}</AsyncChip.Strict>*/}
-            {Array(10_000).fill(void 0).map((_, i) =>
-                <span key={i}>{i * aStore.b}</span>
-            )}
-        </>
+const Child = observer(function Child() {
+    console.log('Child')
+    return Array(10_000).fill(void 0).map((_, i) =>
+        <div key={i}>{i * testStore.multiple}</div>
     )
 })
 

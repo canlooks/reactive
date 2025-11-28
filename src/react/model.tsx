@@ -1,10 +1,10 @@
-import React, {cloneElement, ComponentProps, ComponentType, useCallback, useEffect, useState} from 'react'
+import React, {cloneElement, ComponentProps, ComponentType, useCallback, useState} from 'react'
 import {ReactiveOptions} from '../..'
 import {DefinedModelProps, ModelProps, UseModelReturn} from '../../react'
 import {useRenderEffect} from './useRenderEffect'
 import {Proxyable, TwoWay} from '../core'
 import {getValueOnChange} from '../utils'
-import {useSync} from './hooks'
+import {useExternalClass, useSync} from './hooks'
 
 export function defineModel<P = {}>(Component: ComponentType<P>, postValue?: (...args: any[]) => any): ComponentType<DefinedModelProps<P>> {
     return {
@@ -19,7 +19,7 @@ export function defineModel<P = {}>(Component: ComponentType<P>, postValue?: (..
 }
 
 export const Model = (props: ModelProps) => {
-    const twoWay = useState(() => new TwoWay())[0]
+    const [twoWay] = useState(() => new TwoWay())
 
     const syncPostValue = useSync(props.postValue)
 
@@ -46,23 +46,22 @@ export const Model = (props: ModelProps) => {
 }
 
 export function useModel<V>(initialValue?: V | (() => V), options?: ReactiveOptions): UseModelReturn<V> {
-    const proxyable = useState(() => {
-        const target: UseModelReturn<V> = {
-            value: typeof initialValue === 'function' ? (initialValue as Function)() : initialValue,
-            onChange(e) {
-                if (typeof e === 'function') {
-                    this.value = (e as Function)(this.value)
-                    return
+    const proxyable = useExternalClass(
+        () => {
+            const target: UseModelReturn<V> = {
+                value: typeof initialValue === 'function' ? (initialValue as Function)() : initialValue,
+                onChange(e) {
+                    if (typeof e === 'function') {
+                        this.value = (e as Function)(this.value)
+                        return
+                    }
+                    this.value = getValueOnChange(e, this.value)
                 }
-                this.value = getValueOnChange(e, this.value)
             }
-        }
-        return new Proxyable(target, options)
-    })[0]
-
-    useEffect(() => () => {
-        proxyable!.dispose()
-    }, [])
+            return new Proxyable(target, options)
+        },
+        proxyable => proxyable.dispose()
+    )
 
     return proxyable.proxy
 }
