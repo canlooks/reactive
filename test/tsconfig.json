@@ -7,7 +7,7 @@
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
-    "jsx": "react",
+    "jsx": "react-jsx",
     "moduleResolution": "Node",
     "strict": true,
     "sourceMap": true,
@@ -19,8 +19,7 @@
     "lib": [
       "ESNext",
       "DOM",
-      "DOM.Iterable",
-      "ScriptHost"
+      "DOM.Iterable"
     ]
   }
 }
