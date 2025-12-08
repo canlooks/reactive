@@ -20,6 +20,7 @@ export function defineLoading<F extends Fn<Promise<any>>, A>(refer: (this: any, 
     return {
         [fn.name]: async function (this: any, ...args: A[]) {
             twoWay.refer(() => refer.apply(this, args))
+
             const setState = (dir: 1 | -1) => {
                 const prevState = twoWay.getValue()
                 if (typeof prevState === 'number') {
@@ -30,6 +31,7 @@ export function defineLoading<F extends Fn<Promise<any>>, A>(refer: (this: any, 
                     dir > 0 ? twoWay.putIn(true) : twoWay.tackOut(false)
                 }
             }
+
             try {
                 setState(1)
                 return await fn?.apply(this, args)

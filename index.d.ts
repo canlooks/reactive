@@ -52,16 +52,16 @@ declare namespace Reactive {
      * extensions - autoload
      */
 
-    abstract class Autoload<D = any, A = any> {
+    abstract class Autoload<DATA = any, ARGUMENT = any> {
         loading: boolean
-        data: D | undefined
-        setData(v: D | undefined): void
-        abstract loadData(...args: A[]): D | undefined | Promise<D | undefined>
+        data: DATA | undefined
+        setData(v: DATA | undefined): void
+        abstract loadData(...args: ARGUMENT[]): DATA | undefined | Promise<DATA | undefined>
         onLoad?(): void
-        update(...args: A[]): Promise<D | undefined>
+        update(...args: ARGUMENT[]): Promise<DATA | undefined>
     }
 
-    function defineAutoload<D = any, A = any>(loadData: (...args: A[]) => D | Promise<D>, options?: ReactiveOptions): Autoload<D, A>
+    function defineAutoload<DATA = any, ARGUMENT = any>(loadData: (...args: ARGUMENT[]) => DATA | undefined | Promise<DATA | undefined>, options?: ReactiveOptions): Autoload<DATA, ARGUMENT>
 
     /**
      * ----------------------------------------------------------------------

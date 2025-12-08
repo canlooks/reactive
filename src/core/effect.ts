@@ -9,7 +9,8 @@ export type Payload = {
 }
 
 type EffectOptions = {
-    sync?: boolean
+    /** 是否强制同步触发副作用 */
+    forceSync?: boolean
 }
 
 export class Effect extends Disposable {
@@ -21,7 +22,7 @@ export class Effect extends Disposable {
 
     /**
      * 执行参考函数
-     * @param refer 
+     * @param refer
      */
     refer<T>(refer: () => T): T {
         try {
@@ -34,10 +35,10 @@ export class Effect extends Disposable {
 
     /**
      * 触发副作用
-     * @param payload 
+     * @param payload
      */
     trigger(payload: Payload) {
-        Batch.batchingStackCount && !this.options?.sync
+        Batch.batchingStackCount && !this.options?.forceSync
             // 处于批处理栈中，且未指定强制同步，加入队列
             ? Batch.addEffect(this, payload)
             // 否则直接执行

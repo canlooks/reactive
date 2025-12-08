@@ -1,18 +1,22 @@
 import {ReactiveOptions} from '../..'
 import {targetIsClass} from '../core/allocateTargets'
 import {defineLoading} from './loading'
+import {nextTick} from '../utils'
 
 // 不能将cached属性挂载实例上，否则cached变化触发effect，导致循环调用
-const autoLoad_cached = new WeakMap<Autoload, boolean>()
+const cached_autoLoad = new WeakSet<Autoload>()
 
-export abstract class Autoload<D = any> {
+export abstract class Autoload<DATA = any, ARGUMENT = any> {
     loading = false
 
-    protected _data: D | undefined
+    protected _data: DATA | undefined
 
     get data() {
-        if (!autoLoad_cached.get(this)) {
-            this.update().then()
+        if (!cached_autoLoad.has(this)) {
+            // 使用nextTick避免loading与该getter绑定
+            nextTick().then(() => {
+                this.update().then()
+            })
         }
         return this._data
     }
@@ -21,24 +25,24 @@ export abstract class Autoload<D = any> {
         this._data = v
     }
 
-    setData(data: D | undefined) {
+    setData(data: DATA | undefined) {
         this._data = data
     }
 
-    abstract loadData(...args: any[]): D | undefined | Promise<D | undefined>
+    abstract loadData(...args: ARGUMENT[]): DATA | undefined | Promise<DATA | undefined>
 
     onLoad?(): void
 
     update = defineLoading(function (this) {
         return this.loading
     }, async function (this, ...args) {
-        autoLoad_cached.set(this, true)
+        cached_autoLoad.add(this)
         try {
             this._data = await this.loadData(...args)
             this.onLoad?.()
             return this._data
         } catch (e) {
-            autoLoad_cached.set(this, false)
+            cached_autoLoad.delete(this)
             throw e
         }
     })

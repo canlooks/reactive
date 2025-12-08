@@ -1,33 +1,32 @@
-import {Fn} from '../..'
 import {Effect} from './effect'
+import {Fn} from '../../index'
 import {Proxyable} from './proxy'
 
-type State = {
-    computedValue?: any
-    effect?: Effect
-    shouldRecompute: boolean
-}
+export class Getter extends Effect {
+    private isMemorized = false
+    private computedValue: any
 
-/**
- * 获得一个自动缓存的计算属性
- * @param get 
- * @param proxyable 
- * @param p
- */
-export function defineGetter<G extends Fn>(get: G, proxyable: Proxyable<any>, p: PropertyKey): G {
-    const state: State = {shouldRecompute: true}
+    constructor(private proxyable: Proxyable<any>, p: PropertyKey) {
+        super(() => {
+            this.isMemorized = false
+            proxyable.trigger(p)
+        }, {forceSync: true})
+    }
 
-    return (() => {
-        if (!state.effect) {
-            state.effect = new Effect(() => {
-                state.shouldRecompute = true
-                proxyable.trigger(p)
-            }, {sync: true})
-        }
-        if (state.shouldRecompute) {
-            state.computedValue = state.effect.refer(() => get.call(proxyable.proxy))
-            state.shouldRecompute = false
-        }
-        return state.computedValue
-    }) as G
+    /**
+     * 定义一个计算属性
+     * @param get
+     */
+    defineGetter<G extends Fn>(get: G): G {
+        return {
+            [get.name]: (() => {
+                if (!this.isMemorized) {
+                    this.computedValue = this.refer(() => get.call(this.proxyable.proxy))
+                    this.isMemorized = true
+                }
+
+                return this.computedValue
+            }) as G
+        }[get.name]
+    }
 }
