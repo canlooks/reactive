@@ -9,10 +9,10 @@ export function registerStorageEngine<T>(engine: StorageEngine<T> | null) {
 }
 
 export function defineStorage<T extends object>(name: string, initialValues?: T, options: StorageOptions = {}) {
-    const engine = storageEngine || window[options.mode || 'localStorage']
+    const engine = storageEngine || (typeof window !== 'undefined' ? window[options.mode || 'localStorage'] : void 0)
 
     const initialize = (): T => {
-        let value = engine.getItem(name)
+        let value = engine?.getItem(name)
         if (value !== null && typeof value !== 'undefined') {
             try {
                 value = JSON.parse(value)
@@ -25,6 +25,9 @@ export function defineStorage<T extends object>(name: string, initialValues?: T,
 
     const _sync = (target: T) => {
         const fn = () => {
+            if (!engine) {
+                throw Error('No storage engine found. If your environment is not a browser, Please call "registerStorageEngine()" first.')
+            }
             engine.setItem(name, JSON.stringify(target))
         }
         options.async !== false ? nextTick(fn) : fn()
