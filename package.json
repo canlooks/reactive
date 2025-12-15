@@ -1,6 +1,6 @@
 {
   "name": "@canlooks/reactive",
-  "version": "4.7.8",
+  "version": "4.7.9",
   "author": "C.CanLiang <canlooks@gmail.com>",
   "description": "A react tool for responding data and managing state.",
   "keywords": [
@@ -48,7 +48,8 @@
   "scripts": {
     "clean": "npx shx rm -rf dist",
     "build": "tsc -m esnext --outDir dist/esm & tsc -m commonjs --outDir dist/cjs",
-    "rebuild": "npm run clean && npm run build",
+    "build:resolvePaths": "tsc-alias --outDir dist/esm",
+    "rebuild": "npm run clean && npm run build && npm run build:resolvePaths",
     "test:browser": "vite -c test/vite.config.mts",
     "test:unit": "npx ts-node test/unit.ts",
     "test:js": "node test/index.js"
@@ -66,6 +67,7 @@
     "mobx-react": "^9.2.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "tsc-alias": "^1.8.16",
     "typescript": "^5.9.3",
     "vite": "^7.2.2"
   }
