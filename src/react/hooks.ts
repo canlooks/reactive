@@ -25,16 +25,19 @@ export function useSync<T>(value: T): RefObject<T> {
 /**
  * 使用外部类，该方法可避免`StrictMode`下，React渲染行为与外部类实例生命周期不同步的问题
  */
-export function useExternalClass<T>(setup: () => T, cleanup: (instance: T) => void): T {
+export function useExternalClass<T>(setup: () => T, cleanup?: (instance: T) => void): T {
     const mountTimes = useRef(0)
+    const prevInstance = useRef<T>(void 0)
 
     const [instance] = useState(() => {
-        mountTimes.current++
-        return setup()
+        if (!mountTimes.current++) {
+            prevInstance.current = setup()
+        }
+        return prevInstance.current as T
     })
 
     useEffect(() => () => {
-        !--mountTimes.current && cleanup(instance)
+        !--mountTimes.current && cleanup?.(instance)
     }, [])
 
     return instance

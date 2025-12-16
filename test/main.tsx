@@ -1,34 +1,21 @@
-import React, {useDeferredValue} from 'react'
+import React, {StrictMode, useDeferredValue, useEffect, useRef, useState} from 'react'
 import {createRoot} from 'react-dom/client'
 import {Autoload, loading, reactive} from '../src'
 import {RC, useReactive, useReactor} from '../src/react'
+import {useExternalClass} from '../src/react/hooks'
 
 const App = RC(() => {
     const state = useReactive({
-        formValues: {
-            mappings: [] as {
-                id: number
-                name: string
-            }[]
-        }
-    }, {deep: true})
+        id: 0
+    })
 
     return (
-        <>
-            <h1>Hello</h1>
-            <button
-                onClick={() => state.formValues.mappings.push({
-                    id: 1,
-                    name: ''
-                })}
-            >
-                button
-            </button>
-            {state.formValues.mappings.map(v =>
-                <input key={v.id} value={v.name}/>
-            )}
-        </>
+        <h1 onClick={() => state.id++}>Test StrictMode: {state.id}</h1>
     )
 })
 
-createRoot(document.getElementById('app')!).render(<App/>)
+createRoot(document.getElementById('app')!).render(
+    <StrictMode>
+        <App/>
+    </StrictMode>
+)
