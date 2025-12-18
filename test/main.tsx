@@ -1,16 +1,20 @@
-import React, {StrictMode, useDeferredValue, useEffect, useRef, useState} from 'react'
+import React, {StrictMode} from 'react'
 import {createRoot} from 'react-dom/client'
-import {Autoload, loading, reactive} from '../src'
-import {RC, useReactive, useReactor} from '../src/react'
-import {useExternalClass} from '../src/react/hooks'
+import {RC, useReactive} from '../src/react'
 
 const App = RC(() => {
     const state = useReactive({
-        id: 0
+        id: 0,
+        get double() {
+            return this.id * 2
+        }
     })
 
     return (
-        <h1 onClick={() => state.id++}>Test StrictMode: {state.id}</h1>
+        <h1 onClick={() => {
+            state.id++
+            console.log(state.id)
+        }}>Test StrictMode: {state.double}</h1>
     )
 })
 

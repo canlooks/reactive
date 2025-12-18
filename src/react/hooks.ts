@@ -31,6 +31,7 @@ export function useSettledValue<T>(value: T | (() => T)): T {
 
     return useState(() => {
         if (!isSettled.current) {
+            isSettled.current = true
             settledValue.current = typeof value === 'function' ? (value as Function)() : value
         }
         return settledValue.current as T
