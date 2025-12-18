@@ -1,10 +1,10 @@
-import React, {cloneElement, ComponentProps, ComponentType, useCallback, useState} from 'react'
+import React, {cloneElement, ComponentProps, ComponentType, useCallback} from 'react'
 import {ReactiveOptions} from '../..'
 import {DefinedModelProps, ModelProps, UseModelReturn} from '../../react'
 import {useRenderEffect} from './useRenderEffect'
 import {Proxyable, TwoWay} from '../core'
 import {getValueOnChange} from '../utils'
-import {useExternalClass, useSync} from './hooks'
+import {useExternalClass, useSettledValue, useSync} from './hooks'
 
 export function defineModel<P = {}>(Component: ComponentType<P>, postValue?: (...args: any[]) => any): ComponentType<DefinedModelProps<P>> {
     return {
@@ -19,7 +19,7 @@ export function defineModel<P = {}>(Component: ComponentType<P>, postValue?: (..
 }
 
 export const Model = (props: ModelProps) => {
-    const [twoWay] = useState(() => new TwoWay())
+    const twoWay = useSettledValue(() => new TwoWay())
 
     const syncPostValue = useSync(props.postValue)
 

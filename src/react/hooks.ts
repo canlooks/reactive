@@ -23,6 +23,21 @@ export function useSync<T>(value: T): RefObject<T> {
 }
 
 /**
+ * 使用某个固定的值
+ */
+export function useSettledValue<T>(value: T | (() => T)): T {
+    const isSettled = useRef(false)
+    const settledValue = useRef<T>(void 0)
+
+    return useState(() => {
+        if (!isSettled.current) {
+            settledValue.current = typeof value === 'function' ? (value as Function)() : value
+        }
+        return settledValue.current as T
+    })[0]
+}
+
+/**
  * 使用外部类，该方法可避免`StrictMode`下，React渲染行为与外部类实例生命周期不同步的问题
  */
 export function useExternalClass<T>(setup: () => T, cleanup?: (instance: T) => void): T {
