@@ -50,7 +50,6 @@ export function useReactive<T extends object>(initialValue: T, options?: Reactiv
 export function useReactive(initialValue: any, options?: ReactiveOptions) {
     return useSettledValue(() => {
         const target = typeof initialValue === 'function' ? initialValue() : initialValue
-        console.log(53, target)
         return allocateTargets(target, options)
     })
 }
