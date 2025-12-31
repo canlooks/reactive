@@ -4,7 +4,7 @@ import {Autoload} from '../extensions'
 import localforage from 'localforage'
 import {ReactiveOptions} from '../..'
 
-export class Forage<D = any> extends Autoload<D> {
+export class Forage<D = any, A = any> extends Autoload<D, A> {
     constructor(public name: string, private initialValue?: D) {
         super()
     }

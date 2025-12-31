@@ -1,6 +1,7 @@
 import {Fn} from '../..'
 import {useReactive} from './api'
 import {useSync, useUnmounted} from './hooks'
+import {DEBUG_NAME} from '../utils'
 
 export function useLoading<F extends Fn, L extends boolean | number>(fn: F, initialLoading?: L): {
     load: F
@@ -12,6 +13,7 @@ export function useLoading<F extends Fn, L extends boolean | number>(fn: F, init
     const syncFn = useSync(fn)
 
     return useReactive({
+        [DEBUG_NAME]: fn.name,
         stacksCount: 0,
         loading: initialLoading ?? false,
         async load(...args: any[]) {
@@ -37,7 +39,7 @@ export function useLoading<F extends Fn, L extends boolean | number>(fn: F, init
                 setLoading(-1)
             }
         }
-    } as {
+    } as any as {
         load: F
         loading: L
         stacksCount: number

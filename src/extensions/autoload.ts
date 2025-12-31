@@ -35,7 +35,7 @@ export abstract class Autoload<DATA = any, ARGUMENT = any> {
 
     update = defineLoading(function (this) {
         return this.loading
-    }, async function (this, ...args) {
+    }, async function (this, ...args: ARGUMENT[]) {
         cached_autoLoad.add(this)
         try {
             this._data = await this.loadData(...args)

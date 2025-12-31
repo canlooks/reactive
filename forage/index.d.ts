@@ -3,8 +3,8 @@ import localforage from 'localforage'
 
 declare namespace ReactiveForForage {
     class Forage<D = any, A = any> extends Autoload<D, A> {
-        constructor(name: string, initialValue?: D | null, instance?: typeof localforage)
-        loadData(...args: A[]): D | null | Promise<D | null>
+        constructor(name: string, initialValue?: D, instance?: typeof localforage)
+        loadData(...args: A[]): D | Promise<D>
         dispose(): void
     }
 

@@ -4,14 +4,21 @@ const isDev = process.env.NODE_ENV === 'development'
 
 export const logPrefix = '[@canlooks/reactive] '
 
+export const DEBUG_NAME = Symbol('debug name')
+
+function getName(it?: any) {
+    return it ? it[DEBUG_NAME] || it.name : void 0
+}
+
 export function printError(fn?: Fn, target?: any, p?: PropertyKey) {
     if (isDev) {
         if (target && p) {
-            const targetName = target.name || target.constructor.name || '[unknown]'
+            const targetName = getName(target) || getName(target.constructor) || '[unknown]'
             const propertyName = p?.toString() || '[unknown]'
-            console.error(`${logPrefix}This error occured in "${targetName}.${propertyName}"`)
+            console.error(`${logPrefix}This error occurred in "${targetName}.${propertyName}"`)
         } else {
-            fn?.name && console.error(`${logPrefix}This error occured in function "${fn.name}"`)
+            const fnName = getName(fn)
+            fnName && console.error(`${logPrefix}This error occurred in function "${fnName}"`)
         }
     }
 }
