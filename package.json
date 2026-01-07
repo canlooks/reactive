@@ -48,8 +48,8 @@
   "scripts": {
     "clean": "npx shx rm -rf dist",
     "build": "tsc -m esnext --outDir dist/esm & tsc -m commonjs --outDir dist/cjs",
-    "build:resolvePaths": "tsc-alias --outDir dist/esm",
-    "rebuild": "npm run clean && npm run build && npm run build:resolvePaths",
+    "build:alias": "tsc-alias --outDir dist/esm",
+    "rebuild": "npm run clean && npm run build && npm run build:alias",
     "test:browser": "vite -c test/vite.config.mts",
     "test:unit": "npx ts-node test/unit.ts",
     "test:js": "node test/index.js"
