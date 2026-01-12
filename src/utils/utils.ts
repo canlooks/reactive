@@ -69,7 +69,14 @@ export function assignProps<P extends {}>(oldProps: P, newProps: P) {
  * @param it
  */
 export function isPromise<T>(it: any): it is Promise<T> {
-    return it instanceof Promise || typeof it?.then === 'function'
+    if (!it) {
+        return false
+    }
+    return it instanceof Promise || (
+        typeof it.then === 'function'
+        && typeof it.catch === 'function'
+        && typeof it.finally === 'function'
+    )
 }
 
 /**

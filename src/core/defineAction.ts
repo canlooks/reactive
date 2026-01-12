@@ -16,13 +16,13 @@ export function defineAction<F extends Fn>(fn: F, target?: object, p?: PropertyK
                 const ret = fn.apply(target, args)
                 if (isPromise(ret)) {
                     return Promise.resolve(ret).catch(e => {
-                        printError(fn, target, p)
+                        printError(target, p)
                         throw e
                     })
                 }
                 return ret
             } catch (e) {
-                printError(fn, target, p)
+                printError(target, p)
                 throw e
             } finally {
                 Batch.endBatch()
