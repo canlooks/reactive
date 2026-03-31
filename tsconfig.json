@@ -1,14 +1,18 @@
 {
   "compilerOptions": {
+    "rootDir": "src",
     "target": "ESNext",
     "module": "ESNext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
     "importHelpers": true,
     "esModuleInterop": true,
-    "jsx": "react-jsx",
     "strict": true,
     "noUnusedLocals": true,
-    "noImplicitOverride": true
+    "noImplicitOverride": true,
+    "types": [
+      "node"
+    ]
   },
   "include": [
     "src/**/*"

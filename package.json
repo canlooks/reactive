@@ -1,6 +1,6 @@
 {
   "name": "@canlooks/reactive",
-  "version": "4.7.15",
+  "version": "4.7.16",
   "author": "C.CanLiang <canlooks@gmail.com>",
   "description": "A react tool for responding data and managing state.",
   "keywords": [
@@ -55,20 +55,20 @@
     "test:js": "node test/index.js"
   },
   "dependencies": {
-    "globals": "^16.5.0",
+    "globals": "^17.4.0",
     "tslib": "^2.8.1"
   },
   "devDependencies": {
-    "@types/node": "^24.3.0",
-    "@types/react": "^19.2.4",
+    "@types/node": "^25.5.0",
+    "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "localforage": "^1.10.0",
     "mobx": "^6.15.0",
     "mobx-react": "^9.2.1",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
     "tsc-alias": "^1.8.16",
-    "typescript": "^5.9.3",
-    "vite": "^7.2.2"
+    "typescript": "^6.0.2",
+    "vite": "^8.0.3"
   }
 }

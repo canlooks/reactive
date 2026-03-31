@@ -48,12 +48,15 @@ export abstract class Autoload<DATA = any, ARGUMENT = any> {
     })
 }
 
-export function defineAutoload<D = any, A = any>(loadData: (...args: A[]) => D | Promise<D>, options?: ReactiveOptions): Autoload<D, A> {
-    const Allocated = targetIsClass(
-        class extends Autoload<D> {
-            loadData = loadData
-        },
-        options
-    )
+export function defineAutoload<D = any, A = any>(loadData: (...args: A[]) => D | Promise<D>, {name, ...options}: ReactiveOptions & { name?: string } = {}): Autoload<D, A> {
+    let _class = class extends Autoload<D> {
+        loadData = loadData
+    }
+    if (name) {
+        _class = {
+            [name]: _class
+        }[name]
+    }
+    const Allocated = targetIsClass(_class, options)
     return new Allocated()
 }

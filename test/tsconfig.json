@@ -5,10 +5,11 @@
     }
   },
   "compilerOptions": {
+    "rootDir": ".",
     "target": "ESNext",
     "module": "ESNext",
     "jsx": "react",
-    "moduleResolution": "Node",
+    "moduleResolution": "bundler",
     "strict": true,
     "sourceMap": true,
     "skipLibCheck": true,
@@ -19,8 +20,7 @@
     "lib": [
       "ESNext",
       "DOM",
-      "DOM.Iterable",
-      "ScriptHost"
+      "DOM.Iterable"
     ]
   }
 }
