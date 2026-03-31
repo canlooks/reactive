@@ -1,5 +1,4 @@
-const isDev = process.env.NODE_ENV === 'development'
-const debug = process.env.DEBUG?.toLowerCase() === 'true' || process.env.DEBUG?.toLowerCase() === 'on'
+const isDev = typeof process === 'object' && process.env.NODE_ENV === 'development'
 
 export const logPrefix = '[@canlooks/reactive] '
 
@@ -10,7 +9,7 @@ function getName(it?: any) {
 }
 
 export function printError(target?: any, p?: PropertyKey) {
-    if (isDev || debug) {
+    if (isDev) {
         const targetName = getName(target) || getName(target?.constructor) || '[unknown]'
         const propertyName = p?.toString() || '[unknown]'
         console.error(`${logPrefix}This error occurred in "${targetName}.${propertyName}"`)
