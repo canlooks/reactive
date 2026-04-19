@@ -1,56 +1,37 @@
-import React, {useDeferredValue} from 'react'
 import {createRoot} from 'react-dom/client'
-import {Autoload, loading, reactive} from '../src'
-import {makeAutoObservable} from 'mobx'
-import {observer} from './mobx-react-lite'
+import {observer, useLocalObservable} from 'mobx-react'
+import React, {Activity, StrictMode} from 'react'
 
-class TestStore {
-    constructor() {
-        makeAutoObservable(this)
-    }
-
-    async loadData() {
-        console.log('loadData')
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        return 'World'
-    }
-
-    showChild = false
-    multiple = 1
-}
-
-const testStore = new TestStore()
-
-const App = observer(function App() {
-    console.log('app')
-    const onClick = () => {
-        testStore.showChild = true
-        setTimeout(() => {
-            testStore.multiple++
-        }, 1)
-    }
-
-    const deferredShowChild = useDeferredValue(testStore.showChild)
+const App = observer(() => {
+    const state = useLocalObservable(() => ({
+        visible: true
+    }))
 
     return (
         <>
-            {/*<h1>Hello {testStore.data}</h1>*/}
-            <button onClick={onClick}>button</button>
-            {/*{testStore.loading &&*/}
-            {/*    <h2>Loading...</h2>*/}
-            {/*}*/}
-            {deferredShowChild &&
+            <button onClick={() => state.visible = !state.visible}>Toggle visible</button>
+            <Activity mode={state.visible ? 'visible' : 'hidden'}>
                 <Child/>
-            }
+            </Activity>
         </>
     )
 })
 
-const Child = observer(function Child() {
-    console.log('Child')
-    return Array(10_000).fill(void 0).map((_, i) =>
-        <div key={i}>{i * testStore.multiple}</div>
+const Child = observer(() => {
+    const state = useLocalObservable(() => ({
+        count: 123
+    }))
+
+    return (
+        <>
+            <h1>{state.count}</h1>
+            <button onClick={() => state.count++}>button</button>
+        </>
     )
 })
 
-createRoot(document.getElementById('app')!).render(<App/>)
+createRoot(document.getElementById('app')!).render(
+    <StrictMode>
+        <App/>
+    </StrictMode>
+)

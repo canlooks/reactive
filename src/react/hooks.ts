@@ -1,14 +1,23 @@
-import {RefObject, useEffect, useRef, useState} from 'react'
+import {RefObject, useEffect, useMemo, useRef} from 'react'
 
 /**
- * 组件卸载后得到{current: true}
+ * 得到一个RefObject，用于判断组件是否卸载
+ * @param onUnmount 回调函数，卸载时触发
  */
-export function useUnmounted() {
+export function useUnmounted(onUnmount?: () => void) {
     const isUnmounted = useRef(false)
+    const mountTimes = useRef(0)
 
-    useExternalClass(() => void 0, () => {
-        isUnmounted.current = true
-    })
+    useMemo(() => {
+        mountTimes.current++
+    }, [])
+
+    useEffect(() => () => {
+        if (!--mountTimes.current) {
+            isUnmounted.current = true
+            onUnmount?.()
+        }
+    }, [])
 
     return isUnmounted
 }
@@ -29,32 +38,25 @@ export function useSettledValue<T>(value: T | (() => T)): T {
     const isSettled = useRef(false)
     const settledValue = useRef<T>(void 0)
 
-    return useState(() => {
-        if (!isSettled.current) {
-            isSettled.current = true
-            settledValue.current = typeof value === 'function' ? (value as Function)() : value
-        }
-        return settledValue.current as T
-    })[0]
+    if (!isSettled.current) {
+        isSettled.current = true
+        settledValue.current = typeof value === 'function' ? (value as Function)() : value
+    }
+
+    return settledValue.current!
 }
 
 /**
  * 使用外部类，该方法可避免`StrictMode`下，React渲染行为与外部类实例生命周期不同步的问题
  */
-export function useExternalClass<T>(setup: () => T, cleanup?: (instance: T) => void): T {
-    const mountTimes = useRef(0)
-    const prevInstance = useRef<T>(void 0)
+export function useExternalClass<T>(setup: () => T, cleanup?: (instance: T) => void): RefObject<T> {
+    const instance = useRef<T>(void 0)
+    instance.current ||= setup()
 
-    const [instance] = useState(() => {
-        if (!mountTimes.current++) {
-            prevInstance.current = setup()
-        }
-        return prevInstance.current as T
+    useUnmounted(() => {
+        cleanup?.(instance.current!)
+        instance.current = void 0
     })
 
-    useEffect(() => () => {
-        !--mountTimes.current && cleanup?.(instance)
-    }, [])
-
-    return instance
+    return instance as RefObject<T>
 }

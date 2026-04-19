@@ -55,20 +55,20 @@
     "test:js": "node test/index.js"
   },
   "dependencies": {
-    "globals": "^17.4.0",
+    "globals": "^17.5.0",
     "tslib": "^2.8.1"
   },
   "devDependencies": {
-    "@types/node": "^25.5.0",
+    "@types/node": "^25.6.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "localforage": "^1.10.0",
     "mobx": "^6.15.0",
     "mobx-react": "^9.2.1",
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
     "tsc-alias": "^1.8.16",
-    "typescript": "^6.0.2",
-    "vite": "^8.0.3"
+    "typescript": "^6.0.3",
+    "vite": "^8.0.8"
   }
 }

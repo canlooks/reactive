@@ -63,5 +63,5 @@ export function useModel<V>(initialValue?: V | (() => V), options?: ReactiveOpti
         proxyable => proxyable.dispose()
     )
 
-    return proxyable.proxy
+    return proxyable.current.proxy
 }

@@ -5,10 +5,10 @@
     }
   },
   "compilerOptions": {
-    "rootDir": ".",
+    "rootDir": "..",
     "target": "ESNext",
     "module": "ESNext",
-    "jsx": "react",
+    "jsx": "react-jsx",
     "moduleResolution": "bundler",
     "strict": true,
     "sourceMap": true,
