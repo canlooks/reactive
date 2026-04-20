@@ -12,10 +12,15 @@ export function useUnmounted(onUnmount?: () => void) {
         mountTimes.current++
     }, [])
 
-    useEffect(() => () => {
-        if (!--mountTimes.current) {
-            isUnmounted.current = true
-            onUnmount?.()
+    useEffect(() => {
+        // 在<Activity/>组件中，组件可以重新激活
+        isUnmounted.current = false
+
+        return () => {
+            if (!--mountTimes.current) {
+                isUnmounted.current = true
+                onUnmount?.()
+            }
         }
     }, [])
 
