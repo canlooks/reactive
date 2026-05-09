@@ -33,18 +33,22 @@ export abstract class Autoload<DATA = any, ARGUMENT = any> {
 
     onLoad?(): void
 
+    pending?: Promise<DATA>
+
     update = defineLoading(function (this) {
         return this.loading
-    }, async function (this, ...args: ARGUMENT[]) {
-        cached_autoLoad.add(this)
-        try {
-            this._data = await this.loadData(...args)
-            this.onLoad?.()
-            return this._data
-        } catch (e) {
-            cached_autoLoad.delete(this)
-            throw e
-        }
+    }, function (this, ...args: ARGUMENT[]) {
+        return this.pending = new Promise(async (resolve, reject) => {
+            cached_autoLoad.add(this)
+            try {
+                this._data = await this.loadData(...args)
+                this.onLoad?.()
+                resolve(this._data)
+            } catch (e) {
+                cached_autoLoad.delete(this)
+                reject(e)
+            }
+        })
     })
 }
 
