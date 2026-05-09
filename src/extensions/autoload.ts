@@ -4,7 +4,7 @@ import {defineLoading} from './loading'
 import {nextTick} from '../utils'
 
 // 不能将cached属性挂载实例上，否则cached变化触发effect，导致循环调用
-const cached_autoLoad = new WeakSet<Autoload>()
+const cachedAutoLoad_pending = new WeakMap<Autoload, Promise<any>>()
 
 export abstract class Autoload<DATA = any, ARGUMENT = any> {
     loading = false
@@ -12,12 +12,7 @@ export abstract class Autoload<DATA = any, ARGUMENT = any> {
     protected _data: DATA | undefined
 
     get data() {
-        if (!cached_autoLoad.has(this)) {
-            // 使用nextTick避免loading与该getter绑定
-            nextTick().then(() => {
-                this.update().then()
-            })
-        }
+        this.load().then()
         return this._data
     }
 
@@ -30,25 +25,33 @@ export abstract class Autoload<DATA = any, ARGUMENT = any> {
     }
 
     abstract loadData(...args: ARGUMENT[]): DATA | undefined | Promise<DATA | undefined>
+    
+    async load() {
+        const pending = cachedAutoLoad_pending.get(this)
+        if (pending) {
+            return await pending as DATA
+        }
+        await nextTick()
+        return await this.update()
+    }
 
     onLoad?(): void
 
-    pending?: Promise<DATA>
-
-    update = defineLoading(function (this) {
+    update = defineLoading(function (this: Autoload) {
         return this.loading
-    }, function (this, ...args: ARGUMENT[]) {
-        return this.pending = new Promise(async (resolve, reject) => {
-            cached_autoLoad.add(this)
+    }, function (this: Autoload, ...args: ARGUMENT[]) {
+        const pending = new Promise<DATA>(async (resolve, reject) => {
             try {
                 this._data = await this.loadData(...args)
                 this.onLoad?.()
                 resolve(this._data)
             } catch (e) {
-                cached_autoLoad.delete(this)
+                cachedAutoLoad_pending.delete(this)
                 reject(e)
             }
         })
+        cachedAutoLoad_pending.set(this, pending)
+        return pending
     })
 }
 
