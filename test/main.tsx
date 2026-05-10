@@ -16,8 +16,8 @@ const testState = new TestState()
 const App = RC(() => {
     useEffect(() => {
         (async () => {
-            const res = await testState.pending
-            console.log(20, res)
+            // const res = await testState.load()
+            // console.log(20, res)
         })()
     }, [])
 
