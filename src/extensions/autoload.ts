@@ -35,7 +35,7 @@ export abstract class Autoload<DATA = any, ARGUMENT = any> {
         return await this.update()
     }
 
-    onLoad?(): void
+    onLoad?(): any
 
     update = defineLoading(function (this: Autoload) {
         return this.loading
@@ -43,7 +43,7 @@ export abstract class Autoload<DATA = any, ARGUMENT = any> {
         const pending = new Promise<DATA>(async (resolve, reject) => {
             try {
                 this._data = await this.loadData(...args)
-                this.onLoad?.()
+                await this.onLoad?.()
                 resolve(this._data)
             } catch (e) {
                 cachedAutoLoad_pending.delete(this)

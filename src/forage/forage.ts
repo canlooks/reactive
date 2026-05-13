@@ -13,6 +13,7 @@ export class Forage<D = any> extends Autoload<D> {
     }
 
     async loadData() {
+        this.dispose()
         const cached = await localforage.getItem<D>(this.name)
         this.dispose = reactor(() => this.data, data => {
             localforage.setItem(this.name, data)
