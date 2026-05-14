@@ -1,6 +1,17 @@
 # @canlooks/reactive
 
-This is a simple and lightweight `React` tool for responding data, auto re-render and managing state.   
+A lightweight, fine-grained reactive state management framework for React. No providers, no context — just mutate data and components update automatically.
+
+## Features
+
+- **Auto-allocation**: Properties, getters, and methods are automatically classified as reactive data, computed values, or batched actions
+- **Dependency-aware rendering**: Components only re-render when the specific properties they reference change
+- **Fine-grained updates**: `<Chip/>` enables partial re-renders without touching the parent component
+- **"No-provider" sharing**: Reactive data created anywhere is automatically accessible — no `Provider`, no `inject`
+- **Deep reactivity**: Optional recursive reactivity for nested objects with `reactive.deep()`
+- **Form bindings**: `<Model/>` and `useModel()` provide two-way binding for form controls
+- **Built-in persistence**: Sync reactive state with `localStorage`, `sessionStorage`, or custom async storage engines
+- **TypeScript-first**: Full type inference throughout
 
 ## Installation
 
@@ -8,26 +19,24 @@ This is a simple and lightweight `React` tool for responding data, auto re-rende
 npm i @canlooks/reactive
 ```
 
-## <a name="example">A quick example</a>
+## Quick Example
 
-A `react-class-component` which using `@canlooks/reactive` will look like this.
+### Class Component
 
 ```tsx
 import {RC} from '@canlooks/reactive/react'
 
 @RC
-export default class Index extends React.Component {
+export default class Counter extends React.Component {
     count = 1
-    test = 2
+    unused = 2
 
-    onClick() {
-        this.count++ // This component will update.
+    onClick = () => {
+        this.count++  // Component updates — "count" is referenced in render()
     }
 
-    myTest() {
-        this.test++
-        // This component will not update,
-        // because "test" have never referred in "render()" 
+    noOp = () => {
+        this.unused++  // Component does NOT update — "unused" is never referenced in render()
     }
 
     render() {
@@ -35,360 +44,553 @@ export default class Index extends React.Component {
             <div>
                 <div>{this.count}</div>
                 <button onClick={this.onClick}>Increase</button>
-                <button onClick={this.myTest}>Test</button>
             </div>
         )
     }
 }
 ```
 
-and `Function component` will look like this:
+### Function Component
 
 ```tsx
 import {RC, useReactive} from '@canlooks/reactive/react'
 
-const Index = RC(() => {
+const Counter = RC(() => {
     const data = useReactive({
         count: 1
     })
 
-    const increase = () => {
-        data.count++
-    }
-
     return (
         <div>
             <div>{data.count}</div>
-            <button onClick={increase}>Increase</button>
+            <button onClick={() => data.count++}>Increase</button>
         </div>
     )
 })
 ```
 
-## Contents  
-
-Basic API
-- [reactive()](#reactive)
-- [reactive.deep()](#reactive)
-- [reactiveClass()](#reactiveClass)
-- [reactiveFC()](#reactiveClass)
-- [reactor()](#reactor)
-- [autorun()](#autorun)
-- [action()](#action)
-- [act()](#act)
-
-[automatic allocation](#allocation)
-
-[External data & sharing state](#store)
-
-[Additional functions](#additional)
-
-- [\<Chip/>](#chip)
-- [\<Model/>](#model)
-- [defineModel()](#defineModel)
-- [useModel()](#useModel)
-- [@watch()](#watch)
-- [@loading()](#loading)
-- [useLoading()](#useLoading)
-- [autoload()](#autoload)
-- [defineStorage()](#storage)
-- [defineForage()](#forage)
-
-[Hooks](#hooks)
-
-- [useReactive()](#useReactive)
-- [useReactor()](#useReactor)
-- [useAutorun()](#useAutorun)
-- [useAction()](#useAction)
-
 ---
 
-### <a name="reactive">reactive() & reactive.deep()</a>
+## Core Concepts
 
-There are 3 ways to create a `reactive data`.
+### Automatic Allocation
+
+Every property in a reactive object or class instance is automatically classified:
 
 ```tsx
 import {reactive} from '@canlooks/reactive'
 
-// create by object
 const data = reactive({
-    a: 1,
-    b: 2
-})
-
-// create by class
-const DataClass = reactive(class {
-    a = 1
-    static b = 2 // Both instance and static properties are reactive.
-})
-
-// using decorator
-@reactive
-class Data {
-    a = 1
-}
-```
-
-You can also create a `reactive React Component` like [quick example](#example).
-
----
-
-### <a name="reactor">reactor()</a>
-
-```tsx
-import {act, reactive, reactor} from '@canlooks/reactive'
-
-const obj = reactive({
-    a: 1,
-    b: 2
-})
-
-const disposer = reactor(() => obj.a, (to, from) => {
-    console.log(`"obj.a" was changed from ${from} to ${to}`)
-})
-
-act(() => obj.a++) // log: "obj.a" was changed from 1 to 2
-act(() => obj.b++) // nothing happen
-
-disposer() // Remember to dispose if you don't use it anymore.
-```
-
-```tsx
-declare type ReactorOptions = {
-    immediate?: boolean
-    once?: boolean
-}
-
-declare function reactor<T>(refer: () => T, effect: (newValue: T, oldValue: T) => void, options?: ReactorOptions): () => void
-```
-
----
-
-### <a name="autorun">autorun()</a>
-
-```tsx
-const obj = reactive({
-    a: 1
-})
-
-const disposer = autorun(() => {
-    console.log('Now "obj.a" is: ' + obj.a)
-})
-```
-
----
-
-### <a name="action">action()</a>
-
-Every methods for modifying `reactive data` are strongly suggest wrapping in "action".
-
-```tsx
-const obj = reactive({
-    a: 1,
-    b: 2
-})
-
-reactor(() => [obj.a, obj.b], () => {
-    // ...
-})
-
-// Good, effect will trigger only once.
-const increase = action(() => {
-    obj.a++
-    obj.b++
-})
-
-// Bad, effect will trigger twice.
-const decrease = () => {
-    obj.a++
-    obj.b++
-}
-```
-
----
-
-### <a name="act">act()</a>
-
-IIFE for `action()`
-
-```tsx
-act(() => {
-    //
-})
-// is equivalent to
-action(() => {
-    //
-})()
-```
-
----
-
-## <a name="allocation">Automatic allocation</a>
-
-Each property in reactive `object` or `class` will allocate automatically. 
-
-```tsx
-const data = reactive({
-    // Become reactive property
+    // Plain property → reactive (tracked for dependency)
     count: 1,
-    
-    // Become computed property
+
+    // Getter → computed (memoized, re-evaluates only when dependencies change)
     get double() {
-        // This function will not execute repeatedly until "count" change.
         return this.count * 2
     },
-    
-    // Become action
+
+    // Method → action (batched — all mutations inside fire as one update)
     increase() {
         this.count++
     }
 })
 ```
 
----
+You can **opt-out** individual properties using the `@ignore` decorator.
 
-## <a name="store">External data & sharing state</a>
+### Dependency Tracking
 
-**No** `provide/inject`, just use it.
+Components subscribe **only** to the properties they actually read during render. If `data.count` changes, only components that accessed `data.count` will re-render. Components that only accessed `data.b` are unaffected.
+
+### Batching with `action()` / `act()`
+
+Multiple mutations outside an action trigger multiple updates. Wrap them to batch:
 
 ```tsx
-import {act, reactive} from '@canlooks/reactive'
-import {RC} from '@canlooks/reactive/react'
+import {reactive, reactor, action, act} from '@canlooks/reactive'
 
-const data = reactive({
-    a: 1,
-    b: 2
+const data = reactive({a: 1, b: 2})
+
+reactor(() => [data.a, data.b], (next, prev) => {
+    console.log('changed!')
 })
 
+// Bad — effect fires twice
+data.a++; data.b++
+
+// Good — effect fires once
+action(() => {
+    data.a++
+    data.b++
+})()
+
+// Equivalent IIFE form
+act(() => {
+    data.a++
+    data.b++
+})
+```
+
+---
+
+## API Reference
+
+### `@canlooks/reactive` — Core
+
+#### `reactive(target)` / `reactive.deep(target)`
+
+Creates a reactive object or class. Accepts an object literal, a class, or used as a decorator.
+
+```tsx
+import {reactive} from '@canlooks/reactive'
+
+// Object
+const data = reactive({a: 1, b: 2})
+
+// Class (constructor)
+const DataClass = reactive(class {
+    a = 1
+    static b = 2  // Static properties are also reactive
+})
+
+// Class (decorator)
+@reactive
+class Data {
+    a = 1
+}
+```
+
+`reactive.deep(target)` enables recursive reactivity — nested objects and arrays are also proxied.
+
+```tsx
+const data = reactive.deep({
+    nested: {count: 0}
+})
+data.nested.count++  // Deeply tracked
+```
+
+#### `reactiveClass(target)` / `reactiveClass.deep(target)`
+
+Explicitly create a reactive class. Use when `reactive()` cannot distinguish between a class and a regular function.
+
+```tsx
+import {reactiveClass} from '@canlooks/reactive'
+
+const MyClass = reactiveClass(class {
+    value = 0
+})
+```
+
+#### `reactiveObject(target)` / `reactiveObject.deep(target)`
+
+Explicitly create a reactive object without class-allocation logic.
+
+```tsx
+import {reactiveObject} from '@canlooks/reactive'
+
+const data = reactiveObject({count: 0})
+```
+
+#### `@ignore`
+
+Property decorator — excludes a property from auto-allocation on a reactive class.
+
+```tsx
+import {reactive, ignore} from '@canlooks/reactive'
+
+@reactive
+class Data {
+    a = 1
+
+    @ignore
+    internal = Symbol()  // Not reactive, not tracked
+}
+```
+
+#### `reactor(refer, effect, options?)`
+
+Watches a derived value and fires `effect` when it changes. Returns a dispose function.
+
+```tsx
+import {reactive, reactor, act} from '@canlooks/reactive'
+
+const obj = reactive({a: 1, b: 2})
+
+const dispose = reactor(() => obj.a, (newValue, oldValue) => {
+    console.log(`a changed from ${oldValue} to ${newValue}`)
+})
+
+act(() => obj.a++)  // Logs: a changed from 1 to 2
+act(() => obj.b++)  // Nothing happens
+
+dispose()  // Stop watching
+```
+
+Options:
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `immediate` | `boolean` | Run effect immediately on creation (default: `false`) |
+| `once` | `boolean` | Dispose after first invocation (default: `false`) |
+
+#### `autorun(fn)`
+
+Automatically tracks all reactive properties accessed inside `fn`. Re-runs whenever any of them change. Returns a dispose function.
+
+```tsx
+import {reactive, autorun, act} from '@canlooks/reactive'
+
+const obj = reactive({a: 1})
+
+const dispose = autorun(() => {
+    console.log('a is now:', obj.a)
+})
+
+act(() => obj.a++)  // Logs: a is now: 2
+```
+
+#### `action(fn)`
+
+Wraps a function so that all reactive mutations inside it are batched into a single update cycle.
+
+```tsx
+import {reactive, action} from '@canlooks/reactive'
+
+const data = reactive({a: 1})
+
+const increment = action(() => {
+    data.a++  // Batched
+})
+
+increment()
+```
+
+#### `act(fn)`
+
+IIFE (Immediately Invoked Function Expression) for `action()`.
+
+```tsx
+import {act} from '@canlooks/reactive'
+
+act(() => {
+    // Mutations here are batched
+})
+```
+
+#### `getOriginalObject(proxy)`
+
+Returns the raw (unproxied) object behind a reactive proxy.
+
+```tsx
+import {reactive, getOriginalObject} from '@canlooks/reactive'
+
+const data = reactive({a: 1})
+const raw = getOriginalObject(data)
+console.log(raw)  // {a: 1}
+```
+
+---
+
+### `@canlooks/reactive/react` — React Integration
+
+#### `RC` / `reactiveComponent(target)`
+
+The main entry point. Wraps a React component (class or function) to make it reactive. Automatically detects component type.
+
+```tsx
+import {RC, useReactive} from '@canlooks/reactive/react'
+
+// Function component
+const Counter = RC(() => {
+    const data = useReactive({count: 1})
+    return <div onClick={() => data.count++}>{data.count}</div>
+})
+
+// Class component
 @RC
-class A extends React.Component {
+class Counter extends React.Component {
+    count = 1
     render() {
-        return (
-            <div>{data.a}</div>
-        )
+        return <div onClick={() => this.count++}>{this.count}</div>
     }
 }
+```
 
-const B = RC(() => {
-    return (
-        <div>
-            <div>{data.a}</div>
-            <div>{data.b}</div>
-        </div>
-    )
+`RC.deep` / `reactiveComponent.deep` enables deep reactivity on class component properties.
+
+#### `reactiveFC(target)`
+
+Explicitly wraps a function component. Use when you need manual type discrimination.
+
+```tsx
+import {reactiveFC} from '@canlooks/reactive/react'
+
+const MyComp = reactiveFC((props: {name: string}) => {
+    return <div>{props.name}</div>
 })
+```
 
-// Modify data everywhere.
-act(() => data.a++) // Both component "A" and "B" will update.
-act(() => data.b++) // Only component "B" will update.
+#### `reactiveClassComponent(target)` / `reactiveClassComponent.deep(target)`
+
+Explicitly wraps a class component.
+
+```tsx
+import {reactiveClassComponent} from '@canlooks/reactive/react'
+
+const MyClassComp = reactiveClassComponent(class extends React.Component {
+    value = 0
+    render() {
+        return <div>{this.value}</div>
+    }
+})
 ```
 
 ---
 
-## <a name="additional">Additional functions</a>
+### React Hooks
 
-### <a name="chip">\<Chip/></a>
+#### `useReactive(initialValue, options?)`
 
-`<Chip/>` can take component to pleces for updating only a small part.
+Creates a stable reactive object that persists across re-renders. Accepts a value or a factory function.
 
 ```tsx
-import {Chip, RC, useReactive} from '@canlooks/reactive/react'
+import {RC, useReactive} from '@canlooks/reactive/react'
 
-// In this case, component "Index" will never re-render.
-const Index = RC(() => {
+const Comp = RC(() => {
     const data = useReactive({
-        a: 1,
-        b: 2
+        count: 1,
+        name: 'world'
     })
 
-    return (
-        <div>
-            <Chip>
-                {/*Re-render when only "a" is modified*/}
-                {() => <ChildA count={data.a}/>}
-            </Chip>
-            <Chip>
-                {/*Re-render when only "b" is modified*/}
-                {() => <ChildB data={data.b}/>}
-            </Chip>
-        </div>
-    )
+    // Or lazy initialization
+    const lazy = useReactive(() => ({
+        count: expensiveComputation()
+    }))
+
+    return <div>{data.count}</div>
 })
 ```
 
-`chip()` is an function way for `<Chip/>`
+#### `useAutorun(fn)`
+
+Runs `autorun` scoped to the component's lifecycle (auto-disposes on unmount).
 
 ```tsx
-chip(() => <AnyComponent/>)
-// is equivalent to
-<Chip>{() => <AnyComponent/>}</Chip>
+import {RC, useReactive, useAutorun} from '@canlooks/reactive/react'
+
+const Comp = RC(() => {
+    const data = useReactive({count: 1})
+
+    useAutorun(() => {
+        console.log('count changed:', data.count)
+    })
+
+    return <div>{data.count}</div>
+})
+```
+
+#### `useReactor(refer, effect, options?)`
+
+Runs `reactor` scoped to the component's lifecycle.
+
+```tsx
+import {RC, useReactive, useReactor} from '@canlooks/reactive/react'
+
+const Comp = RC(() => {
+    const data = useReactive({name: 'Alice'})
+
+    useReactor(() => data.name, (newName, oldName) => {
+        console.log(`Name changed: ${oldName} → ${newName}`)
+    })
+
+    return <input {...useModel(data.name)} />
+})
+```
+
+#### `useAction(fn)`
+
+Wraps a callback in `action()` with a stable reference (like `useCallback`).
+
+```tsx
+import {RC, useReactive, useAction} from '@canlooks/reactive/react'
+
+const Comp = RC(() => {
+    const data = useReactive({a: 1, b: 2})
+
+    const increment = useAction(() => {
+        data.a++
+        data.b++  // Batched with data.a++
+    })
+
+    return <button onClick={increment}>Increment Both</button>
+})
+```
+
+#### `useExternalReactive(refer)`
+
+Subscribes to an externally-defined reactive value — triggers re-render when it changes.
+
+```tsx
+import {reactive, act} from '@canlooks/reactive'
+import {RC, useExternalReactive} from '@canlooks/reactive/react'
+
+const store = reactive({count: 0})
+
+const Comp = RC(() => {
+    const count = useExternalReactive(() => store.count)
+    return <div>{count}</div>
+})
+
+// Anywhere in the app:
+act(() => store.count++)  // Comp re-renders
 ```
 
 ---
 
-### <a name="model">\<Model/></a>
+### Components
 
-Binding form controls' value to `reactive data`
+#### `<Chip>` / `chip()`
+
+Fine-grained partial update. Anything inside `<Chip>` subscribes to its own reactive dependencies independently of the parent.
 
 ```tsx
+import {RC, useReactive, Chip} from '@canlooks/reactive/react'
+
 const Index = RC(() => {
-    const data = useReactive({
-        // This value always sync with value of <input/>
-        value: 'Hello'
-    })
+    const data = useReactive({a: 1, b: 2})
 
     return (
         <div>
-            <Model refer={() => data.value}>
-                <input/>
-            </Model>
+            <Chip>
+                {/* Only re-renders when data.a changes */}
+                {() => <ChildA value={data.a} />}
+            </Chip>
+            <Chip>
+                {/* Only re-renders when data.b changes */}
+                {() => <ChildB value={data.b} />}
+            </Chip>
+        </div>
+    )
+    // Parent component Index never re-renders
+})
+```
+
+Function form:
+
+```tsx
+import {chip} from '@canlooks/reactive/react'
+
+// Equivalent to <Chip>{() => <Child />}</Chip>
+return chip(() => <Child />)
+```
+
+**Chip variants:**
+
+| Component / Function | Description |
+|----------------------|-------------|
+| `<Chip>` / `chip()` | Wraps render in a reactive effect |
+| `<Chip.Strict>` / `strictChip()` | Memoized variant — never re-renders from parent props |
+| `<AsyncChip>` / `asyncChip()` | Defers rendering until after `useEffect` (avoids React mount warnings) |
+| `<AsyncChip.Strict>` / `asyncStrictChip()` | Async + Strict combined |
+
+#### `<Model>` / `defineModel()` / `useModel()`
+
+Two-way binding for form controls. Keeps a reactive value synced with an `<input>`, `<select>`, or any controlled component.
+
+**`useModel(initialValue)`** — Hook returning `{value, onChange}`:
+
+```tsx
+import {RC, useModel} from '@canlooks/reactive/react'
+
+const Form = RC(() => {
+    const name = useModel('Alice')
+
+    return (
+        <div>
+            <input {...name} />
+            <p>Current: {name.value}</p>
         </div>
     )
 })
 ```
 
-### <a name="defineModel">defineModel()</a>
+**`<Model>`** — Wraps a child element with two-way binding:
 
-Using High-Order function to create an `<Model/>` component.
+```tsx
+import {RC, useReactive, Chip} from '@canlooks/reactive/react'
+
+const Form = RC(() => {
+    const data = useReactive({name: 'Alice'})
+
+    return (
+        <Chip refer={() => data.name}>
+            <input />
+        </Chip>
+    )
+})
+```
+
+**`defineModel(Component, postValue?)`** — HOC for reusable model components:
 
 ```tsx
 import {defineModel} from '@canlooks/reactive/react'
 
-const InputModel = defineModel(props => {
-    return <input {...props}/>
-})
+const TextInput = defineModel(props => <input {...props} />)
 
-// Then use it like
-const Index = RC(() => {
-    const data = useReactive({
-        value: 'Hello'
+// Usage
+<TextInput refer={() => data.name} />
+```
+
+---
+
+### Loading & Autoload
+
+#### `useLoading(fn, initialLoading?)`
+
+Tracks the loading state of an async function. Returns `{load, loading, stacksCount}`.
+
+```tsx
+import {RC, useLoading} from '@canlooks/reactive/react'
+
+const Comp = RC(() => {
+    const {load, loading} = useLoading(async (id: number) => {
+        const res = await fetch(`/api/user/${id}`)
+        return res.json()
     })
 
-    return <InputModel refer={() => data.value}/>
+    return loading
+        ? <div>Loading...</div>
+        : <button onClick={() => load(42)}>Fetch User</button>
 })
 ```
 
-### <a name="useModel">useModel()</a>
+When `initialLoading` is a `number`, `loading` acts as a stack counter (increments for concurrent calls, decrements on return) instead of a boolean.
+
+#### `useAutoload(loadData, options?)`
+
+Defines a lazy-loading data object that loads on first access.
 
 ```tsx
-const Index = RC(() => {
-    const model = useModel('Hello Reactive')
-    // "data" has "value" and "onChange" props.
+import {RC, useAutoload} from '@canlooks/reactive/react'
 
-    return (
-        <div>
-            <p>Input value is: {data.value}</p>
-            <input {...model}/>
-        </div>
-    )
+const Comp = RC(() => {
+    const user = useAutoload(async () => {
+        const res = await fetch('/api/user')
+        return res.json()
+    })
+
+    // Auto-loads on first access
+    return <div>{user.loading ? 'Loading...' : user.data?.name}</div>
 })
 ```
 
 ---
 
-### <a name="watch">@watch()</a>
+### Decorators
 
-`@watch()` is a syntactic sugar of `reactor()`
+#### `@watch(refer, options?)`
+
+Class method decorator — syntactic sugar for `reactor()`. The decorated method runs whenever the referenced value changes.
 
 ```tsx
 import {watch} from '@canlooks/reactive'
@@ -396,23 +598,23 @@ import {RC} from '@canlooks/reactive/react'
 
 @RC
 class Index extends React.Component {
-    @watch(() => someExternal.data)
-    effect1() {
-        // This effect will trigger when "someExternal.data" modified.
-    }
-
     a = 1
 
-    @watch(t => t.a) // t === this
-    effect2() {
-        // This effect will trigger when "this.a" modified.
+    @watch(ctx => ctx.a)
+    onAChanged(newValue: number, oldValue: number) {
+        console.log(`a: ${oldValue} → ${newValue}`)
+    }
+
+    @watch(() => externalStore.value)
+    onExternalChange(newVal: any) {
+        // Called when externalStore.value changes
     }
 }
 ```
 
----
+#### `@loading(refer)`
 
-### <a name="loading">@loading()</a>
+Class method decorator — toggles a boolean or increments a counter property during async method execution.
 
 ```tsx
 import {loading} from '@canlooks/reactive'
@@ -421,191 +623,236 @@ import {RC} from '@canlooks/reactive/react'
 @RC
 class Index extends React.Component {
     busy = false
-
-    @loading(t => t.busy) // t === this
-    async myAsyncMethod() {
-        // It changes "busy" to true,
-        // and changes false back until this function return.
-    }
-
     stack = 0
 
-    @loading(t => t.stack)
-    async concurrent() {
-        // It make "stack" +1,
-        // and -1 until this function return.
+    // Boolean loading: sets busy = true during execution, false afterwards
+    @loading(ctx => ctx.busy)
+    async fetchData() {
+        const res = await fetch('/api/data')
+        return res.json()
+    }
+
+    // Stack loading: increments stack during execution, decrements afterwards
+    @loading(ctx => ctx.stack)
+    async concurrentTask() {
+        // Multiple concurrent calls increase the stack
     }
 
     render() {
-        return (
-            <div>
-                {(this.busy || this.stack !== 0) &&
-                    <div>I'm busy</div>
-                }
-            </div>
-        )
+        return this.busy ? <div>Loading...</div> : <div>Ready</div>
     }
 }
 ```
 
-### <a name="useLoading">useLoading()</a>
+---
+
+### `Autoload` / `defineAutoload()`
+
+A pattern for data that auto-loads on first access and can be manually refreshed. Available from both the core and React packages.
 
 ```tsx
-const Index = RC(() => {
-    const method = useLoading(async () => {
-        // ...
-    })
-    
-    return method.loading
-        ? <div>Loading...</div>
-        : <button onClick={method.load}>button</button>
+import {reactive, Autoload} from '@canlooks/reactive'
+
+@reactive
+class UserData extends Autoload {
+    async loadData(id: number) {
+        const res = await fetch(`/api/user/${id}`)
+        return res.json()
+    }
+}
+
+const user = new UserData()
+
+// Auto-loads on first access
+console.log(user.data)  // Triggers fetch
+
+// Manually refresh with new params
+await user.update(42)
+```
+
+Or with the factory function:
+
+```tsx
+import {defineAutoload} from '@canlooks/reactive'
+
+const user = defineAutoload(async (id: number) => {
+    const res = await fetch(`/api/user/${id}`)
+    return res.json()
 })
 ```
 
----
+Autoload API:
 
-### <a name="autoload">autoload()</a>
-
-To define a common business data automatically.
-
-```tsx
-abstract class Autoload<D, A> {
-    loading: boolean
-    data: D
-    setData(v: D | undefined): void
-    abstract loadData(...args: A[]): D | Promise<D>
-    update(...args: A[]): Promise<D>
-}
-
-function autoload<D, A>(loadData: (...args: A[]) => D | Promise<D>, options?: ReactiveOptions): Autoload<D, A>
-```
-
-example:
-
-```tsx
-@reactive
-class MyData extends Autoload {
-    async loadData() {
-        const res = await fetch('fetch/my/data')
-        return await res.json()
-    }
-}
-
-const myData = new MyData()
-
-// Automatic load data on first use.
-console.log(myData.data)
-
-// Load data again.
-myData.update()
-```
+| Member | Description |
+|--------|-------------|
+| `loading` | `boolean` — whether data is currently loading |
+| `data` | The loaded data (lazy — triggers `loadData` on first get) |
+| `setData(v)` | Override the data value |
+| `load()` | Trigger load (deduplicates concurrent calls) |
+| `update(...args)` | Load with arguments, managing loading state |
+| `loadData(...args)` | **Abstract** — implement your data-fetching logic here |
+| `onLoad()` | Optional callback after data is loaded |
 
 ---
 
-### <a name="storage">defineStorage()</a>
+### Storage — `defineStorage()` / `registerStorageEngine()`
 
-This method create a `reactive data` which always sync with 'localStorage' or 'sessionStorage'.
+Creates a reactive object that automatically persists to `localStorage` or `sessionStorage`.
 
-```ts
-type Options = {
-    mode?: 'localStorage' | 'sessionStorage'
-    async?: boolean
-    debounce?: number
-}
+```tsx
+import {defineStorage} from '@canlooks/reactive'
 
-declare function defineStorage<T>(
-    name: string,
-    initialvalues?: T,
-    options?: Options
-): T
-```
-
-example:
-
-```ts
-const userStorage = defineStorage('user', {
+const user = defineStorage('user', {
     name: 'canlooks',
     age: 18
 })
-// then modifying "userStorage" will sync with 'localStorage'
-userStorage.age++
+
+// Mutations sync to localStorage automatically
+user.age++       // localStorage['user'] updated
+user.name = 'Bob' // localStorage['user'] updated
+```
+
+Options:
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `mode` | `'localStorage' \| 'sessionStorage'` | `'localStorage'` | Storage backend |
+| `async` | `boolean` | `true` | Sync after `nextTick` instead of synchronously |
+| `debounce` | `number` | — | Debounce writes by this many ms |
+| `deep` | `boolean` | `false` | Deep reactivity |
+
+For non-browser environments, register a custom storage engine:
+
+```tsx
+import {registerStorageEngine, defineStorage} from '@canlooks/reactive'
+
+registerStorageEngine({
+    setItem(key, value) { /* ... */ },
+    getItem(key) { /* ... */ },
+    removeItem(key) { /* ... */ }
+})
+
+const data = defineStorage('my-key', {value: 1})
 ```
 
 ---
 
-### <a name="forage">defineForage()</a>
+### Async Storage — `defineAsyncStorage()` / `registerAsyncStorageEngine()`
 
-It's similar to `defineStorage()`, but it use `localforage` to store data.
+Same as `defineStorage()`, but for async storage backends (e.g., React Native AsyncStorage, Electron storage).
 
-```ts
-type Options = {
-    instance?: typeof localforage
-    deep?: boolean
-}
+```tsx
+import {registerAsyncStorageEngine, defineAsyncStorage} from '@canlooks/reactive'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
-declare function defineForage<T>(
-    name: string,
-    initialvalues?: T,
-    options?: Options
-): T
+registerAsyncStorageEngine(AsyncStorage)
+
+const settings = await defineAsyncStorage('settings', {
+    theme: 'dark',
+    lang: 'en'
+})
+
+settings.theme = 'light'  // Synced asynchronously
 ```
 
-or using `Forage` class which extends `Autoload`
+---
 
-```ts
-class Forage extends Autoload {
-    dispose(): void
+### `@canlooks/reactive/forage` — IndexedDB Persistence
+
+Uses [localforage](https://github.com/localForage/localForage) for IndexedDB storage with optional fallback.
+
+```tsx
+import {defineForage} from '@canlooks/reactive/forage'
+
+const user = defineForage('user', {name: 'Alice', age: 30})
+
+// Automatically loads from IndexedDB on first access
+console.log(user.data)       // {name: 'Alice', age: 30}
+console.log(user.loading)    // false
+
+// Mutations are persisted to IndexedDB
+user.data.name = 'Bob'
+
+// Manual refresh
+await user.update()
+```
+
+`Forage` extends `Autoload`, so it supports all `Autoload` methods:
+
+```tsx
+import {Forage} from '@canlooks/reactive/forage'
+
+class UserStore extends Forage<User> {
+    constructor() {
+        super('user', {name: ''})
+    }
+
+    async loadData() {
+        // Custom load logic
+        const cached = await localforage.getItem(this.name)
+        return cached ?? {name: 'Guest'}
+    }
 }
 ```
 
 ---
 
-## <a name="hooks">Hooks</a>
+## External Data & Sharing State
 
-### <a name="useReactive">useReactive()</a>
+No providers, no context — create reactive data anywhere and use it everywhere.
 
-It's encapsulated like:
+```tsx
+// shared/store.ts
+import {reactive} from '@canlooks/reactive'
 
-```ts
-function useReactive<T>(initialValue: T): T {
-    return useMemo(() => reactive(initialValue), [])
-}
+export const store = reactive({
+    user: {name: 'Alice'},
+    count: 0
+})
 ```
 
-### <a name="useReactor">useReactor()</a>
+```tsx
+// ComponentA.tsx
+import {RC} from '@canlooks/reactive/react'
+import {store} from './store'
 
-```ts
-function useReactor(refer: () => T, effect: (newValue: T, oldValue: T) => void, options?: ReactorOptions): void {
-    useEffect(() => {
-        return index(refer, effect, options)
-    }, [])
-}
+export const CompA = RC(() => {
+    // Only re-renders when store.count changes
+    return <div>{store.count}</div>
+})
 ```
 
-### <a name="useAutorun">useAutorun()</a>
+```tsx
+// ComponentB.tsx
+import {RC} from '@canlooks/reactive/react'
+import {store} from './store'
 
-```ts
-function useAutorun(fn: () => void): void {
-    useEffect(() => {
-        return autorun(fn)
-    }, [])
-}
+export const CompB = RC(() => {
+    // Only re-renders when store.user.name changes
+    return <div>{store.user.name}</div>
+})
 ```
 
-### <a name="useAction">useAction()</a>
+```tsx
+// anywhere.ts
+import {act} from '@canlooks/reactive'
+import {store} from './store'
 
-```ts
-function useAction<F extends (...args: any[]) => any>(fn: F): F {
-    return useCallback(action(fn), [])
-}
+act(() => store.count++)  // CompA re-renders, CompB does NOT
 ```
 
 ---
 
-### <a name="useAutoload">useAutoload()</a>
+## Module Structure
 
-```ts
-function useAutoload<D, A>(loadData: (...args: A[]) => D | Promise<D>, options?: ReactiveOptions): Autoload<D, A> {
-    return useMemo(() => autoload(), [])
-}
-```
+| Entry Point | Contents |
+|-------------|----------|
+| `@canlooks/reactive` | Core: `reactive`, `reactor`, `autorun`, `action`, `act`, `ignore`, `watch`, `loading`, `Autoload`, `defineAutoload`, `defineStorage`, `defineAsyncStorage`, `registerStorageEngine`, `registerAsyncStorageEngine`, `reactiveClass`, `reactiveObject`, `getOriginalObject` |
+| `@canlooks/reactive/react` | React: `RC`, `reactiveFC`, `reactiveClassComponent`, `useReactive`, `useAutorun`, `useReactor`, `useAction`, `useExternalReactive`, `Chip`, `Model`, `defineModel`, `useModel`, `useLoading`, `useAutoload` |
+| `@canlooks/reactive/forage` | Persistence: `Forage`, `defineForage` |
+
+---
+
+## License
+
+MIT
