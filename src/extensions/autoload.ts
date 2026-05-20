@@ -17,12 +17,15 @@ export abstract class Autoload<DATA = any, ARGUMENT = any> {
     }
 
     set data(v) {
-        this._data = v
+        this.setData(v)
     }
 
     setData(data: DATA | undefined) {
         this._data = data
+        this.onChange?.(data)
     }
+
+    onChange?(data: DATA | undefined): void
 
     abstract loadData(...args: ARGUMENT[]): DATA | undefined | Promise<DATA | undefined>
     

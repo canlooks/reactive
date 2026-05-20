@@ -1,36 +1,38 @@
-import React, {Activity, StrictMode, useEffect, useState} from 'react'
+import React from 'react'
 import {createRoot} from 'react-dom/client'
-import {RC, useReactive} from '../src/react'
-import {Autoload, reactive} from '../src'
+import {RC} from '../src/react'
+import {Autoload, nextTick, reactive} from '../src'
 import {Forage} from '../src/forage'
 
 @reactive()
 class TestState extends Forage {
     constructor() {
         super('test-forage', {
-            msg: 'CC'
+            count: 123
         })
+    }
+
+    // loadData() {
+    //     return {
+    //         count: 234
+    //     }
+    // }
+
+    increase() {
+        this.data = {
+            count: this.data.count + 1
+        }
     }
 }
 
 const testState = new TestState()
 
 const App = RC(() => {
-    useEffect(() => {
-        (async () => {
-            // const res = await testState.load()
-            // console.log(20, res)
-        })()
-    }, [])
-    console.log(24)
-    console.log(24, testState.loading)
     return (
         <>
-            <h1>{testState.data?.msg}</h1>
+            <h1>{testState.data?.count}</h1>
             <h2>{testState.loading && 'loading...'}</h2>
-            <button onClick={() => testState.data = {
-                msg: 'OK'
-            }}>button</button>
+            <button onClick={testState.increase}>button</button>
         </>
     )
 })

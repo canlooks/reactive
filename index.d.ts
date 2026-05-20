@@ -55,7 +55,8 @@ declare namespace Reactive {
     abstract class Autoload<DATA = any, ARGUMENT = any> {
         loading: boolean
         data: DATA | undefined
-        setData(v: DATA | undefined): void
+        setData(data: DATA | undefined): void
+        onChange?(data: DATA | undefined): void
         abstract loadData(...args: ARGUMENT[]): DATA | undefined | Promise<DATA | undefined>
         load(): Promise<DATA | undefined>
         onLoad?(): any

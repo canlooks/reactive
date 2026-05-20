@@ -683,15 +683,16 @@ const user = defineAutoload(async (id: number) => {
 
 Autoload API:
 
-| Member | Description |
-|--------|-------------|
-| `loading` | `boolean` — whether data is currently loading |
-| `data` | The loaded data (lazy — triggers `loadData` on first get) |
-| `setData(v)` | Override the data value |
-| `load()` | Trigger load (deduplicates concurrent calls) |
-| `update(...args)` | Load with arguments, managing loading state |
-| `loadData(...args)` | **Abstract** — implement your data-fetching logic here |
-| `onLoad()` | Optional callback after data is loaded |
+| Member              | Description                                               |
+|---------------------|-----------------------------------------------------------|
+| `loading`           | `boolean` — whether data is currently loading             |
+| `data`              | The loaded data (lazy — triggers `loadData` on first get) |
+| `setData(v)`        | Override the data value                                   |
+| `load()`            | Trigger load (deduplicates concurrent calls)              |
+| `update(...args)`   | Load with arguments, managing loading state               |
+| `loadData(...args)` | **Abstract** — implement your data-fetching logic here    |
+| `onChange(v)`       | Optional callback after data is changed                   |
+| `onLoad()`          | Optional callback after data is loaded                    |
 
 ---
 

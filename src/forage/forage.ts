@@ -1,4 +1,3 @@
-import {reactor} from '../api'
 import {targetIsClass} from '../core/allocateTargets'
 import {Autoload} from '../extensions'
 import localforage from 'localforage'
@@ -9,16 +8,13 @@ export class Forage<D = any> extends Autoload<D> {
         super()
     }
 
-    dispose() {
+    async loadData() {
+        const cached = await localforage.getItem<D>(this.name)
+        return cached ?? this.initialValue
     }
 
-    async loadData() {
-        this.dispose()
-        const cached = await localforage.getItem<D>(this.name)
-        this.dispose = reactor(() => this.data, data => {
-            localforage.setItem(this.name, data)
-        })
-        return cached ?? this.initialValue
+    override async onChange(data: D | undefined) {
+        await localforage.setItem(this.name, data)
     }
 }
 
