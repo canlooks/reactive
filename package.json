@@ -1,36 +1,38 @@
 {
   "name": "@canlooks/reactive",
-  "version": "4.8.5",
-  "author": "C.CanLiang <canlooks@gmail.com>",
-  "description": "A react tool for responding data and managing state.",
-  "keywords": [
-    "react",
-    "reactive",
-    "responsive",
-    "automatic",
-    "dynamic",
-    "state management"
-  ],
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
-  "types": "index.d.ts",
+  "version": "5.0.0",
+  "description": "Lightweight Proxy reactivity with computed values and synchronous batching",
+  "type": "module",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/esm/index.d.ts",
   "exports": {
     ".": {
-      "types": "./index.d.ts",
-      "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js"
+      "import": {
+        "types": "./dist/esm/index.d.ts",
+        "node": "./dist/node.js",
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "types": "./dist/cjs/index.d.ts",
+        "default": "./dist/cjs/index.js"
+      }
     },
     "./react": {
-      "types": "./react/index.d.ts",
-      "import": "./react/index.mjs",
-      "require": "./react/index.js"
-    },
-    "./forage": {
-      "types": "./forage/index.d.ts",
-      "import": "./forage/index.mjs",
-      "require": "./forage/index.js"
+      "import": {
+        "types": "./dist/esm/react/index.d.ts",
+        "node": "./dist/node-react.js",
+        "default": "./dist/esm/react/index.js"
+      },
+      "require": {
+        "types": "./dist/cjs/react/index.d.ts",
+        "default": "./dist/cjs/react/index.js"
+      }
     }
   },
+  "files": [
+    "dist"
+  ],
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
@@ -46,29 +48,36 @@
   },
   "license": "MIT",
   "scripts": {
-    "clean": "npx shx rm -rf dist",
-    "build": "tsc -m esnext --outDir dist/esm & tsc -m commonjs --outDir dist/cjs",
-    "build:alias": "tsc-alias --outDir dist/esm",
-    "rebuild": "npm run clean && npm run build && npm run build:alias",
-    "test:browser": "vite -c test/vite.config.mts",
-    "test:unit": "npx ts-node test/unit.ts",
-    "test:js": "node test/index.js"
+    "test": "npm run test:node && npm run test:react && npm run typecheck && npm run typecheck:test && npm run typecheck:react",
+    "test:node": "tsx --tsconfig tsconfig.test.json test/test.ts",
+    "test:react": "tsx --tsconfig tsconfig.react-test.json test/react.tsx",
+    "test:dist": "node test/smoke.mjs && node --no-experimental-require-module test/smoke.cjs && npm run typecheck:dist",
+    "typecheck": "tsc --noEmit",
+    "typecheck:test": "tsc -p tsconfig.test.json",
+    "typecheck:dist": "tsc -p test/types/tsconfig.json && tsc -p test/types/react/tsconfig.json",
+    "typecheck:react": "tsc -p tsconfig.react-test.json",
+    "test:package": "node scripts/test-package.mjs",
+    "build": "node scripts/build.mjs",
+    "prepack": "npm run build"
   },
-  "dependencies": {
-    "globals": "^17.5.0",
-    "tslib": "^2.8.1"
+  "peerDependencies": {
+    "react": "^18.3.1 || ^19.0.0",
+    "@types/react": "^18.3.0 || ^19.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": { "optional": true },
+    "@types/react": { "optional": true }
   },
   "devDependencies": {
-    "@types/node": "^25.6.0",
-    "@types/react": "^19.2.14",
-    "@types/react-dom": "^19.2.3",
-    "localforage": "^1.10.0",
-    "mobx": "^6.15.0",
-    "mobx-react": "^9.2.1",
-    "react": "^19.2.5",
-    "react-dom": "^19.2.5",
-    "tsc-alias": "^1.8.16",
-    "typescript": "^6.0.3",
-    "vite": "^8.0.8"
+    "@types/jsdom": "^30.0.0",
+    "@types/node": "^24.19.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "esbuild": "^0.28.2",
+    "jsdom": "^29.1.1",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "tsx": "^4.23.13",
+    "typescript": "^7.0.2"
   }
 }

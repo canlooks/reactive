@@ -1,12 +1,14 @@
 {
   "compilerOptions": {
     "rootDir": "src",
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "jsx": "react-jsx",
-    "importHelpers": true,
+    "outDir": "dist/esm",
+    "declaration": true,
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "importHelpers": false,
     "esModuleInterop": true,
+    "experimentalDecorators": true,
     "strict": true,
     "noUnusedLocals": true,
     "noImplicitOverride": true,
@@ -16,8 +18,5 @@
   },
   "include": [
     "src/**/*"
-  ],
-  "tsc-alias": {
-    "resolveFullPaths": true
-  }
+  ]
 }
