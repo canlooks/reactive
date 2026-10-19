@@ -305,3 +305,70 @@ const Comp = RC(() => {
 ```
 
 When `initialLoading` is a `number`, `loading` acts as a stack counter (increments for concurrent calls, decrements on return) instead of a boolean.
+
+### 3.7 `@loading(source)`
+
+Class method decorator — toggles a boolean or increments a counter property during async method execution.
+
+```tsx
+@RC
+class Index extends React.Component {
+    busy = false
+    stack = 0
+
+    // Boolean loading: sets busy = true during execution, false afterwards
+    @loading(ctx => ctx.busy)
+    async fetchData() {
+        const res = await fetch('/api/data')
+        return res.json()
+    }
+
+    // Stack loading: increments stack during execution, decrements afterwards
+    @loading(ctx => ctx.stack)
+    async concurrentTask() {
+        // Multiple concurrent calls increase the stack
+    }
+
+    render() {
+        return this.busy ? <div>Loading...</div> : <div>Ready</div>
+    }
+}
+```
+
+## 4 持久化存储
+
+### 4.1 浏览器原生持久化存储
+
+响应式数据支持浏览器的localStorage或sessionStorage进行持久化存储。即响应式数据变化后会自动更新localStorage或sessionStorage的值。
+使用方法如：
+
+```ts
+const state = storage({
+    count: 1
+}, {
+    name: 'storage-name',
+    type: 'localStorage'
+})
+```
+
+`storage`方法接收两个参数，第一个是初始值，第二个是选项，选项除了`name`与`type`外还接收一个`adapter`，用于 4.2 自定义持久化
+
+此时的`state`使用起来与`reactive`定义的响应式数据相同，触发副作用等行为完全一致。不同的是当中的属性变化会自动同步存储到localStorage或sessionStorage，下次初始化时会读取持久化存储中的值。
+
+### 4.2 自定义持久化
+
+`storage`方法的第二个参数类型为：
+
+```ts
+type StorageOptions = {
+    name: string
+    /** Default to `localStorage` */
+    type?: 'localStorage' | 'sessionStorage'
+    adapter?: {
+        getItem(key: string): string | null | PromiseLike<string | null>
+        setItem(key: string, value: string): void | PromiseLike<void>
+    }
+}
+```
+
+因此定义了`adapter`后可实现自定义存储的功能，比如`localforage`等工具。但`storage`方法仅提供这个自定义的功能，并不会自动安装`localforage`等其他依赖。

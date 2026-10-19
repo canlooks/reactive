@@ -57,7 +57,7 @@ try {
         'dist/esm/react/index.js', 'dist/cjs/react/index.js', 'dist/esm/react/index.d.ts', 'dist/cjs/react/index.d.ts']) {
         assert.ok(packedFiles.has(file), `Missing package file: ${file}`)
     }
-    for (const format of ['esm', 'cjs']) for (const module of ['reference', 'react/commit', 'react/chip', 'react/model', 'react/loading']) {
+    for (const format of ['esm', 'cjs']) for (const module of ['reference', 'storage', 'storageSnapshot', 'react/commit', 'react/chip', 'react/model', 'react/loading', 'react/classState', 'react/loadingDecorator']) {
         for (const extension of ['js', 'd.ts']) assert.ok(packedFiles.has(`dist/${format}/${module}.${extension}`))
     }
     assert.ok([...packedFiles].every(file => /^(dist\/|README\.md$|package\.json$|LICENSE)/i.test(file)))
@@ -68,23 +68,34 @@ try {
 
     const core = await setup('core-only', [tarball, `typescript@${versionOf('typescript')}`])
     await copyFile(join(root, 'test/smoke-assertions.cjs'), join(core, 'verify.cjs'))
+    await copyFile(join(root, 'test/storage-smoke.cjs'), join(core, 'storage-smoke.cjs'))
     await save(core, 'check.mjs', `
 import assert from 'node:assert/strict'
 import { createRequire } from 'node:module'
-import * as api from '@canlooks/reactive'
 import verify from './verify.cjs'
+import verifyStorage from './storage-smoke.cjs'
 const require = createRequire(import.meta.url)
+let browserAccesses = 0
+for (const key of ['window', 'localStorage', 'sessionStorage']) {
+    Object.defineProperty(globalThis, key, { configurable: true, get() { browserAccesses++; throw new Error(key) } })
+}
+const api = await import('@canlooks/reactive')
 const cjs = require('@canlooks/reactive')
+assert.equal(browserAccesses, 0, 'import and require must not read browser globals')
+Reflect.deleteProperty(globalThis, 'window')
 verify(api); verify(cjs)
 for (const key of Object.keys(api)) assert.equal(api[key], cjs[key])
-for (const dependency of ['react', 'react-dom', '@types/react/package.json']) {
+await verifyStorage(api, cjs)
+await verifyStorage(cjs, api)
+assert.equal(browserAccesses, 0, 'SSR must not use Node global storage')
+for (const dependency of ['react', 'react-dom', '@types/react/package.json', 'localforage']) {
     assert.throws(() => require.resolve(dependency), { code: 'MODULE_NOT_FOUND' })
 }
 `)
     run(core, process.execPath, ['check.mjs'])
     await copyTypes(join(core, 'types'))
     typecheck(core, 'types/tsconfig.json')
-    console.log('Core-only consumer: import/require/watch/batch/computed and strict non-DOM declarations passed without React.')
+    console.log('Core-only consumer: six APIs, sync/async storage, mixed entries and strict non-DOM declarations passed without React or localforage.')
 
     for (const major of [19, 18]) {
         const reactVersion = major === 19 ? versionOf('react') : '18.3.1'
@@ -93,6 +104,7 @@ for (const dependency of ['react', 'react-dom', '@types/react/package.json']) {
             `jsdom@${versionOf('jsdom')}`, `tsx@${versionOf('tsx')}`])
         await copyFile(join(root, 'test/react-smoke.mjs'), join(directory, 'verify-react.mjs'))
         await copyFile(join(root, 'test/smoke-assertions.cjs'), join(directory, 'smoke-assertions.cjs'))
+        await copyFile(join(root, 'test/storage-smoke.cjs'), join(directory, 'storage-smoke.cjs'))
         await copyFile(join(root, 'test/smoke.cjs'), join(directory, 'smoke.cjs'))
         await save(directory, 'check.mjs', `
 import assert from 'node:assert/strict'
@@ -104,8 +116,8 @@ const require = createRequire(import.meta.url)
 const cjs = require('@canlooks/reactive')
 const cjsReact = require('@canlooks/reactive/react')
 for (const key of Object.keys(reactApi)) assert.equal(reactApi[key], cjsReact[key])
-await verify(api, cjsReact)
-await verify(cjs, reactApi)
+await verify(api, cjsReact, reactApi)
+await verify(cjs, reactApi, cjsReact)
 const native = await import('./node_modules/@canlooks/reactive/dist/esm/index.js')
 const nativeReact = await import('./node_modules/@canlooks/reactive/dist/esm/react/index.js')
 await verify(native, nativeReact)
@@ -116,7 +128,7 @@ await verify(native, nativeReact)
         typecheck(directory, 'types/tsconfig.json')
         // Run the complete behavior suite against the tarball's native ESM graph,
         // including its internal coordination tests. No repository modules resolve here.
-        for (const file of ['react.tsx', 'react-features.tsx']) {
+        for (const file of ['react.tsx', 'react-features.tsx', 'react-loading.tsx']) {
             const suite = (await readFile(join(root, 'test', file), 'utf8'))
                 .replaceAll("'../src/", "'./node_modules/@canlooks/reactive/dist/esm/")
             await save(directory, file, suite)

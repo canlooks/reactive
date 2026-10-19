@@ -8,13 +8,24 @@ const proxyToRaw = new WeakMap<object, object>()
 const getterCache = new WeakMap<object, Map<PropertyKey, { getter: () => unknown; read: Computed<unknown> }>>()
 const batchedInstances = new WeakSet<object>()
 const methodCache = new WeakMap<object, Map<PropertyKey, { method: Function; wrapped: Function }>>()
+const objectConstructorSource = Function.prototype.toString.call(Object)
 
 function isObject(value: unknown): value is object {
     return value !== null && (typeof value === 'object' || typeof value === 'function')
 }
 
-function toRaw<T>(value: T): T {
+/** Internal identity normalization; not part of the package API. */
+export function toRaw<T>(value: T): T {
     return (isObject(value) ? proxyToRaw.get(value) ?? value : value) as T
+}
+
+/** Internal realm-safe Object.prototype check; never read user accessors. */
+export function isObjectPrototype(prototype: object): boolean {
+    if (Reflect.getPrototypeOf(prototype) !== null) return false
+    const ctor = Reflect.getOwnPropertyDescriptor(prototype, 'constructor')?.value
+    return typeof ctor === 'function'
+        && Reflect.getOwnPropertyDescriptor(ctor, 'prototype')?.value === prototype
+        && Function.prototype.toString.call(ctor) === objectConstructorSource
 }
 
 function isNative(fn: Function): boolean {
@@ -38,7 +49,8 @@ function canProxy(target: object): boolean {
     while ((current = Reflect.getPrototypeOf(current))) {
         current = toRaw(current)
         const ctor = Reflect.getOwnPropertyDescriptor(current, 'constructor')?.value
-        if (typeof ctor === 'function' && ctor !== Object && isBuiltinConstructor(ctor)) return false
+        if (typeof ctor === 'function' && ctor !== Object
+            && !isObjectPrototype(current) && isBuiltinConstructor(ctor)) return false
     }
     return true
 }

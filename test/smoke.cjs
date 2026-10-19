@@ -1,5 +1,6 @@
 const api = require('@canlooks/reactive')
 const verifyPackage = require('./smoke-assertions.cjs')
+const verifyStorage = require('./storage-smoke.cjs')
 
 verifyPackage(api)
 const assert = require('node:assert/strict')
@@ -14,4 +15,6 @@ const View = reactApi.RFC(() => {
 })
 assert.equal(renderToString(React.createElement(View)), '<div>1</div>')
 assert.equal(reactApi.RC(View), View)
-console.log('CommonJS require: five core exports, React subentry, SSR and decorators passed.')
+verifyStorage(api).then(() => {
+    console.log('CommonJS require: six core exports, storage, React subentry, SSR and decorators passed.')
+}).catch(error => { console.error(error); process.exitCode = 1 })

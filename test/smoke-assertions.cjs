@@ -1,8 +1,36 @@
 const assert = require('node:assert/strict')
+const { runInNewContext } = require('node:vm')
 
 module.exports = function verifyPackage(api) {
-    assert.deepEqual(Object.keys(api).sort(), ['batch', 'computed', 'effect', 'reactive', 'watch'])
-    const { batch, computed, effect, reactive, watch } = api
+    assert.deepEqual(Object.keys(api).sort(), ['batch', 'computed', 'effect', 'reactive', 'storage', 'watch'])
+    const { batch, computed, effect, reactive, storage, watch } = api
+    const foreignRaw = runInNewContext('({ n: 0, child: { n: 0 } })')
+    const foreign = reactive(foreignRaw)
+    assert.notEqual(foreign, foreignRaw)
+    const foreignSeen = []
+    const stopForeign = effect(() => foreignSeen.push([foreign.n, foreign.child.n]))
+    batch(() => { foreign.n++; foreign.child.n++ })
+    stopForeign()
+    assert.deepEqual(foreignSeen, [[0, 0], [1, 1]])
+    let record = '{"count":2}'
+    let reads = 0
+    let writes = 0
+    const adapter = {
+        getItem() { assert.equal(this, adapter); reads++; return record },
+        setItem(_key, value) { assert.equal(this, adapter); writes++; record = value },
+    }
+    const raw = { count: 0, nested: {} }
+    const saved = storage(raw, { name: 'smoke', adapter })
+    assert.equal(saved, reactive(raw))
+    assert.equal(saved.count, 2)
+    assert.equal(writes, 0)
+    assert.equal(storage(saved, { name: 'smoke', adapter }), saved)
+    assert.equal(reads, 1)
+    batch(() => { saved.count++; saved.nested.added = true })
+    assert.equal(record, '{"count":3,"nested":{"added":true}}')
+    assert.equal(writes, 1)
+    batch(() => { saved.count++; saved.count-- })
+    assert.equal(writes, 1)
     const state = reactive({ count: 1 })
     const double = computed(() => state.count * 2)
     assert.ok(Object.isFrozen(double))

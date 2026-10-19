@@ -3,6 +3,7 @@ import { createRequire } from 'node:module'
 import * as api from '@canlooks/reactive'
 import * as nativeEsm from '../dist/esm/index.js'
 import verifyPackage from './smoke-assertions.cjs'
+import verifyStorage from './storage-smoke.cjs'
 import * as reactApi from '@canlooks/reactive/react'
 import * as nativeReact from '../dist/esm/react/index.js'
 import verifyReact from './react-smoke.mjs'
@@ -29,7 +30,10 @@ cjs.batch(() => { state.count = 4; state.count = 5 })
 cjs.batch(() => { state.count = 6; state.count = 5 })
 assert.deepEqual(seen, [[1, 2], [3, 6], [5, 10]])
 stop()
-await verifyReact(api, cjsReact)
-await verifyReact(cjs, reactApi)
+await verifyStorage(api, cjs)
+await verifyStorage(cjs, api)
+await verifyStorage(nativeEsm)
+await verifyReact(api, cjsReact, reactApi)
+await verifyReact(cjs, reactApi, cjsReact)
 await verifyReact(nativeEsm, nativeReact)
 console.log('ESM, native ESM and both mixed Node entry directions share core/React state.')

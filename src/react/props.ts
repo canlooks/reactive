@@ -1,5 +1,5 @@
 import {
-    getDep, getReadView, recordChange, track,
+    getDep, getReadView, hasDepSubscribers, recordChange, track,
     type ChangeReceipt, type ChangeSource, type PropertyState, type ReadView,
 } from '../effect.js'
 import { recordReferenceRead } from '../reference.js'
@@ -61,7 +61,7 @@ export class PropsCell<P extends object> {
     current(): P { return (getReadView()?.values.get(this) as P | undefined) ?? this.committed }
 
     readSlot(): P { track(this, slot); return this.current() }
-    hasSlotConsumers(): boolean { return getDep(this, slot).size > 0 }
+    hasSlotConsumers(): boolean { return hasDepSubscribers(getDep(this, slot)) }
 
     view(incoming: P): ReadView {
         const changed = new Set<ReturnType<typeof getDep>>()

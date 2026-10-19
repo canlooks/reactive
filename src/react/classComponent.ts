@@ -2,6 +2,8 @@ import type { Component, ComponentClass } from 'react'
 import { getReadView, isSubscriptionRead, outsideReadContext } from '../effect.js'
 import { Observer, type RenderAttempt } from './observer.js'
 import { shallowEqual } from './props.js'
+import { batch } from '../batch.js'
+import { installClassState } from './classState.js'
 
 const cache = new WeakMap<object, ComponentClass<any>>()
 
@@ -23,6 +25,7 @@ export function ReactiveClassComponent<C extends ComponentClass<any>>(Target: C)
     class ReactiveClass extends Base {
         constructor(...args: any[]) {
             super(...args)
+            const state = installClassState(this)
             const observer = new Observer(this.props, true)
             let delivered = this.props
             let attempt: RenderAttempt<any> | undefined
@@ -49,15 +52,31 @@ export function ReactiveClassComponent<C extends ComponentClass<any>>(Target: C)
                 return result
             })
             install(this, 'componentDidMount', (...params: unknown[]) => {
-                observer.subscribe(() => outsideReadContext(() => this.forceUpdate()))
-                if (attempt) observer.commit(attempt)
-                didMount?.apply(this, params as [])
+                try {
+                    batch(() => {
+                        state.connect()
+                        observer.subscribe(() => outsideReadContext(() => this.forceUpdate()))
+                        if (attempt) observer.commit(attempt)
+                    })
+                    didMount?.apply(this, params as [])
+                } catch (error) {
+                    state.disconnect()
+                    observer.disconnect()
+                    throw error
+                }
             })
             install(this, 'componentDidUpdate', (...params: unknown[]) => {
-                if (attempt) observer.commit(attempt)
-                didUpdate?.apply(this, params as [any, any, any])
+                try {
+                    if (attempt) observer.commit(attempt)
+                    didUpdate?.apply(this, params as [any, any, any])
+                } catch (error) {
+                    state.disconnect()
+                    observer.disconnect()
+                    throw error
+                }
             })
             install(this, 'componentWillUnmount', (...params: unknown[]) => {
+                state.disconnect()
                 observer.disconnect()
                 willUnmount?.apply(this, params as [])
             })

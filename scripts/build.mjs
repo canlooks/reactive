@@ -40,11 +40,11 @@ await writeFile(join(cjs, 'package.json'), '{"type":"commonjs"}\n')
 // use the native ESM files through the default import condition instead.
 await writeFile(join(dist, 'node.js'), [
     "import api from './cjs/index.js'",
-    'export const { reactive, effect, computed, batch, watch } = api',
+    'export const { reactive, effect, computed, batch, watch, storage } = api',
     '',
 ].join('\n'))
 await writeFile(join(dist, 'node-react.js'), [
     "import api from './cjs/react/index.js'",
-    'export const { ReactiveComponent, ReactiveFunctionComponent, ReactiveClassComponent, RC, RFC, RCC, useReactive, useWatch, Chip, AsyncChip, chip, strictChip, asyncChip, asyncStrictChip, useModel, Model, defineModel, useLoading } = api',
+    'export const { ReactiveComponent, ReactiveFunctionComponent, ReactiveClassComponent, RC, RFC, RCC, useReactive, useWatch, Chip, AsyncChip, chip, strictChip, asyncChip, asyncStrictChip, useModel, Model, defineModel, useLoading, loading } = api',
     '',
 ].join('\n'))
