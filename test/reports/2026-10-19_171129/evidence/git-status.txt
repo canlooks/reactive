@@ -1,0 +1,47 @@
+ M .agents/design.md
+ M .agents/implementation.md
+ M README.md
+ M package-lock.json
+ M package.json
+ M scripts/build.mjs
+ M scripts/test-package.mjs
+ M src/effect.ts
+ M src/index.ts
+ M src/react/classComponent.ts
+ M src/react/index.ts
+ M src/react/model.ts
+ M src/react/props.ts
+ M src/reactive.ts
+ M test/react-features.tsx
+ M test/react-smoke.mjs
+ M test/react.tsx
+ M test/smoke-assertions.cjs
+ M test/smoke.cjs
+ M test/smoke.mjs
+ M test/test.ts
+ M test/types/react/features.cts
+ M test/types/react/features.mts
+ M test/types/react/features.tsx
+?? src/react/classState.ts
+?? src/react/loadingDecorator.ts
+?? src/storage.ts
+?? src/storageSnapshot.ts
+?? test/AUTOMATION.md
+?? test/BASELINE.md
+?? test/TEST_CASES.md
+?? test/TEST_PLAN.md
+?? test/cases/
+?? test/derived-lifecycle.mjs
+?? test/evidence/
+?? test/react-loading.tsx
+?? test/reports/
+?? test/storage-browser.ts
+?? test/storage-localforage.ts
+?? test/storage-smoke.cjs
+?? test/storage.ts
+?? test/types/react/loading.cts
+?? test/types/react/loading.mts
+?? test/types/react/loading.tsx
+?? test/types/storage.cts
+?? test/types/storage.mts
+?? test/validate-docs.mjs

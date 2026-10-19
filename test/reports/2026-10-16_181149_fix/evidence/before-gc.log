@@ -1,0 +1,93 @@
+START 2026-10-16T10:14:34.348Z
+CWD E:\projects\@canlooks\reactive
+COMMAND node --expose-gc test/derived-lifecycle.mjs
+
+✖ unused computed payloads and getter receivers are collectible while their source stays alive (34.249ms)
+✔ effects and watches depending only on computed remain active without retained disposers (35.8223ms)
+✔ retained computed and getter caches stay lazy after their last consumer stops (16.4921ms)
+✔ read snapshots keep ephemeral upstream computations alive until commit or release (32.5723ms)
+✖ consumer reruns release temporary computed payloads and stop releases the final one (17.2011ms)
+✖ switching away from a derived branch releases it while the ordinary consumer remains active (16.5043ms)
+✔ an entire active source and derived consumer graph can be collected (17.4819ms)
+✖ props slots count retained derivations and ignore collected ones (16.9501ms)
+✔ shared storage children and completed I/O do not retain discarded roots (78.8131ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 5
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 270.0761
+
+✖ failing tests:
+
+test at test\derived-lifecycle.mjs:23:1
+✖ unused computed payloads and getter receivers are collectible while their source stays alive (34.249ms)
+  AssertionError [ERR_ASSERTION]: computed payloads retained
+  
+  1000 !== 0
+  
+      at TestContext.<anonymous> (file:///E:/projects/@canlooks/reactive/test/derived-lifecycle.mjs:37:16)
+      at async Test.run (node:internal/test_runner/test:1125:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1000,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test\derived-lifecycle.mjs:97:1
+✖ consumer reruns release temporary computed payloads and stop releases the final one (17.2011ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  11 !== 1
+  
+      at TestContext.<anonymous> (file:///E:/projects/@canlooks/reactive/test/derived-lifecycle.mjs:107:12)
+      at async Test.run (node:internal/test_runner/test:1125:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 11,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test\derived-lifecycle.mjs:114:1
+✖ switching away from a derived branch releases it while the ordinary consumer remains active (16.5043ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///E:/projects/@canlooks/reactive/test/derived-lifecycle.mjs:124:12)
+      at async Test.run (node:internal/test_runner/test:1125:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test\derived-lifecycle.mjs:147:1
+✖ props slots count retained derivations and ignore collected ones (16.9501ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file:///E:/projects/@canlooks/reactive/test/derived-lifecycle.mjs:152:12)
+      at async Test.run (node:internal/test_runner/test:1125:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+END 2026-10-16T10:14:34.711Z EXIT 1

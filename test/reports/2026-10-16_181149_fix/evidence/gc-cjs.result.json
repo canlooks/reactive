@@ -1,0 +1,15 @@
+{
+  "name": "gc-cjs",
+  "command": "node",
+  "args": [
+    "--expose-gc",
+    "test/derived-lifecycle.mjs",
+    "--cjs"
+  ],
+  "cwd": "E:\\projects\\@canlooks\\reactive",
+  "started": "2026-10-16T10:19:25.314Z",
+  "ended": "2026-10-16T10:19:25.901Z",
+  "durationMs": 587,
+  "exitCode": 0,
+  "signal": null
+}

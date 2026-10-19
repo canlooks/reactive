@@ -1,12 +1,14 @@
 # @canlooks/reactive 落地方案
 
-本文对应同目录的 `design.md`，覆盖第 2.1～2.5 节与第 3.1～3.6 节：响应式内核、React 组件与局部 Hook，以及本次要求的响应式 props、Chip 局部更新、Model 双向绑定和异步 loading。**继续使用自行实现的响应式内核，不复用 `alien-signals`；核心入口没有运行时依赖，React 集成通过独立子入口和可选 peer dependency 提供。**
+本文对应同目录的 `design.md`，覆盖第 2.1～2.5 节、第 3.1～3.7 节及新增的第 4.1～4.2 节：响应式内核、React 集成，以及浏览器原生和自定义适配器的持久化存储。**继续使用自行实现的响应式内核，不复用 `alien-signals`；核心入口没有运行时依赖，React 集成通过独立子入口和可选 peer dependency 提供。**
 
-本轮已在原有第 2.1～2.5 节及第 3.1～3.3 节实现上，完成显式 computed 的只读 `.value` 迁移，以及 Chip、Model、useLoading、useReactive。新增能力复用现有内核、观察器与提交协调；第 10.6 节的 props 提交与通知去重契约继续保留。本文记录实现契约与验收要求，实际检查结果见文末实施记录，使用示例与迁移说明见 README。
+前一轮已完成显式 computed 的只读 `.value` 迁移、Chip、Model、useLoading、useReactive，以及 ReactiveComponent 类分支的用户实例字段和 3.7 的 loading 方法装饰器；实际结果保留在第 13～15 节。`RC === ReactiveComponent`、`RCC === ReactiveClassComponent` 保持不变，类字段能力由共用实现提供。
+
+**第 4 节持久化存储已按本方案实现并完成验收。**需求分析、补充契约和内部设计见第 16 节，执行步骤见 11.3，验收矩阵见 12.4，实际结果见第 18 节。根入口增加 `storage` 后为六个运行时 API，React 子入口保持十九个；第 13～17 节保留各阶段的历史记录。
 
 ## 1. 实现范围与当前基础
 
-当前已有 `src/effect.ts`、`computed.ts`、`reactive.ts`、`batch.ts`、`watch.ts` 和五个 API 的根入口；`test/test.ts` 使用 `node:test` 与 `node:assert/strict`。`scripts/build.mjs` 已递归生成 ESM/CJS 与声明，并提供共享 CommonJS 内核的 Node 双入口桥接；已有两种格式、混合导入、React DOM、消费端类型及隔离打包测试。`tsconfig.json` 开启传统装饰器，代码同时支持 `@reactive` 和 `@reactive()`，本次保留这些能力。
+当前已有 `src/effect.ts`、`computed.ts`、`reactive.ts`、`batch.ts`、`watch.ts`、`storage.ts`、`storageSnapshot.ts` 和六个 API 的根入口；`test/test.ts` 使用 `node:test` 与 `node:assert/strict`。`scripts/build.mjs` 已递归生成 ESM/CJS 与声明，并提供共享 CommonJS 内核的 Node 双入口桥接；已有两种格式、混合导入、浏览器存储、React DOM、消费端类型及隔离打包测试。`tsconfig.json` 开启传统装饰器，代码同时支持 `@reactive` 和 `@reactive()`，本次保留这些能力。
 
 `src/react/` 包含 `Observer`、`PropsCell`、函数/类组件包装、局部 Hook，以及新增的 `commit.ts`、`chip.ts`、`model.ts` 和 `loading.ts`。内核具备候选依赖收集、读取视图、notify 节点、提交来源确认及结算收尾；`reference.ts` 提供内部可写属性位置捕获，computed 和 getter 的捕获隔离不改变依赖追踪。`useReactive` 为局部响应式状态的唯一公开 Hook 名称。新增能力复用上述观察器和批次，不恢复旧版 `Proxyable`/`TwoWay` 架构，不新建依赖表或 React 调度队列。
 
@@ -26,6 +28,7 @@
 | `@reactive` 类方法自动批处理 | 在方法读取时复用包装函数，调用时进入同一个 batch 边界 |
 | `watch(source, callback, options?)` | 复用同步队列，仅收集 source 的依赖；默认不执行首次回调，`immediate: true` 时立即执行 |
 | 函数与类响应式组件、三组别名 | React 子入口按组件类型分发；函数路径自动包裹 memo，内部收集 render 依赖并通知 React 更新 |
+| RC / ReactiveComponent / RCC 类组件的用户字段 | 在原实例上桥接已初始化的用户数据字段到内部 reactive 状态；普通赋值、嵌套读取均接入既有 Observer |
 | `useReactive(initialState)` | 为一次组件挂载保存稳定的响应式对象 |
 | `useWatch(source, callback, options?)` | 提交后建立监听并按 immediate 决定是否执行首次回调；更新闭包和依赖，卸载时停止 |
 | 组件 props 自动响应式 | 函数组件获得只读 props 视图；类组件适配 this.props 读取；提交后通知 watch/computed 消费者 |
@@ -36,6 +39,9 @@
 | `useModel(initialValue)` | 稳定的局部响应式 value 与事件/直接值写入函数 |
 | `Model source` / `defineModel refer` | 捕获可写属性位置，经同一代理写回，注入受控属性并合并 onChange |
 | `useLoading(fn, initialLoading?)` | 稳定 load 函数、并发调用记账、布尔/数值 loading、异常及卸载收尾 |
+| `@loading(ctx => ctx.busy)` / `@loading(ctx => ctx.stack)` | 传统实例方法装饰器；定位响应式字段，按实例和字段共用 token，保留方法参数、this、结果和错误 |
+| `storage(initialState, {name, type?})` | 返回同一内核创建的响应式对象；按名称恢复 JSON 快照，净变化后同步写入指定浏览器存储 |
+| `storage(initialState, {name, adapter})` | 自定义适配器优先，兼容同步方法和 PromiseLike；异步读取保护本地修改，写入串行并合并等待中的快照 |
 | React 非必需依赖 | 根入口及其声明不引用 React，独立导出 `@canlooks/reactive/react` |
 
 设计没有规定的行为，在本方案中统一约定：
@@ -48,9 +54,11 @@
 - computed 和 getter 应是同步、无副作用的派生计算，只依赖可追踪的数据。
 - 批次只覆盖同步调用栈，嵌套批次共用最外层的比较基线。它延迟通知，不隔离读取，也不回滚写入；返回值、异常和异步边界见第 5 节。
 
-本阶段在已有 watch 和 React 绑定上补齐设计 3.3～3.6；不增加公开 `ref`/`twoWay`、自定义调度器、持久化、插件系统、`@batch`、返回包装函数的 batch 工厂或异步事务。Model 使用的属性引用捕获只作为内部接口。保留现有 `reactive()` 装饰器工厂，不为新增组件 API 扩展无参装饰器工厂。`Map`、`Set`、`Date`、Promise、DOM 对象等仍不代理内部行为，读取时原样返回；它们所在的普通属性被整体替换时仍可通知。
+本阶段在已完成的第 2、3 节基础上增加第 4 节持久化；不增加公开 `ref`/`twoWay`、自定义调度器、插件系统、`@batch`、返回包装函数的 batch 工厂或异步事务。Model 与 loading 的定位设施保持内部接口。保留现有 `reactive()` 装饰器工厂，不为组件 API 扩展无参装饰器工厂；`@loading` 必须传 source。`Map`、`Set`、`Date`、Promise、DOM 对象等仍不代理内部行为，读取时原样返回；它们所在的普通属性被整体替换时仍可通知。持久化的数据范围、错误及环境边界另见 16.2～16.8。
 
 `in`、`Object.keys`、`for...in` 的结构变化追踪，以及运行期间通过 `defineProperty`、`setPrototypeOf` 修改对象结构，不纳入首版契约。这些操作仍按 JavaScript 本身执行，但不承诺建立或更新相应订阅。
+
+持久化需要感知未被业务读取过的字段新增、删除及深层变化，为此按 16.3 增加内部对象变更依赖，复用已有属性日志和 effect 队列。它不改变上述公开枚举追踪边界，也不改变普通 effect 的同步通知时机。
 
 ## 2. 对外 API
 
@@ -64,11 +72,25 @@ export function batch<T>(fn: () => T): T
 export interface WatchOptions { immediate?: boolean }
 export function watch<T>(source: () => T, callback: (newValue: T, oldValue: T) => void, options?: WatchOptions & { immediate?: false }): () => void
 export function watch<T>(source: () => T, callback: (newValue: T, oldValue: T | undefined) => void, options?: WatchOptions): () => void
+
+export interface StorageAdapter {
+    getItem(key: string): string | null | PromiseLike<string | null>
+    setItem(key: string, value: string): void | PromiseLike<void>
+}
+export interface StorageOptions {
+    name: string
+    /** Default to localStorage; ignored when adapter is supplied. */
+    type?: 'localStorage' | 'sessionStorage'
+    adapter?: StorageAdapter
+}
+export function storage<T extends object>(initialState: T, options: StorageOptions): T
 ```
 
 以上 API 从 `@canlooks/reactive` 导入。`reactive` 保留输入类型，类构造签名、实例属性和静态成员无需重新映射，同时保留 `@reactive` 与 `@reactive()`。普通对象的函数属性原样返回；响应式类的实例方法、静态方法按第 8 节自动包装，但均不自动绑定 `this`。函数作为 `reactive` 的直接参数时，仅承诺支持用户类构造函数；`reactive(Store)` 与 `@reactive` 使用同一条类处理路径。
 
-`effect` 的返回值只负责停止订阅，重复调用无副作用；不返回 runner，不解释回调的返回值。按更新后的设计 2.3，`computed` 返回稳定的 `Computed<T>` 对象，通过 `double.value`、`greeting.value` 取值；value 为只读访问器，不提供 setter，也不保留可调用返回值或旧签名兼容层。`Computed` 仅从根入口作类型导出，核心运行时仍为五个 API。
+`effect` 的返回值只负责停止订阅，重复调用无副作用；不返回 runner，不解释回调的返回值。按更新后的设计 2.3，`computed` 返回稳定的 `Computed<T>` 对象，通过 `double.value`、`greeting.value` 取值；value 为只读访问器，不提供 setter，也不保留可调用返回值或旧签名兼容层。`Computed`、`StorageOptions`、`StorageAdapter` 均为类型导出；持久化实施后根入口有六个运行时 API。
+
+`storage` 的两个参数必填，始终同步返回 `T`，不因 adapter 异步而返回 Promise，也不向业务对象注入 ready、flush、dispose 等字段。本期接收普通对象或数组及其已有 reactive 代理，不扩展为类装饰器。`StorageAdapter` 只是把设计 4.2 的内联接口提取为可复用类型，方法及返回值保持原约定。同步/异步初始化、JSON 数据范围及错误处理必须同时遵守第 16 节。
 
 显式计算值用于 effect、watch/useWatch、其他 computed 或 React render 时，均在相应读取函数内访问 `.value`：例如 `effect(() => double.value)`、`watch(() => double.value, cb)`、`useWatch(() => double.value, cb)` 和 `computed(() => double.value + 1)`。watch/useWatch 的 source 仍是函数，不增加直接接受 Computed 对象的重载；提前解构 `const { value } = double` 只得到当时值，不能代替监听函数内的实际读取。对象/类的自动计算 getter 仍直接写 `state.double`，不把它改成返回 Computed 对象。
 
@@ -178,41 +200,71 @@ export function useLoading<A extends unknown[], R>(
 
 `useLoading` 默认及布尔初值返回 boolean，数值初值返回 number，联合初值保留联合类型；不能把 `false`、`true` 或 `0` 的字面量类型当成后续 loading 的完整类型。load 始终返回 Promise，保留 fn 的参数元组和 Awaited 返回值，不承诺原 Promise 身份或隐式绑定方法的 this。数值初值和 stacksCount 的关系见第 10.10 节。
 
+3.7 新增以下声明，仅从 React 子入口导出；类型辅助名称不计入运行时导出：
+
+```ts
+export type LoadingSourceContext = Readonly<Record<PropertyKey, boolean | number>>
+export type LoadingMethodDecorator<C extends object = object> =
+    <T extends C, M extends (this: T, ...args: never[]) => Promise<unknown>>(
+        target: T, key: string | symbol,
+        descriptor: TypedPropertyDescriptor<M>,
+    ) => void
+export function loading(source: (ctx: LoadingSourceContext) => boolean | number): LoadingMethodDecorator
+export function loading<C extends object>(source: (ctx: C) => boolean | number): LoadingMethodDecorator<C>
+```
+
+保留重载次序，使 `@loading(ctx => ctx.busy)` 在 strict 模式下有受限的上下文类型，避免隐式 any。传统装饰器工厂不能从后续装饰目标反向推断该回调的完整实例类型，因此这个简写不提供字段名拼写检查；`@loading<Index>(ctx => ctx.busy)` 或 `@loading((ctx: Index) => ctx.busy)` 提供具体类的字段检查。两种形式都必须经过运行时字段定位与可写性校验，不能把简写的 Record 类型当作实例真实拥有索引签名。
+
+descriptor 保留完整方法类型 M，不把泛型/重载方法拆成单一参数元组再重建，否则 TypedPropertyDescriptor 的 setter 约束会让泛型方法无法装饰。约束中的 never[] 仅用于接纳不同参数形状，方法实际参数仍由 M 保留；类型层拒绝同步返回方法，JS 调用或绕过类型后的普通返回值按 await 结算。当前仓库编译器的最小探针已验证上述 source 重载、显式类型、泛型/重载/继承方法、可选/rest 参数及关键类型负例，完整消费端验收仍须在实现后执行。
+
 ## 3. 文件组织
 
 ```text
 src/
-  index.ts       # 导出五个核心 API 与 Computed 类型，不引用 React
+  index.ts       # 六个核心 API 与 Computed/WatchOptions/StorageOptions/StorageAdapter 类型
   effect.ts      # 依赖收集/清理、批次与队列、通知来源、提交订阅与内部结算阶段
   batch.ts       # 公开 batch 入口、同步边界、返回值和异常转发
   computed.ts    # Computed<T> 只读 value 访问器、懒缓存、失效传播及 props 候选缓存
   reactive.ts    # Proxy、属性快照、代理/getter/方法缓存、类构造处理
   reference.ts   # 新增：内部可写属性捕获上下文，不依赖 React
   watch.ts       # 监听值与回调隔离；对内提供静默刷新和停止能力
+  storage.ts     # 第 4 节：适配器解析、初始化、控制器、写入队列及弱引用注册
+  storageSnapshot.ts # 第 4 节：数据投影、JSON 编解码、恢复预检和批量回填
   react/
     index.ts              # React 独立入口，统一分发与别名
     observer.ts           # render 候选依赖、提交订阅、版本快照和通知控制器
     props.ts              # props 快照/只读视图、差异发布及所属组件的通知去重
     functionComponent.ts  # 函数组件响应式包装、useSyncExternalStore 与自动 memo
-    classComponent.ts     # 类组件 render 与生命周期包装
+    classComponent.ts     # 类组件 render、用户字段初始化与生命周期协调
+    classState.ts         # 3.7：原实例字段访问器、reactive 存储、挂载连接及内部字段句柄
     commit.ts             # 新增：提取 useCommitEffect，共享已提交闭包登记
     hooks.ts              # useReactive、useWatch
     chip.ts               # 新增：四种片段组件及 createElement 工厂
     model.ts              # 新增：useModel、Model、defineModel、事件值归一化
-    loading.ts            # 新增：useLoading 的稳定调用器、并发记账和卸载处理
+    loading.ts            # 已有：useLoading 的稳定调用器、并发记账和卸载处理
+    loadingDecorator.ts   # 3.7：loading 方法包装、source 定位、按字段共享的调用记账
 test/
   test.ts        # 保留核心断言，补充 watch
   react.tsx      # 既有 React DOM 行为、生命周期、StrictMode 与订阅窗口测试
   react-features.tsx # Chip、Model、loading、提交交叉场景及真实 DOM 事件
+  react-loading.tsx  # 类字段与 loading 装饰器；由 react.tsx 显式导入
   reference.ts   # computed 外壳、属性引用校验、getter 隔离与错误恢复
+  storage.ts     # 第 4 节：同步/异步适配器、快照、批次、竞态与错误；由 test.ts 导入
+  storage-browser.ts # 第 4 节：独立 jsdom Window 的 localStorage/sessionStorage 行为
+  storage-localforage.ts # 仅编译 README 的可选适配示例，不进入运行时或隔离消费者
+  storage-smoke.cjs # 同步/异步存储、无浏览器调用与混合入口；dist 和 tarball 共用
   smoke.mjs / smoke.cjs / smoke-assertions.cjs
   types/         # ESM/CJS 核心和 React 子入口的消费端类型检查
 scripts/
-  build.mjs      # 保留递归构建与声明复制，扩展 Node React 桥接导出
+  build.mjs      # 保留递归构建与声明复制；第 4 节扩展 Node 根桥接为六个导出
   test-package.mjs # 扩展现有无 React / React 隔离消费检查
 ```
 
 模块运行时依赖保持单向：`batch.ts`、`computed.ts`、`watch.ts` 依赖 `effect.ts`；`reactive.ts` 依赖原有内核及 `reference.ts`，后者只管理捕获上下文和属性引用，不反向导入 reactive；`react/*` 依赖核心模块和 React。Model 直接使用 reference 的内部入口，代理读到的 receiver 提供写入通道。内核不反向导入 React 或公开聚合入口。共享批次上下文与队列继续放在 `effect.ts`；props 所需的内部扩展仅接收不透明的 owner/commit 标记、读取视图和候选计算记录，不导入 React 类型。React 相关文件通过相对路径使用同一套核心模块，不单独打包复制内核。
+
+新增路径为 `classComponent → classState → reactive/reference/effect`、`loadingDecorator → classState/batch/effect/observer`；classState 通过连接状态与内部重连回调协调 loading，不反向导入 loadingDecorator。现有 useLoading 保留独立 Hook 生命周期，装饰器不调用 Hook，也没有重写已经通过验收的 Hook 控制器。
+
+第 4 节新增 `storage → storageSnapshot/reactive/effect/batch/reference`，`storageSnapshot → reactive/effect/computed`。只从 reactive 内部模块取得 toRaw，从 computed 取得 isComputed，从 effect 取得对象变更依赖和队列收尾能力；这些内部接口不转导到包入口。effect/reactive 不反向依赖 storage，不引入 DOM 或第三方持久化包。
 
 ## 4. 依赖收集与副作用
 
@@ -554,7 +606,7 @@ source 内的 computed/getter、分支切换、属性删除、嵌套对象和数
 
 ### 10.1 独立入口与可选依赖
 
-`@canlooks/reactive/react` 公开 `ReactiveComponent`/`RC`、`ReactiveFunctionComponent`/`RFC`、`ReactiveClassComponent`/`RCC`、`useReactive`、`useWatch`、`Chip`、`AsyncChip`、`chip`、`strictChip`、`asyncChip`、`asyncStrictChip`、`useModel`、`Model`、`defineModel` 和 `useLoading`，共十八个运行时导出。原局部状态 Hook `useState` 已重命名为 `useReactive`，不再单独导出。Strict 组件通过 `Chip.Strict`、`AsyncChip.Strict` 访问，不额外增加 `StrictChip` / `AsyncStrictChip` 顶层导出；接口和辅助类型只作类型导出。核心 API 仍从根入口导入，根入口不转导 React API，核心 `.d.ts` 也不引用 React 类型。
+`@canlooks/reactive/react` 的目标公开清单为 `ReactiveComponent`/`RC`、`ReactiveFunctionComponent`/`RFC`、`ReactiveClassComponent`/`RCC`、`useReactive`、`useWatch`、`Chip`、`AsyncChip`、`chip`、`strictChip`、`asyncChip`、`asyncStrictChip`、`useModel`、`Model`、`defineModel`、`useLoading` 和 `loading`，由现有十八个扩为十九个运行时导出。原局部状态 Hook `useState` 已重命名为 `useReactive`，不再单独导出。Strict 组件通过 `Chip.Strict`、`AsyncChip.Strict` 访问，不额外增加 `StrictChip` / `AsyncStrictChip` 顶层导出；接口和辅助类型只作类型导出。核心 API 仍从根入口导入，根入口不转导 React API，核心 `.d.ts` 也不引用 React 类型。
 
 继续支持 React 18.3 与 19，使用原生 `useSyncExternalStore`，不引入兼容 shim。保留 `package.json` 已有的可选 peer：
 
@@ -573,9 +625,9 @@ source 内的 computed/getter、分支切换、属性删除、嵌套对象和数
 
 React 与类型依赖继续作为开发依赖供本仓库编译测试；使用 React 子入口的应用负责安装 React，TypeScript 应用还需对应类型。React DOM 只参与测试，不成为库的运行时依赖或必需 peer。npm 不会自动安装标为 optional 的 peer，配置依据见 [npm peerDependenciesMeta 文档](https://docs.npmjs.com/cli/v11/configuring-npm/package-json/#peerdependenciesmeta)。普通核心消费者无需安装 React 及其类型；误用 React 子入口而未安装 React 时，交由模块解析报告缺失依赖，无需在核心中增加动态探测或兜底加载。
 
-保留 `exports["./react"]`：import.types 指向 `dist/esm/react/index.d.ts`，import.node 指向 `dist/node-react.js`，import.default 指向 `dist/esm/react/index.js`，require 分支使用 `dist/cjs/react/index.d.ts` 和 `dist/cjs/react/index.js`。根入口 Node 桥接继续转导五个核心 API，React 桥接扩为上述十八个 API；两者通过相对导入共用同一份 CJS 核心及 reference 捕获上下文。浏览器的两个 ESM 入口也必须共用同一模块图，不能各自打包一份依赖表。
+保留 `exports["./react"]`：import.types 指向 `dist/esm/react/index.d.ts`，import.node 指向 `dist/node-react.js`，import.default 指向 `dist/esm/react/index.js`，require 分支使用 `dist/cjs/react/index.d.ts` 和 `dist/cjs/react/index.js`。根入口 Node 桥接在第 4 节实施后转导六个核心 API，React 桥接保持上述十九个 API；两者通过相对导入共用同一份 CJS 核心、reference 捕获上下文及类字段注册表。浏览器的两个 ESM 入口也必须共用同一模块图，不能各自打包一份依赖表。
 
-现有 build 脚本已递归处理 JS 和 `.d.ts` 并保留目录结构，新增文件直接进入该流程；根目录 `dist/cjs/package.json` 继续标识整个 CJS 子树。本次更新 React 桥接的显式导出清单及产物断言，不重复改造构建。若后续启用打包，React、React 子路径及核心共享状态均不能被重复内联。
+现有 build 脚本已递归处理 JS 和 `.d.ts` 并保留目录结构，新增文件直接进入该流程；根目录 `dist/cjs/package.json` 继续标识整个 CJS 子树。3.7 的 React 桥接更新已经完成；第 4 节更新根桥接的显式导出清单及产物断言，不重复改造构建。若后续启用打包，React、React 子路径及核心共享状态均不能被重复内联。
 
 ### 10.2 render 收集与已提交订阅分离
 
@@ -630,15 +682,30 @@ React 与类型依赖继续作为开发依赖供本仓库编译测试；使用 R
 
 在 `super(...)` 完成后，为当前实例保存并包装原 render 与挂载/更新/卸载方法，保留 this、参数和用户生命周期。实例级包装能覆盖正常原型方法和实例函数字段，不修改 Target.prototype，也不让不同实例共用控制器；遇到禁止替换的自有描述符应明确报错。
 
+**本次补齐：用户实例字段本身必须响应式，不以字段被 loading 选中为前提。**现有 classComponent.ts 只有 render/props/生命周期包装；普通 `busy = false` 的读取没有经过 Proxy，赋值也没有通知。因此仅包装异步方法，或在调用结束时额外 forceUpdate，都无法满足完整的类组件响应式契约。
+
+新增 classState.ts，采用“原实例访问器 → 内部 reactive 字段存储”的桥接，统一供 `ReactiveComponent` 的类分支和 `ReactiveClassComponent` 使用，alias 不另建实现：
+
+1. 在包装类的 `super(...args)` 返回后、首次 render 之前，读取当前实例的自有属性描述符。此时用户字段初始化和构造函数赋值已完成；先校验整批待接管字段，再安装访问器，避免失败时留下半套桥接。每个实例的容器放入 WeakMap，不在实例上添加公开状态属性。
+2. 接管普通、可配置的自有数据字段，包括 string/symbol 键、非枚举字段、对象和数组；字段存储使用无原型对象，按原字段值初始化为 reactive，不深克隆。保留实例属性的枚举性和只读性，getter 读取内部同名字段，setter 经同一代理写入；对象/数组沿用内核的深层读取、代理缓存及 raw/proxy 同值规则。不同实例不共用容器，用户显式共享同一个原始对象时仍保持原有共享语义。
+3. 排除 React 管理的 `props`、`state`、`context`、`refs`、`updater`，以及函数值字段、方法和生命周期。桥接在 React 附加其内部实例字段之前完成，之后新加的属性不再扫描；不读取 Fiber 内容、不按所有下划线字段一概排除用户数据。props 继续使用 PropsCell，state 继续通过 setState 更新，context 和 ref 保留 React 的身份与行为。
+4. 可配置但不可写的数据字段只安装 getter；不可配置且可写的用户数据字段无法桥接，构造时抛出包含字段名的 TypeError。不可配置的只读字段及用户已有访问器保持原样，不承诺直接追踪它们的内部变化。用户 getter 若读取已桥接字段，正常收集那些字段依赖；本次不额外给类 getter 增加自动 computed 缓存。
+5. 字段 getter 读取内部存储时使用 withoutReferenceCapture 隔离内部位置，再用 recordReferenceRead 报告原实例、用户 key 和桥接描述符。普通依赖追踪保持开启，因此 render/effect/watch/computed/Chip 都能订阅；Model 捕获时得到可写的实例字段，不会绕过 setter 直接写内部存储。setter 失败、同值赋值和 batch 回退遵循现有内核，不手动重复 trigger。
+6. classState 为每个字段登记稳定内部句柄，提供读取、受控发布及可选的写入校验，并保存组件连接状态与内部重连回调。loading 只使用已登记字段，字段句柄和存储不作公开导出。未使用 loading 的类也具备完整的上述普通字段响应能力。
+
+桥接保留 React 持有的原实例及方法 this，普通方法读取 `#private` 不会因实例 Proxy 换身份而失效；私有字段本身不受追踪。普通继承以最终交给 React 的类为包装边界，父类与子类在构造中创建的数据字段一起接管；构造期尚无桥接和持久订阅。运行时新增/删除/重新定义字段、静态字段、多个改变构造流程的类包装叠加不扩展为本次承诺。用户方法不因 RC 而自动 bind 或变成批处理方法；多次业务写入仍可显式 batch。这些边界在 README 中与 `@reactive` 类代理区分说明。
+
 | 阶段 | 包装逻辑 |
 | --- | --- |
 | render | 调用原 render 收集本次候选，不改变 committedDeps；异常直接交还 React，不能留下活动收集上下文 |
-| componentDidMount | 建立 props 初值和已提交订阅，调用原方法；复查 render 到挂载之间的版本，必要时请求补渲染 |
+| componentDidMount | 先连接 classState，再将 loading 重连发布与 Observer.commit 放入同一短同步 batch，建立 props 初值和已提交订阅，随后调用原方法；版本过期时请求补渲染 |
 | componentDidUpdate | 按第 10.6 节发布 props 差异并提交本次 render 依赖，再调用原方法，完整转交原始 prevProps、prevState、snapshot；调用原方法后复查版本 |
 | 收到净变化通知 | 仅在已挂载且仍有效时调用 `forceUpdate()`，不直接调用 render；PureComponent/shouldComponentUpdate 不得屏蔽外部依赖更新 |
-| componentWillUnmount | 先标为未挂载并清理观察节点，再调用原方法；用户清理抛错也不能阻止库订阅释放 |
+| componentWillUnmount | 先断开 classState 的异步状态发布并清理观察节点，再调用原方法；用户清理抛错也不能阻止库订阅释放 |
 
 getSnapshotBeforeUpdate 沿用继承行为；shouldComponentUpdate 仅增加第 10.6 节明确的 props 监听提交条件。挂载方法抛错需保证之后仍可清理，StrictMode 的 mount/unmount/mount 能重新订阅。forceUpdate 会绕过 shouldComponentUpdate，生命周期必须成对清理，依据见 [React Component 文档](https://react.dev/reference/react/Component)。
+
+连接/提交或用户 componentDidMount 抛错时，异常路径同步断开 classState 并清理 Observer，再把错误交还 React，不只等待可能未发生的后续卸载。实例字段变化作为普通 store 来源进入现有队列，不能被自身 props 提交确认消掉；PureComponent 或 shouldComponentUpdate 返回 false 也不能屏蔽已订阅字段的变化。卸载不删除字段访问器或清空其值；停止的是 React 订阅及 loading 发布，外部手动建立的 watch 仍由调用方停止。
 
 类路径通过提交后的版本复查补齐订阅窗口，不宣称具有函数路径 useSyncExternalStore 的全部并发一致性保证；不引入 React 私有 Fiber 接口。首轮验收普通更新、PureComponent、StrictMode、未提交 render 与挂载窗口。若后续要求类组件也在并发提交前阻止所有旧快照，应另行设计桥接，而不是在本方案中隐含承诺。
 
@@ -813,7 +880,7 @@ function Form() {
 
 #### 10.9.2 可写属性引用，不能由值或 Dep 反推
 
-`source()` 只返回值，现有 Dep 也只保存消费者，均不足以反向赋值。新增内部 `reference.ts`，维护可嵌套、try/finally 恢复的属性捕获上下文；由 `reactive.ts` 的 get 路径在捕获启用时记录 `{ receiver, rawTarget, key, value, descriptor }`。receiver 必须是实际代理，rawTarget 只用于校验身份和描述符。捕获结果与普通依赖记录分开，不把渲染中“最后读过的任意属性”保存在全局槽里。
+`source()` 只返回值，现有 Dep 也只保存消费者，均不足以反向赋值。内部 `reference.ts` 维护可嵌套、try/finally 恢复的属性捕获上下文；由 `reactive.ts` 的 get 路径在捕获启用时记录 `{ receiver, rawTarget, key, value, descriptor }`。receiver 是实际代理，或本次由 classState 登记、通过访问器读写的原组件实例；普通 raw 属性仍不提供引用。rawTarget 只用于校验身份和描述符。捕获结果与普通依赖记录分开，不把渲染中“最后读过的任意属性”保存在全局槽里。
 
 约定 selector 是同步、无副作用的可写属性选择器：支持 `() => data.name`、`() => data.user.name`、`() => list[0]`、symbol/空字符串属性及可写 getter/setter。键可以由当前已提交闭包提供；路径中间对象必须能继续经代理读取。常量、普通 raw 对象属性、只读 props 终点、无 setter 的 getter、计算值对象的 `.value`、算术/拼接/多值聚合表达式不是可写引用。
 
@@ -823,9 +890,11 @@ function Form() {
 2. 嵌套路径保留终端属性及可用于检查连续路径的记录。getter 的内部计算临时屏蔽“属性引用”捕获，但保持正常依赖收集，外层记录 getter 本身，防止误把 backing field 当写入目标；独立 computed 的 value getter 在每次读取时标记为派生读取，即使命中缓存也不能被当作引用。`source={() => double.value}` 必须失败，不能误写其底层依赖；带 setter 的业务 getter 仍可按外层属性位置正常绑定。
 3. 校验存在可写终点、返回值与该终点读取结果一致，以及已捕获路径不存在可检测的歧义。沿描述符链处理可写数据属性、setter、可扩展对象上的缺失属性；不可写、只读 props 或不可代理的终点应抛 TypeError。key 用是否存在判断，不能用 truthy 判断而漏掉 `''` 或索引 0。
 4. Proxy 无法完整证明任意 JavaScript 表达式是左值，不能声称依靠 Object.is 就能识别所有 `a + b` 或碰巧相同的值。API 契约明确限制为上述属性选择器；运行时校验只拒绝可识别的错误，遇到多条独立读取路径等歧义时失败，不猜测写入目标。
-5. 写入通过 `Reflect.set(receiver, key, nextValue, receiver)` 或等价代理赋值，失败明确抛错；不能写 rawTarget，也不能额外手动 trigger。setter、computed 失效、数组索引和 batch 净变化全部走已有内核。
+5. 写入通过 `Reflect.set(receiver, key, nextValue, receiver)` 或等价的代理/已登记访问器赋值，失败明确抛错；不能绕过 receiver 的写入通道直接修改底层原始存储，也不能额外手动 trigger。setter、computed 失效、数组索引和 batch 净变化全部走已有内核。
 
 `reference.ts` 不反向 import reactive。reactive 向它报告读取并提供代理 receiver；computed 只接入捕获隔离/派生标记。未启用捕获时仅增加轻量的活动状态判断，不改变正常 get 的返回值或 Proxy 不变量，也不导出公开 captureReference/toRaw。
+
+新增的类字段接入只承诺直接选择 classState 登记的数据字段；未桥接的类 getter、普通 helper 调用等仍不是合法 source，不能因为其内部碰巧读取某个响应式字段就认为外部表达式可写。任意表达式的可检测性限制仍按上面的第 4 点，不扩张为全量 JavaScript 左值分析。
 
 render 只持有本次绑定候选；Model 的稳定事件函数通过第 10.6 节的提交登记取得最后成功提交的 source、postValue 和子 onChange。事件发生时在 untracked 中重新求值该 source，重新解析当前属性位置，再同步写入：例如 `data.user` 已被替换、但 UI 更新尚未提交时，应写当前的 user.name，不写旧对象。未提交的新 source 闭包不能进入活动事件处理器。路径不存在、已变成只读或被删除后不可重建时，该次事件失败并保留现有状态。
 
@@ -900,7 +969,67 @@ StrictMode 的 cleanup/setup 复用同一控制器时，setup 重新连接并从
 
 SSR 只创建纯本地初始状态，不注册订阅、不自动调用 fn；客户端以相同 initialLoading hydration，首次 setup 连接。RC 中解构 loading 会在本轮 render 绑定依赖，后续更新由现有 Observer 驱动；普通未包装组件若要显示变化，应将读取放入 Chip 或使用 RC/RFC。
 
+### 10.11 loading 装饰器：设计第 3.7 节
+
+#### 10.11.1 需求拆解与支持边界
+
+新增 `loading` 方法装饰器，使用 `import { RC, loading } from '@canlooks/reactive/react'`。设计示例无需额外 `@reactive`、手动 setState、forceUpdate 或 useLoading：10.4 的字段桥接使 `this.busy`、`this.stack` 的读写天然进入 Observer，装饰器只负责执行期间的字段状态。
+
+本次承诺 RC / ReactiveComponent / RCC / ReactiveClassComponent 包装的类组件业务实例方法，沿用 experimentalDecorators 的 `(target, key, descriptor)` 模式。装饰阶段校验 source 是函数、目标是实例方法、descriptor.value 可包装，仅替换该 value，保留描述符其余属性；此时不执行 source、不读取原型上的字段初值。静态方法、构造器、访问器、字段箭头函数、React render/生命周期方法及同一方法重复叠加 loading 明确拒绝；生命周期可以主动调用已装饰业务方法。Stage 3 装饰器与普通 Store 的新组合不纳入本轮。没有组件字段桥接的实例调用时给出明确错误，不静默降级为不能驱动 UI 的普通赋值。传统装饰器参数与描述符规则见 [TypeScript 方法装饰器文档](https://www.typescriptlang.org/docs/handbook/decorators.html#method-decorators)。
+
+包装函数保留动态 this，用 `Reflect.apply(original, this, args)` 调用原方法一次；不自动 bind。`instance.fetchData(id)` 和显式 bind/call 正常，提取后无实例调用应失败。装饰器不改写方法声明的参数、泛型、可选参数或 Promise 结果类型；运行时统一 await 成功值/thenable，原 Promise 身份不保证。业务同步 throw、Promise reject 或 thenable 失败均交给同一结算路径。
+
+#### 10.11.2 source 定位与字段身份
+
+source 是同步、纯读取的**单个直属用户字段选择器**：支持 `ctx => ctx.busy`、`ctx => ctx.stack`、string/symbol/空字符串 key。本轮不增加嵌套路径、props/state、getter/computed、常量、聚合表达式、动态调用或 source 字符串解析；Model 的更宽路径能力不自动变成 loading 的承诺。
+
+每次合法调用在 untracked、withoutReferenceCapture 中执行一次 source。传入一个仅用于选址的临时只读 Proxy：get 只允许读取 classState 已登记且当前描述符仍有效的自有字段，记录稳定字段句柄并返回当前值；写入、删除、重新定义等操作直接失败。source 必须只有一次字段读取，句柄必须可写，返回值与所读值 Object.is 相同且为 boolean 或合法 number。该临时 Proxy 不传给业务方法、不交给 React、不保存为实例；字段写入使用原实例对应的句柄。
+
+不能仅凭返回的 false 或 0 在实例里搜索同值字段，也不能取任意依赖表的最后一项。与 Model 一样，Proxy 无法证明所有表达式都是左值；例如数值加零可能无法识别，文档明确禁止派生表达式，运行时只保证拒绝可检测错误。source 抛错或无效时不执行业务方法、不取得 token、不修改字段，也不污染外层依赖或引用捕获。
+
+每次调用固定本次字段句柄，finally 不重新运行 source，避免外部条件变化后扣减另一个字段。控制器挂在字段句柄上，等价于 `WeakMap<实例, Map<PropertyKey, Controller>>`，不能按方法或 source 函数分别计数：两个方法指向同一个 busy/stack 时必须共享未完成集合；不同字段、不同实例相互独立。普通继承方法使用实际调用实例的句柄；override 沿 JavaScript 方法分派执行，不扫描原型链重新装饰或改写父类。
+
+#### 10.11.3 布尔、数值与字段写入规则
+
+控制器记录固定模式、数值基线、空闲显示值 idleValue、started 与唯一 token 集合，每次接受调用时先登记 token，再发布开始值。合法数字为非负安全整数；在取得 token 前检查下一值不会超过 Number.MAX_SAFE_INTEGER。模式在该实例字段首次被装饰器使用时固定。
+
+| 字段初值/场景 | 开始、重叠与结束 |
+| --- | --- |
+| false | 首个调用设 true；尚有任何调用未完成时保持 true；最后一个结束设 false |
+| true | 首次调用前保留 true；一旦参与调用，最后一个结束设 false，不恢复为初始 true |
+| 数值 n | 从空闲进入一组调用时取当前值为基线 n；显示 `n + tokens.size`，最后一个结束回到 n |
+| 同字段两个并发请求 | 布尔为 `false → true → true → true → false`；数值零基线为 `0 → 1 → 2 → 1 → 0`，完成顺序不影响结算 |
+| 同字段方法互调或重入 | 每次实际调用一个 token；内层完成只释放自己，外层仍占用计数 |
+
+字段承担 loading 状态时，空闲阶段允许业务写入同模式有效值，以调整布尔显示或数值基线；活动阶段只允许幂等赋值，其他外部写入由字段句柄的校验在修改前抛错。装饰器通过句柄内部发布通道写 reactive 存储，不绕过响应式通知；该通道不公开，也不靠跨回调的全局“允许写入”标记。这样 Model、普通赋值及同步 watcher 都不能在结算中清零其他请求的计数；业务取消请求应使用自身的 AbortSignal，不能用改 busy/stack 代替。未被 loading 使用的普通字段没有上述模式或活动期限制。
+
+合法的空闲赋值同步更新 idleValue 和数值基线；最后一个 token 结束时，将 idleValue 更新为 false 或该组数值基线，即使此时断开也要完成这一步内部结算。重连时，有 token 则按活动数发布，无 token 则发布 idleValue，避免把卸载期间完成的调用算回去，也避免覆盖用户合法的空闲显示调整。
+
+开始和结束各使用一个短同步 batch，token 操作、source 与内部状态读取不收集外层 effect 的依赖，业务方法的同步执行也按 useLoading 的 untracked 约定隔离。计数不能为负，异常、拒绝、乱序与重入都只释放各自 token；不将跨 await 的整个请求放入 batch，不新增调度队列。
+
+#### 10.11.4 执行顺序与错误保留
+
+1. 校验 this 对应的组件已连接，且不处于库可识别的 render 收集上下文；解析 source 并校验字段、模式及容量。校验失败返回 rejected Promise，不调用原方法。
+2. 分配 token 并在短 batch 中发布开始状态；原方法同步部分必须能读到已更新的 busy/stack。token 先于通知登记，支持 watcher 在通知中发起另一调用。
+3. 调用一次原方法并 await 结果。捕获开始发布中的订阅者错误时，沿用 useLoading 规则继续调用业务方法，累计错误；开始校验失败与“写入已生效但通知抛错”必须区分。
+4. finally 无条件释放本次 token；组件仍连接时发布结束状态，断开时只做内部结算。一个调用的多个错误按发生顺序保留，单错误保持原对象，多错误使用 AggregateError，结束发布错误不能覆盖原业务错误。
+5. 将成功值或累计错误交给调用者；不对用户 Promise 额外挂接一个无人接收的 finally 链，不自动重试、取消、吞错或把 reject 变成 undefined。
+
+组件字段的开始/结束发布已通过 reactive 存储驱动 Observer，不再附加一次 forceUpdate。同值布尔发布不通知；数字变化和普通字段写入沿原 batch 净变化规则处理。装饰器仅管理其字段，不回滚业务方法已经写入的其他状态。
+
+#### 10.11.5 生命周期与 useLoading 的关系
+
+classState 初始化不执行装饰方法或 source，也不创建永久观察节点。首次 componentDidMount 在 Observer 提交及用户生命周期前连接容器，因此用户 componentDidMount、已提交 props watch 调用装饰方法都有效。构造期、首次挂载前、已知 render 上下文及卸载后的遗留调用被拒绝，不启动业务工作；不能通过检查 React 私有状态来猜测执行阶段。
+
+卸载先断开 loading 发布，再停止 Observer，最后调用原 componentWillUnmount。已进行的 Promise 继续兑现，token 始终释放，断开期间不改写公开 loading 字段、不调用 forceUpdate，也不取消业务请求或拦截其自行执行的其他赋值。StrictMode 或隐藏树恢复同一实例时，从真实 token 集合恢复公开字段后交给既有版本复查，不重复调用业务方法、不重建已有控制器；真正的新实例拥有独立字段句柄。连接/提交/用户挂载方法抛错同样进入断开路径。
+
+SSR 只创建字段初值和纯渲染候选，不调用业务方法，不新增持久订阅；hydration 使用一致初值。类路径仍沿用 10.4 的并发保证，不宣称消除所有外部异步数据的提交竞争。
+
+useLoading 管理 Hook 自己的 loading/stacksCount、稳定 load 与最新已提交 fn；装饰器管理现有实例字段并保留动态 this，不返回额外句柄、不新增公开 stacksCount。两者复用内核、短 batch、错误聚合和 token 语义，分别使用自身生命周期入口。先保证 useLoading 的全部既有测试不退化，再考虑确有重复时提取小型纯工具，不把 Hook 控制器直接套到类组件。
+
 ## 11. 实施顺序
+
+### 11.1 已完成阶段：computed 迁移与设计 3.3～3.6
 
 | 步骤 | 具体工作 | 完成标志 |
 | --- | --- | --- |
@@ -914,7 +1043,35 @@ SSR 只创建纯本地初始状态，不注册订阅、不自动调用 fn；客�
 | 8. 交叉验收 | 组合 computed.value、props watch、Strict Chip、Model 和 loading；制造可控挂起、中止及提交窗口 | 新能力不吞已有 watch 的 oldValue 或其他 owner 通知；没有 render 期业务副作用和残留订阅 |
 | 9. 类型、构建与交付 | 核对 Computed 类型与 .value 示例，更新十八个 React 导出及声明、Node 桥接、冒烟和隔离消费者；完善 README | 计算值迁移及useReactive/静态属性/泛型可用，两种格式共享引用捕获与内核，无 React 的核心消费不受影响 |
 
-本轮按表中依赖顺序完成了 `.value` 迁移与 3.3～3.6 的实现，不保留旧读取函数兼容层。依赖关系为“既有内核/props → computed.value 迁移 → 共享观察与提交设施 → Chip、Model、loading”，其中 Model 还依赖内部属性引用。第 2 步先完成核心与既有 React 用例的调用迁移，再做第 3 步的观察器重构；第 3 步必须通过原 props/StrictMode/候选窗口用例；第 5 步回归 getter 缓存、计算值只读和批次内 computed 分支恢复；第 8 步同时证明 props 监听、同源去重和多来源通知正确，不能以关闭整个组件的调度换取少一次 render。
+前一轮按表中依赖顺序完成了 `.value` 迁移与 3.3～3.6 的实现，不保留旧读取函数兼容层。依赖关系为“既有内核/props → computed.value 迁移 → 共享观察与提交设施 → Chip、Model、useLoading”，其中 Model 还依赖内部属性引用。第 2 步先完成核心与既有 React 用例的调用迁移，再做第 3 步的观察器重构；第 3 步必须通过原 props/StrictMode/候选窗口用例；第 5 步回归 getter 缓存、计算值只读和批次内 computed 分支恢复；第 8 步同时证明 props 监听、同源去重和多来源通知正确，不能以关闭整个组件的调度换取少一次 render。
+
+### 11.2 已完成阶段：类组件字段补齐与设计 3.7
+
+| 步骤 | 修改位置与具体工作 | 完成标志 |
+| --- | --- | --- |
+| 1. 固定现状和差距 | 检查 src/react/index.ts 的 alias 与 classComponent.ts；记录现有五个/十八个导出；在 test/react-loading.tsx 写普通字段更新与 3.7 最小用例，并从 react.tsx 导入 | 旧 npm test 基线可复现；新用例明确暴露字段无通知及 loading 缺失，不误报 alias 不存在 |
+| 2. 先补类字段基础 | 新建 classState.ts，在 classComponent.ts 的 super 返回后安装字段桥接，连接已有内核及 reference 报告；生命周期保留原实例 | 未使用 loading 的 RC/RCC 类也能响应 count、对象和数组；PureComponent、ref、this、props/state/context、Model 和 batch 回归通过 |
+| 3. 实现装饰器和共享计数 | 新建 loadingDecorator.ts，落实 legacy 描述符校验、source 只读选址、每字段控制器、数值上限/写入校验和错误聚合 | 参数/this/结果不丢失，同字段跨方法并发与嵌套正确，失败后可继续调用；sync/async 错误都能释放 token |
+| 4. 完成提交与清理 | classState 保存连接状态并登记 loading 的重连发布；调整挂载、卸载及失败路径，使恢复发布与 Observer.commit 共用短批次 | componentDidMount/props watch 可调用；卸载及 StrictMode/隐藏树重连无幽灵通知或重复业务调用；原 props 去重不吞字段变化 |
+| 5. 声明、导出及双格式 | 在 src/react/index.ts 导出 loading 与类型；更新 scripts/build.mjs 的 Node React 桥接和 test/react-smoke.mjs 清单；新增消费端装饰器用例 | 根入口仍五个、React 十九个；ESM/CJS/混合入口的 RC 与 loading 共用字段注册表，简写和显式类型用法均通过 |
+| 6. 隔离消费及使用文档 | scripts/test-package.mjs 纳入新模块和 react-loading.tsx 复制；README 补普通类字段与 3.7 示例、并发/类型/调用时机边界 | 实际 tarball 在匹配的 React 18.3/19 环境中通过；不依赖源码路径，无 React 核心消费保持有效 |
+
+依赖顺序为“类字段桥接 → 方法定位与记账 → 生命周期联调 → 类型/产物/隔离验收”。不能先只给 loading 加强制刷新，再把普通实例字段补齐留到后续；也不为新增 API 重做 computed 迁移、修改设计示例要求用户额外加装饰器，或复制另一套核心通知机制。第 12 节命令在代码实施后执行并另记结果，第 13 节历史数据保持可追溯。
+
+### 11.3 已完成阶段：持久化存储（设计 4.1～4.2）
+
+本阶段按以下依赖顺序完成，先固定基线并验证缺少 storage 的失败用例，再完成同步闭环和异步状态机，最后补齐环境、类型、产物和使用文档。第 16 节中标明的补充约定是实现和 README 的共同依据；实际验收结果见第 18 节。
+
+| 步骤 | 修改位置与具体工作 | 完成标志 |
+| --- | --- | --- |
+| 1. 固定基线与新增失败用例 | 记录当前五个核心/十九个 React 导出及现有命令结果；新增 test/storage.ts，由 test/test.ts 导入；先覆盖同步恢复、深层新增、批次回到初值、异步覆盖和乱序写入 | 失败来自缺少 storage/新增能力，不把工作区已有改动或环境问题算作新增回归 |
+| 2. 补齐内部观测与快照 | effect.ts 增加内部对象变更依赖和队列收尾入口；reactive.ts 对内部模块导出 toRaw；新增 storageSnapshot.ts | 未经读取的新增/删除、数组 length 和分支替换均能感知；依赖可重收集；原有 computed、枚举边界、异常结算不变 |
+| 3. 完成同步存储闭环 | 新建 storage.ts；实现配置校验、惰性浏览器适配器、同步 get/set、身份注册、JSON 校验和 batch 回填；在 src/index.ts 导出 storage 及类型 | 默认 localStorage、sessionStorage 和同步自定义 adapter 均可恢复/写入；恢复命中不回写，缺失记录创建初始快照 |
+| 4. 接入异步初始化与写入器 | 实现 reading/ready 状态、读取期间的 localRevision、整份本地状态优先、单个在途写入和最新 pending 快照；同化 PromiseLike | 读取完成前不写默认值；本地改动不被迟到数据覆盖；旧异步写入不能晚于新写入落盘；失败不锁死队列 |
+| 5. 完成异常、身份和生命周期 | 补错误分层与诊断、弱引用控制器、重复绑定校验、订阅清理、序列化失败恢复和依赖隔离 | 无顶层浏览器访问、无未处理 rejection、无全局强引用留住 store；I/O 失败不改变内存响应式结果 |
+| 6. 环境与 React 联调 | 新增 test/storage-browser.ts 并由 test/test.ts 导入；在 React 套件增加外部 storage 与 RC/Chip/Model 的联动；异步测试使用 deferred | 两类浏览器存储隔离，SSR 内存回退和自定义适配器可用；恢复后的 UI 更新、props 去重和既有生命周期回归通过 |
+| 7. 类型、产物及消费验收 | 新增 test/types/storage.mts/.cts；更新 build.mjs 根桥接、核心 smoke 清单和 test-package.mjs；检查两个新增模块的 JS/声明 | 六个核心/十九个 React 导出正确；双格式共享 storage 注册及内核；无 React/DOM/localforage 的核心消费者可用 |
+| 8. 使用文档及实际记录 | README 补 4.1/4.2 示例、异步时序、JSON/合并/错误边界和 localforage 包装；依 12.3 的命令顺序完整验收 | 12.4 全部满足，记录实际结果与已知限制；不沿用历史测试数量，不执行 npm 发布 |
 
 ## 12. 验收与工程配置
 
@@ -1061,30 +1218,91 @@ React 行为测试使用真实 React DOM 根节点及 `act` 驱动，在隔离 D
 
 Chip 的局部性同时断言父组件、两个片段及必要的子组件调用计数，隔离 props 触发与 store 触发；StrictMode 只检查有效订阅与最终结果。Model 通过真实 input/change 事件验证同步写回、原回调及受控警告，辅以可控自定义组件验证参数元组；引用捕获的错误恢复在核心测试中覆盖。loading 使用手动 resolve/reject 的 deferred Promise 控制完成顺序，不访问网络或依赖固定延时；每次拒绝均由测试接住，并核对清理后的计数和可再次调用性。
 
+本次 3.7 与类组件字段补齐增加以下矩阵，接入同一个 React DOM 测试入口：
+
+| 验收场景 | 必须观察到的结果 |
+| --- | --- |
+| RC/ReactiveComponent、RCC/ReactiveClassComponent 的装饰器与直接包装 | alias 引用一致，各类入口行为一致；不使用 loading 的普通 count 赋值也驱动 UI |
+| 普通字段、嵌套对象/数组、两个实例、同值与 batch 回退 | 深层读取可追踪，实例独立；已有 reactive 值不重复代理；无净变化不通知，变化归现有队列 |
+| props/state/context/refs/updater、ref 身份、this 与普通私有字段方法 | React 自有职责与原实例身份保留；setState、props 监听和原生命周期正常，无 props 引用警告 |
+| symbol/空 key、非枚举、只读及不可配置描述符 | 可支持字段保留描述符约束；不可桥接的可写字段构造时明确失败，不偷偷丢失响应式 |
+| effect/watch/computed/Chip/Model 读取或写入类字段 | 订阅正确；引用记录指向用户字段，内部存储不泄漏，Model 写入经过相同 setter 校验 |
+| 3.7 原例 busy/stack，以及 useLoading 同时存在 | 开始状态在业务同步部分可见；deferred 完成后 DOM 恢复，装饰器与 Hook 控制器互不串用 |
+| 布尔 false/true、数字 0/正基线、两次并发乱序 | 布尔最后结束才 false；数字恰好加减，回到基线；一个 reject 不提前清空另一个请求 |
+| 同字段不同方法、方法嵌套、不同字段、多个实例 | 同字段共享 token，嵌套调用各算一次，其他字段/实例独立 |
+| 参数元组、可选参数、显式 bind/call、继承与 override | 实际 this 与原参数保留，原方法只执行一次；无 this 调用失败，覆盖方法不误用父实例控制器 |
+| resolve/reject、同步 throw、thenable 抛错及 JS 普通返回值 | 包装 Promise 保留值或原错误，token 恰好释放一次，无额外未处理 rejection；失败后仍可调用 |
+| 开始/结束订阅者抛错并叠加业务错误 | 已生效的开始写入不重复；业务继续、finally 释放，单错误原样、多错误按序 AggregateError |
+| 无效 source、缺失字段、派生/多次读取、getter、props/state、只读字段 | 可检测的无效选址在业务执行前失败，计数不变；后续合法选址和原外层捕获仍正常 |
+| NaN/Infinity/负数/小数、计数溢出、模式变更、活动期外部写入 | 在修改前失败；空闲同模式基线调整可用，幂等写入无重复通知，其他请求的计数保留 |
+| source 外部选择条件在 await 中改变 | 结束只释放开始时固定的字段，不再次求值或写入另一个字段 |
+| 方法由外层 effect/watch 调用，或开始通知导致重入 | loading 内部及业务同步读取不成为外层依赖；token 在重入前已登记，无递归误计数 |
+| PureComponent/shouldComponentUpdate false，props watch 又写字段 | 已订阅字段仍更新；仅 props 改变仍一次正常 render，新增字段通知不被同源确认吞掉 |
+| componentDidMount 调用、未提交 render/SSR、挂载失败 | 合法挂载调用有效；构造/render 不启动业务，失败后连接与订阅均释放 |
+| 卸载中仍有调用、卸载后调用、StrictMode/隐藏树恢复、真正重挂载 | 旧 Promise 正常结算，断开时不发布；新调用拒绝；原实例重连恢复真实值，新实例不受旧结果影响 |
+| 非方法/静态/生命周期装饰、同方法重复 loading、Stage 3 调用形式 | 类型可识别的错误编译失败，其余在装饰或首次调用时明确失败，不残留包装/字段状态 |
+
+异步用例使用 deferred 控制开始、乱序完成、失败和断开期间完成，逐步断言公开字段、业务调用次数、DOM 及订阅/forceUpdate 次数；不能只读字段值就宣称 React 更新正确。StrictMode 不固定 React 自身的 render 次数，单次通知与 props 去重在非 StrictMode 的隔离场景验证。SSR/hydration 和未提交候选验证保持无持久订阅；每个故意拒绝的 Promise 均由测试接收。
+
 ### 12.3 工程与发布验收
 
 - 保留 TypeScript、tsx、esbuild、传统装饰器配置和现有 ESM/CJS 构建。React/React DOM、jsdom 及类型继续用于开发测试，保留第 10.1 节已有可选 peer；本次无须新增运行时包，核心仍为零运行时依赖。
 - React 实现继续使用 `.ts` 和 createElement；复用已有 `tsconfig.react-test.json` 的 JSX/DOM 配置、`test:react` 和类型检查脚本，新用例接入当前 npm test。保留核心 `typecheck:test`、`typecheck:dist` 和非 DOM 类型环境，不为 Model 把 DOM 类型引入根声明。
-- 递归生成和复制两个格式中的 reference 与 React 新模块；源码相对导入继续使用 `.js` 后缀。保持 `dist/node.js` 五个核心导出，扩展 `dist/node-react.js` 为十八个 React 导出；不得导出内部捕获/提交函数。两条桥接、Chip.Strict / AsyncChip.Strict 及类型辅助声明均有产物检查。
-- 保留 smoke-assertions 的五个核心导出断言，Computed 仅为类型导出，不进入 Node 桥接的运行时清单。更新 react-smoke 的八个导出假设为十八个，检查仅导出 useReactive（无旧 useState 导出），以及工厂 element.type 与对应组件相同。扩展 ESM/CJS 冒烟：用根入口创建 state，由 React 子入口读取计算值的 `.value`、使用 Chip/Model 消费和写回，再反向混合 import/require 验证同一对象、计算值身份识别、引用捕获上下文及通知；原生 ESM 两入口也单独验证。不要拿直接导入 dist/esm 与 Node 条件入口的混用代替受支持的共享内核检查。
+- 递归生成和复制两个格式中的核心与 React 模块，保留 classState/loadingDecorator 的产物检查，新增 storage/storageSnapshot 的 `.js` 和 `.d.ts` 检查；源码相对导入继续使用 `.js` 后缀。将 `dist/node.js` 扩为六个核心导出，保持 `dist/node-react.js` 十九个 React 导出；不得导出内部字段句柄、捕获、快照、队列或提交函数。两条桥接、Chip.Strict / AsyncChip.Strict 及类型辅助声明均有产物检查。
+- 将 smoke-assertions 的核心导出清单改为 `batch/computed/effect/reactive/storage/watch`，Computed、StorageOptions、StorageAdapter 仅为类型导出，不进入运行时清单。保留 react-smoke 的十九个导出、旧 useState 未导出及工厂 element.type 断言，以及全部既有 ESM/CJS 冒烟。新增两方向的混合 storage/effect/batch 和重复绑定检查；原生 ESM 两入口单独验证。`.mjs/.cjs` 继续使用传统装饰器等价的 descriptor 调用验证 loading，真实装饰器语法由 `.tsx` 和声明消费者验证。不要拿直接导入 dist/esm 与 Node 条件入口的混用代替受支持的共享内核检查。
 - 计算值迁移同步覆盖 `src/computed.ts`、`src/reactive.ts`、`src/index.ts`、README、`test/test.ts`、`test/react.tsx`、核心及 React 消费端类型用例、两种格式的 smoke 与 `scripts/test-package.mjs` 涉及的消费示例。将计算值调用改成 `.value`，将把计算值当作 source 传入 watch/useWatch 的写法改成读取闭包；只迁移 computed 的返回值及其使用点，getter/source 回调和内核其他函数的签名保持原有职责。完成后检索旧返回签名、计算值调用和直接 source 传参，残留仅允许用于明确的负例或迁移说明。
 - 在 `.mts` / `.cts` 中通过根入口导入 `Computed<T>`，验证标量、对象、undefined、函数结果及链式 `.value` 推断；增加计算值不可调用、value 不可赋值、不能直接传给 watch/useWatch 的类型负例。保留普通自动 getter 的类型（例如 `state.double: number`），确认内部缓存迁移不让其变成 Computed。React 类型与行为用例覆盖组件/Chip 内 `.value` 的读取和 props 候选缓存，独立核心消费仍启用无 DOM、无 React 及 `skipLibCheck: false`。
 - 在消费端类型用例中覆盖 watch/useWatch 的标量/对象/void 推断与 WatchOptions：省略选项或 literal false 时 oldValue 为 T，literal true、boolean 变量、通用配置（含可能为 undefined 的配置变量）时为 `T | undefined`；校验旧值未判空、非布尔 immediate 和错误 callback 参数的类型错误。函数包装结果检查 NamedExoticComponent 类型、JSX 的 props 推断和必填字段，以及本库包装结果再次传入 RC/RFC 的类型兼容；类分支仍检查装饰后的构造/静态/实例签名，并保留 alias 及 useReactive 对象返回值检查。NodeNext 下分别检查 `.mts` 与 `.cts` 的两个入口；React 用例单独启用 DOM/JSX 类型，保留现有核心的 `types: []` 与非 DOM lib 检查。
 - 补充设计 3.3 示例的消费端类型与行为用例：props 的必填/可选字段类型保留，`useWatch(() => props.count, cb)` 正确推断新旧值；props.ts 和提交上下文保持内部模块，根入口仍没有 React 类型或运行时依赖。
 - 新增 3.4～3.6 的 `.mts`、`.cts`、`.tsx` 类型用例：Chip 的函数 children、两个 .Strict 和所有工厂；useReactive 的对象/数组返回值；useModel 的 T 与合法事件类型；Model source 推断和 postValue 返回类型；defineModel 的未注解 input 示例及显式自定义组件的必填 props、refer、完整事件元组；useLoading 的参数元组、Awaited 结果和布尔/数值/联合初值。用类型负例验证错误 children、缺失 source/refer、错误值转换、遗漏业务必填字段，以及将 boolean 误赋 number、将数字字面量当固定 loading 等情况。避免以 any、双重断言或跳过声明检查掩盖类型缺口。
+- 新增 3.7 的 `.mts/.cts/.tsx` 消费用例，覆盖原示例未注解 ctx、`loading<Index>`、显式参数类型、boolean/number/联合字段、可选和 rest 参数、泛型方法、继承及 Promise 结果。负例检查同步方法、非函数 source、显式类型下的错误字段/返回类型、错误实参及根入口导入 loading。TS readonly 的可写性不能靠 selector 返回类型完整证明，仍须运行时描述符校验；无注解简写也不宣称检查字段名。保留 experimentalDecorators，不以增加 any 或关闭 strict 解决签名问题。
 - 从实际打包文件建立临时核心消费者，仅安装该包和必要的 TypeScript 检查工具，不安装 React/React DOM/@types/react，不让测试借用仓库 node_modules 或上级目录依赖。分别执行 import、require、watch/computed/batch，以及 `skipLibCheck: false` 的核心声明检查；核实可选 peer 未被当作强制依赖安装。
-- 扩展已有 `scripts/test-package.mjs`，在匹配 React 18.3/19 的隔离环境中验证 `/react` 两种格式、十八个导出与声明，保留自动 memo、props 监听与去重、别名和包装幂等性；增加至少一个 Chip 局部更新、Model 写回及 loading 并发用例。确认 React 未嵌入产物，两个入口共用核心状态，根消费者无需解析 React 或 DOM 类型。
+- 扩展已有 `scripts/test-package.mjs`，在匹配 React 18.3/19 的隔离环境中验证 `/react` 两种格式、十九个导出与声明，保留自动 memo、props 监听与去重、别名和包装幂等性及 Chip/Model/useLoading 用例；新增普通类字段及 loading 装饰器并发、失败、卸载用例。复制完整行为套件的文件列表必须包含 react-loading.tsx，避免主入口已导入但 tarball 消费者缺文件。确认 React 未嵌入产物，两个入口共用核心状态，根消费者无需解析 React 或 DOM 类型。
 - README 将 computed 签名与全部显式取值示例统一为只读 `.value`，说明旧调用方式的迁移、watch/useWatch 的读取闭包以及自动 getter 仍直接取值。保留已有 watch、响应式 props、生命周期和模块格式说明，新增 3.4～3.6 的完整可运行示例及 API 表。明确 useState 到 useReactive 的重命名迁移及旧导出移除、Strict 闭包限制、Async 的 effect 后激活、Model 属性选择器限制与 source/refer 映射、原回调顺序、数值转换、loading 数值基线和 stacksCount 区别、Promise 错误及卸载行为。设计中的 Model 示例应在使用文档补全 Model 导入；不引入旧版 useAutorun/Proxyable 等未承诺接口。
+- README 补齐普通用户字段仅加 RC 即可更新的类示例，以及带 `RC, loading` 导入、真实调用入口和错误处理的 3.7 示例。说明类字段接管范围、直属字段 selector、显式泛型写法、this 绑定、同字段共享计数、活动期写入限制、初值 true/数字基线、卸载与重连；明确区别于 useLoading 的返回对象和 Hook 闭包更新。方案中的新增约束须随功能交付给使用者，不能只留在本文件。
 
-实施后的检查顺序为：`npm test`（核心/watch、React 行为及源码/测试类型）→ `npm run build` → `npm run test:dist`（含两种格式的消费端类型）→ `npm pack --dry-run` 检查清单 → `npm run test:package` 使用实际 tarball 完成隔离消费者验证。实际检查结果记录于下节。本方案不包含 npm 发布。
+实施后的检查顺序为：`npm test`（核心/watch/storage、React 行为及源码/测试类型）→ `npm run build` → `npm run test:dist`（含两种格式的消费端类型）→ `npm pack --dry-run` 检查清单 → `npm run test:package` 使用实际 tarball 完成隔离消费者验证。第 4 节实施完成后另追加实际检查结果；第 13～15 节为已有工作的历史记录。本方案不包含 npm 发布。
 
-完成标准：设计第 2.1～2.5 节与第 3.1～3.6 节示例全部可用，2.3 的 `.value` 迁移与 React 新需求一同完成。根入口保持五个运行时 API 并导出 Computed 类型；显式计算值通过只读 `.value` 取值，自动 getter 仍直接取值，所有正式源码、示例和测试完成旧接口迁移。React 子入口提供 10.1 中的十八个运行时导出和两个 .Strict 属性；props 监听不重复驱动所属组件，Chip 的局部更新和延迟/Strict 语义可验证，Model 同步双向写回且引用不串绑，loading 在并发、异常和卸载后正确结算。原有 watch/immediate、memo、computed 懒缓存、批次、装饰器、提交候选、自动清理及双格式共享内核行为全部保留，并通过无 React 消费验收。
+完成标准：设计第 2.1～2.5 节、第 3.1～3.7 节和第 4.1～4.2 节示例全部可用，保留已完成的 `.value` 迁移。根入口有六个运行时 API 及相应类型；React 子入口提供 10.1 中的十九个运行时导出和两个 .Strict 属性。storage 满足 12.4 的恢复、深层净变化、异步竞态、错误及无浏览器消费验收。RC/ReactiveComponent 与 RCC/ReactiveClassComponent 的普通用户字段均能驱动观察者，loading 保留 this/参数/结果，同字段并发不提前清零，异常、卸载和重连正确结算。props 去重、Chip、Model、useLoading、watch/immediate、memo、computed 懒缓存、批次、提交候选、自动清理及双格式共享内核行为全部保留。
+
+### 12.4 新增持久化验收
+
+测试优先断言返回值、响应式通知、adapter 调用序列及最终持久化字符串。异步 mock 独立控制 get/set 的 resolve、reject，设置严格的最大在途调用数；不用网络、随机延迟或固定 sleep 推断完成。
+
+| 场景 | 必须观察到的结果 |
+| --- | --- |
+| 设计 4.1 的调用、默认 type、sessionStorage | 返回普通响应式对象；缓存命中在同步返回前可读；每种存储使用原样 name，两种存储的数据隔离 |
+| adapter 与 type 同时提供、方法依赖 this | 只调用自定义 adapter；不访问浏览器存储 getter；this 为原适配器对象 |
+| 无记录、有效记录、空字符串、JSON null/标量、错误根类型 | 只有 getItem 返回 null 表示缺失并创建初始快照；有效记录恢复且不回写；其余无效记录报告错误，保留初值且不立即覆盖 |
+| 对象恢复与根数组恢复 | 根代理身份保持；对象浅合并，缺失顶层默认值保留、嵌套对象整体替换；根数组替换内容并正确截短 length；不调用 getter/setter 或覆盖本地方法 |
+| 深层属性、空对象新增、删除未读取字段、数组新增/删除/截短 | 均自动更新存储；旧分支替换后不再被监听，新分支即使从未由业务读取也可更新 |
+| 同值、raw/proxy、嵌套 batch、抛错 batch、净回退 | 相同值和同批次恢复初值不写；有净变化的批次写最终快照；业务抛错仍按现有批次规则结算，错误不被持久化吞掉 |
+| computed/getter/watch 与普通 effect | 通知和懒缓存语义保持；存储扫描不求值 getter；adapter 中读取外部响应式值不污染调用者或持久化依赖 |
+| 异步 get 命中/缺失/拒绝；原生 Promise 与手写 thenable | 立即返回初值，读取未决期间 setItem 为零；成功后按 16.4 恢复或保存；then getter 抛错和拒绝均处理，重复 resolve/reject 只结算一次 |
+| 同步读/异步写、异步读/同步写、各次写入返回形式不同 | 按每次返回值判断是否等待，不从 getItem 推断 setItem 的同步性；同步路径仍在当前结算完成，异步路径保持串行 |
+| 读取期间本地赋值、深层修改、删除、数组变化 | localRevision 前进，迟到的整份缓存不再应用；最终保存当前整份本地状态，无字段复活；批次内净回退不误判冲突 |
+| 读取期间跨批次 1→2→1、替换为等内容新对象 | 仍算已经发生过本地修改，保留本地状态；不能只比较最终 JSON 与初值决定冲突 |
+| 一次回填修改多个字段、回填触发业务 watch 再修改 | 观察者只看到批次后的完整状态；纯回填不回写，业务修改仍可持久化，不被 hydration 全局静默标记吞掉 |
+| 回填触发业务 effect 抛错 | 不冒充解析失败或回滚已完成变更；同步初始化释放新绑定再抛出，异步回填报告错误并保持后续内存更新可用 |
+| setItem 未决时连续变更、回到上次成功值、单次失败后续变化 | 同一绑定最多一个在途写入；等待区只保留最新快照；S0→在途 S1→S0 最终写回 S0；失败不推进成功基线，后续变更可重试 |
+| 非法 JSON、循环/BigInt/不支持的对象、序列化后恢复正常 | 旧有效记录不被覆盖，内存仍可使用；扫描不因错误漏掉其他分支依赖，修正数据后能再次保存；无未处理 rejection |
+| getter 抛错、toJSON 有副作用、特殊键、只读/不可扩展目标 | 快照不调用访问器或 toJSON；危险键拒绝；回填先预检，失败不留下部分恢复；不改变原型 |
+| Node/SSR import 与调用、Storage getter 抛错、set 配额异常 | import/require 不触碰浏览器对象；无浏览器时回退内存；同步存储异常和异步异常按同一策略报告，既有响应式消费者继续工作 |
+| 同根重复绑定、同根换 key、同 adapter/key 的第二个根 | 同配置返回同代理，get/订阅/写入不重复；冲突绑定在额外 I/O 前明确报错；不同 key/type/adapter 相互独立 |
+| 共享子对象、分支移除、根失去引用、内部停止后的未决操作 | 活跃根均可收到自己的变更；旧分支立即解订阅；弱引用结构无全局强保活；停止代次的迟到结果不继续回填或排新写入 |
+| React 联动 | 客户端已创建的外部 storage 驱动 RC/Chip/Model；异步恢复通过正常 batch 通知；卸载只清 React 订阅，外部 store 仍能持久化 |
+
+消费端 `.mts/.cts` 覆盖 T 的对象/数组推断、StorageOptions/StorageAdapter 类型、同步/异步/结构化 PromiseLike；负例覆盖缺少 name、非法 type、非对象初值、错误 getItem 返回和返回 Promise<string> 的 setItem。声明使用 `ES2022`、`types: []`、`skipLibCheck: false`，不得引用 DOM Storage/Window 或 localforage 类型。泛型 T 不等于运行时业务 schema 校验，数据范围仍按 16.5 约定。
+
+实际 tarball 的核心消费者还要验证无浏览器调用、同步内存 adapter、异步 adapter 和混合 import/require；除 React/React DOM/@types/react 外，也确认不能解析 localforage。若新增独立的异步冒烟文件，必须同步更新 test:dist 与隔离脚本的复制和执行清单，避免只在仓库 node_modules 下通过。浏览器测试使用独立 jsdom Window 和有效 origin，finally 关闭窗口、还原全局描述符；不沿用或污染 React 套件的共享 DOM。
+
+新增弱引用清理测试以显式内部停止和迟到结果校验为确定性基础；GC 压力检查只作辅助，不把 FinalizationRegistry 的触发时刻写成断言。已有 localforage 开发依赖可用于适配示例的单独类型检查；核心隔离消费者不得为了这个示例安装它。
 
 ## 13. 实施记录（2026-09-29）
 
 同步设计 3.2 的后续重命名：局部状态 Hook 的实现与公开入口统一为 `useReactive`，删除原 `useState` 导出与别名，React 子入口保持十八个运行时导出。已迁移行为、冒烟和消费端类型用例；ESM/CJS 类型负例明确验证旧名称不能再从本库导入。React 原生 `useState` 的内部使用保持原有职责。
 
-本轮已完成第 11 节全部步骤。新增 reference.ts 与 React 的 commit/chip/model/loading 模块，保留五个核心运行时 API，React 子入口扩为十八个运行时导出。computed 使用冻结外壳的只读 .value，源码、冒烟、消费端类型与 README 完成迁移；旧调用写法只保留于明确的类型负例和迁移说明。
+本轮已完成现第 11.1 节全部步骤。新增 reference.ts 与 React 的 commit/chip/model/loading 模块，保留五个核心运行时 API，React 子入口扩为十八个运行时导出。computed 使用冻结外壳的只读 .value，源码、冒烟、消费端类型与 README 完成迁移；旧调用写法只保留于明确的类型负例和迁移说明。
 
 行为回归新增 4 个核心用例与 27 个 React 用例：覆盖属性捕获的可写性、getter 隔离及错误恢复；Chip 局部更新、Strict 闭包、Async 激活和 SSR；Model 真实 DOM 事件、完整参数、ref、路径重定位与中止候选；loading 并发乱序、状态发布异常、初次 immediate、卸载、隐藏树恢复及多能力提交联动。消费端同时检查 .mts/.cts/.tsx、函数与类控件的 defineModel 推断及类型负例。
 
@@ -1099,3 +1317,239 @@ Chip 的局部性同时断言父组件、两个片段及必要的子组件调用
 | npm run test:package | 实际 tarball 的无 React / 无 DOM 核心消费者通过；React 19.3.0 和 18.3.1 的匹配 React DOM、完整行为套件、两种格式与声明检查全部通过 |
 
 README 已补全 API 表、可运行示例、.value 迁移、Strict 闭包限制、Model 属性选择器与事件转换、loading 数值基线和卸载语义。未增加运行时依赖，本轮没有发布 npm 包。
+
+## 14. 本次方案更新记录（2026-09-30）
+
+本次按新增设计 3.7 及用户对 RC 类字段能力的补充要求更新实施方案，尚未改动运行时代码。已核实 alias 共用实现、类组件普通字段未接入代理、reference 的捕获边界、useLoading 的计数和清理、Node 桥接导出以及隔离测试的复制清单；据此补齐 10.4 的类字段方案、10.11 的装饰器契约、11.2 的执行步骤与第 12 节新增验收。
+
+已使用仓库当前 TypeScript 7.0.2 在临时目录验证目标签名和关键类型负例，临时文件已清理。该探针仅验证声明可行性；未运行新增功能的行为/构建/打包验收，不能将第 13 节的十八个导出及测试数量视为 3.7 已完成证明。
+
+## 15. 类字段与 loading 实施记录（2026-10-09）
+
+已完成第 11.2 节全部步骤。先运行原有基线：71 个核心测试、55 个 React 测试及源码/测试类型检查通过；再用两个最小失败用例确认普通类字段不会更新 UI、React 入口缺少 loading。实现后最小用例与全部新增回归通过。
+
+新增 `src/react/classState.ts`，在原实例上桥接用户数据字段，保留 ref、私有字段品牌、React 管理字段、枚举性和运行时只读性。字段读取经 reference 报告用户位置，Model 写回同一个 setter；深层代理、computed、watch、Chip、batch 和同值判断直接复用原内核。挂载和重连把字段状态恢复与 Observer 提交放入同一短批次，挂载/更新提交失败及卸载先断开发布并释放观察者。
+
+新增 `src/react/loadingDecorator.ts`，实现传统实例方法装饰器、只读直属字段选址、每实例每字段的共享 token、数值容量与写入校验、动态 this/参数转交和按序错误聚合。空闲值同时表达未调用时的初始布尔显示，因此无需额外 started 标记；最后一次结束更新空闲值，即使断开也结算内部状态，重连不会恢复已完成的请求。useLoading 的实现与生命周期保持独立。
+
+`test/react-loading.tsx` 新增 19 个测试，涵盖四个类入口、普通/深层/只读/symbol/空键字段、私有方法及原实例身份、Model/Chip/computed/watch 联动、并发/嵌套/重入、错误聚合、选址校验、溢出和活动期写入保护，以及 props 去重、PureComponent、挂载窗口、StrictMode、隐藏树、卸载、SSR/hydration 和失败清理。异步顺序由 deferred Promise 控制，没有网络请求或随机延时。
+
+新增 `.mts/.cts/.tsx` 消费端用例，验证简写/显式 source、泛型/重载/继承、可选/rest 参数、JSX 和关键类型负例。React Node 桥接与冒烟断言扩至十九个导出，双方向混合 RC/loading 导入共用字段注册表；隔离脚本复制新增行为套件并检查两个新增模块的两种格式与声明。README 补齐普通类字段示例、3.7 调用与错误处理示例、字段及 selector 边界、并发计数和生命周期语义。
+
+| 验证命令 | 实际结果 |
+| --- | --- |
+| npm test | 71 个核心测试、74 个 React 行为测试全部通过；源码与测试类型检查通过 |
+| npm run build | 原生 ESM、CJS、对应声明与两条 Node 桥接生成成功 |
+| npm run test:dist | 五个核心 / 十九个 React 导出、混合 RC/loading、原生 ESM 及两种格式的消费端类型通过 |
+| npm pack --dry-run | 82 个预期文件，包含 classState/loadingDecorator 的 ESM/CJS 与声明 |
+| npm run test:package | 实际 tarball 的无 React / 无 DOM 核心消费者，以及匹配 React DOM 的 React 19.3.0、18.3.1 完整行为、双格式、混合入口和类型检查全部通过 |
+
+未新增运行时依赖，根入口仍不依赖 React。本次没有发布 npm 包；第 13、14 节保留为历史记录。
+
+## 16. 持久化存储：设计第 4 节的落地方案
+
+### 16.1 需求拆解与现有代码差距
+
+设计明确要求：新增 `storage(initialState, options)`，使用体验及副作用行为与 reactive 一致；按 name 恢复并自动保存状态；默认 localStorage，可选 sessionStorage；adapter 提供字符串读写并允许 PromiseLike；不自动引入 localforage 等依赖。设计未规定返回值的异步形式、快照格式、恢复合并、写入时机、冲突、错误及资源释放，以下补充为首版契约。下表保留实施前的差距分析，完成情况见第 18 节。
+
+| 实施前事实 | 对实施的影响 |
+| --- | --- |
+| src/index.ts 只有 reactive/effect/computed/batch/watch，尚无 storage 模块 | 新 API 属于根入口，不能放入 React 子入口或只改 README |
+| reactive.ts 只有 get/set/deleteProperty/construct，没有 ownKeys 依赖追踪 | 直接 `watch(() => JSON.stringify(state), save)` 会漏掉空对象/嵌套对象的新字段，不能作为完整实现 |
+| effect.ts 的 recordChange、settleBatch 已按属性判断净变化，flushEffects 支持同步队列及 afterEffects | 在这里增加内部对象变更依赖，沿用既有批次结算；不在 Proxy set 中直接序列化或执行 I/O |
+| toRaw 在 reactive.ts 内部，getter 会进入 computed，reference 会捕获属性位置 | 快照必须使用内部 raw/描述符通道；初始化和 adapter 调用须隔离依赖及 Model/loading 的选址上下文 |
+| 根声明已有无 DOM/无 React 消费验收；Node import/require 共享 CJS 核心 | StorageOptions 使用结构化接口，不引用 DOM Storage；新增导出必须同时进入 Node 桥接及两套声明 |
+| 当前 package.json 已有 localforage 开发依赖 | 不再次安装、不转成 runtime/peer dependency；内置功能完全不 import 它，示例使用者自行选择并安装 |
+
+### 16.2 API、身份及默认行为
+
+公开签名以第 2 节为准。storage 是普通工厂函数，返回 `reactive(initialState)` 的同一个代理，不深克隆初值、不额外套一层 Proxy，不改变 effect/watch/computed/batch 的语义。初始化恢复会修改该代理对应的原始对象；已有响应式订阅也按正常批次收到通知。根身份始终稳定，嵌套字段被恢复为新对象时不保证旧嵌套引用继续有效。
+
+| 项目 | 本期约定 |
+| --- | --- |
+| name | 必填的非空字符串；原样作为 key，不加前缀、不 trim 后改名；应用自行管理名称空间和业务版本 |
+| type | 省略时为 localStorage，只接受设计给定的两种值 |
+| adapter | 指定时优先于 type，完全不访问浏览器存储；要求 getItem/setItem 是函数；以 adapter 为 this 调用原方法 |
+| 初值 | 普通对象（含 null 原型对象）或数组及其本库代理；不接受基本类型、null、函数/类构造器或内建实例作为根；数据持久化范围见 16.5 |
+| 返回与挂载 | 同步返回 T，控制信息只放在内部控制器中；不提供 storage 装饰器、useStorage、ready/flush/dispose、移除记录或自定义 serializer API |
+| 缺失记录 | 仅 getItem 的 null 表示不存在；读取完成后保存一次当前有效快照，包含读取期间的本地修改 |
+| 有效记录 | 恢复后建立比较基线；纯恢复及新增默认字段不立即回写，后续变化才保存 |
+| 变化写入 | 普通同步存储在当前同步通知结算结束前写完；异步适配器在该结算点发起写入，完成时间由适配器决定 |
+| 同一根重复调用 | 同 name 和同有效后端返回同一个代理，复用原控制器，不重复读取/订阅；换 key 或后端抛 TypeError |
+| 同名的不同根 | 同一模块实例中，同 adapter 对象与 name 只允许一个活跃根；重复绑定在额外 I/O 前抛 TypeError，不隐式把两个不同 T 合成单例 |
+
+内置适配器的身份使用实际 Storage 对象，因此 localStorage 与 sessionStorage 是两个后端。自定义适配器以对象身份区分；不同包装对象实际指向同一外部 key 的冲突无法由框架判断，应用应复用一个适配器并让同一 key 只有一个状态拥有者。重新加载页面会重新建立绑定，不受上一页面控制器约束。
+
+不监听 storage 事件，不做跨标签页同步、远端推送、自动迁移、TTL、加密或多写者事务。这些都不是设计第 4 节已经要求的能力；自定义 adapter 仍可以在其内部实现所需存储方式。
+
+### 16.3 深层变更观测与批次衔接
+
+采用“内部对象变更依赖 + 深层数据扫描 + 既有 effect 队列”，避免把持久化正确性建立在公共键枚举追踪上。
+
+1. 在 effect.ts 内定义私有 symbol 作为对象变更依赖键，并提供内部 `trackObjectChanges(raw)`。它仍使用现有 targetDeps/getDep/trackDep，不新建第二套响应式依赖表。symbol 不写到用户对象，也不从根入口导出。
+2. 扩展 settleBatch：对每个 raw 的属性日志按现有 samePropertyState 筛选净变化；保留原属性消费者收集，再对确有净变化的 raw 收集一次对象变更依赖的消费者。合并相应来源，更新该内部依赖版本，通过既有 Set 队列去重。没有对象变更订阅时不分配额外依赖，不让普通 effect 多执行一次。
+3. 每个 storage 使用一个普通 EffectNode。它扫描根及所有可持久化的对象/数组，为每个 raw 收集对象变更依赖；使用 visited 防止共享引用重复订阅。原有 runEffect 的 cleanup 会移除被替换/删除分支的依赖。父对象已有订阅，因此新增一个未经业务读取的子对象、随后在同一 batch 修改它，也能从最终扫描得到完整结果。
+4. 初次扫描只建立基线和依赖。后续由净变化触发的执行先推进 localRevision，再生成当前快照；即使序列化结果相同，读取期的修改历史也不能丢失。依赖扫描与编码分开：先完整扫描可观察图，再编码；编码某一分支失败不能使其他分支失去后续修复通知。
+5. 扫描仅访问 raw 自有描述符和数据值，不运行 getter、toJSON 或用户函数。reactive.ts 仅把现有 toRaw 导出给内部模块，不扩展公开 API；只读固定引用等仍遵循原 Proxy 不变量，不承诺绕过原始引用的直接修改。
+6. 节点只更新内存快照/待写状态，不在依赖收集期间调用 adapter。增加内部 `afterEffectsSettled(owner, callback)`，复用 afterEffects：在批次中登记到该批次收尾，在正在 flush 时按 owner 入现有收尾 Map，空闲时通过一个同步结算边界运行。现有 onBatchSettled 要求 currentBatch 存在，不能直接从普通 effect 回调误用它。
+7. 写入器在普通 effect 队列耗尽后读取最新待写快照；业务 effect 又产生的批次会先处理相应节点。一次纯 batch 的多字段变化最多写最终快照一次；同批次净回退不触发写入。收尾回调自身再引发的业务变化属于新的批次，沿用原有结算规则，不新增微任务合并普通 effect 的行为。
+
+构造、adapter 调用、诊断与收尾使用 outsideReadContext/untracked 及 withoutReferenceCapture 隔离。内部扫描仍在它自己的 EffectNode 中正常收集对象变更依赖，不能把整个节点设为 untracked。adapter 可以读取其他响应式状态，但这些读取不应成为任何调用者或 storage 的依赖；adapter 反向修改其正在持久化的同一状态造成的反馈循环不属于支持用法。
+
+数组复用 reactive.ts 已有的索引/length 隐式变更日志，包含删除索引及截短删除的索引。数组方法本身仍不自动 batch；连续底层赋值可能各自落盘，需要一次快照时由业务显式 batch。新增/删除字段只为了 storage 的内部观察被捕获，公开 `effect(() => Object.keys(state))` 的契约保持第 1、7 节所述范围。
+
+### 16.4 初始化与异步恢复
+
+内部控制器至少保存 `state/raw、adapter/name、phase、generation、localRevision、lastObserved、confirmed、pending、inFlight`。phase 区分 reading、ready、stopped；写入是否未决由 inFlight 表达。lastObserved 是最近观察到的有效快照，confirmed 是成功读取/写入建立的逻辑同步基线，两者不能混用。
+
+初始化按以下顺序执行：
+
+1. 校验根、配置及绑定冲突，解析有效后端；创建原内核代理、控制器和弱引用登记，先建立内部观察基线。没有浏览器且未指定 adapter 时按 16.8 返回内存代理，不启动观察和 I/O。
+2. 在 reading 状态下调用一次 getItem。同步返回 string/null 时直接处理，保证返回给调用方之前完成恢复；返回 thenable 时同化为 Promise 并安装完整成功/失败处理，立即返回当前代理。不能无条件 `await getItem` 把浏览器同步恢复也推迟一轮，也不能仅用 instanceof Promise 判断异步；then 属性读取失败需要捕获，Promise.resolve 负责同化并保证重复 resolve/reject 只结算一次。
+3. getItem 成功完成后，先检查 controller 仍有效及 generation 匹配，再校验值类型、JSON 和根形状；失败走 16.7。只有确实需要回填时才执行可写性预检。读取尚未完成时，所有变化只更新内存和 localRevision，不调用 setItem。
+4. 对有效记录且 localRevision 未变化的情况，在临时数据上生成合并结果和 expected 快照，预检全部回填操作。先把 expected 设为 lastObserved/confirmed，并切到 ready，再在同一个 batch 中通过代理应用回填。根保持身份，所有字段更新完成后再通知消费者。
+5. 对有效记录但 localRevision 已变化的情况，放弃整份缓存回填，切到 ready，提交当前完整快照；对 null 则直接提交当前完整快照。两种情况都只在读取完成以后开放写入器。已有存储可作为比较基线，但不能把未保存的当前值误标记成 confirmed。
+6. 回填后重新收集最终图的依赖，即便快照等于 expected 也不能跳过依赖更新。纯回填不提交写入；若回填触发的业务 watch/effect 又修改数据，最终快照不同则正常保存。不用包围整个 batch flush 的 hydration 静默开关，否则会漏掉这些业务修改。
+
+**异步冲突明确采用整份本地状态优先。**例如初值 `{count: 1, theme: 'light'}`，异步缓存为 `{count: 8, theme: 'dark'}`：读取期间未修改则恢复缓存；若先把 count 改为 2，则最终为 `{count: 2, theme: 'light'}` 并保存该结果，theme 也不会再从旧缓存补入。首版不做路径级合并，避免数组下标变化、删除和共享引用引入未定义的补丁语义。
+
+同一 batch 内 `1→2→1` 没有净变化，不阻止恢复；跨两个已结算批次 `1→2→1` 已发生本地修改，仍阻止恢复；以等内容新对象替换旧对象也是净变化。因此冲突判断使用观察到的 localRevision，不能仅比较最终 JSON 与初始 JSON。直接写 raw、不经代理的更改不受保护，与 reactive 的原有边界一致。
+
+对象恢复使用顶层浅合并：持久化中的自有数据字段覆盖初值，缺失顶层字段保留初值；嵌套对象和数组整体替换，不递归补默认值。根数组则在原代理上替换索引内容并调整 length，不把数组当字典 Object.assign。缺失字段被默认值补回意味着“删除初值中的字段”不保证在下次初始化后仍保持缺失；需要长期表达空值时使用 null，或由业务更改初值/schema。初值中的本地方法、访问器、symbol 和非枚举字段保留且不从缓存覆盖。
+
+### 16.5 快照格式、数据范围与回填校验
+
+name 对应一个完整 JSON 对象/数组字符串，不附加框架版本信封。以数据投影再 JSON.stringify/parse 的方式实现，不直接 stringify 业务代理。对象的键按稳定顺序编码，数组保留顺序；同一逻辑投影可以比较字符串，减少无效 I/O。generic T 只保证 TypeScript 使用时的类型延续，不能验证外部记录的业务字段 schema；需要迁移/验证时由应用在 adapter 内完成。
+
+| 数据 | 持久化规则 |
+| --- | --- |
+| string/boolean/null/有限 number | 原值保存；负零按 JSON 成为 0 |
+| 普通对象、null 原型对象、数组 | 递归保存自有、可枚举的字符串数据字段；数组只保存索引与长度语义，不保存额外命名属性 |
+| getter/setter、函数、symbol 键、非枚举属性 | 不作为持久化数据；不执行 getter/setter，不保存派生值或方法；不会通过 toJSON 改写快照 |
+| undefined/function/symbol 值 | 对象字段省略；数组对应位置为 null；数组空槽同样为 null |
+| NaN/Infinity/-Infinity | 按 JSON 规则成为 null；需精确保留这些值的业务不适用首版快照格式 |
+| BigInt、循环引用 | 编码失败，报告错误并跳过本次写入，保留上次有效记录；共享但不成环的引用可编码为重复数据，重载后不保留别名身份 |
+| Date/Map/Set/Promise/DOM 对象、类实例、Computed 对象 | 不支持自动序列化/恢复为原类型；发现位于数据字段中时报告编码错误，不静默转成空对象或字符串；需要时由业务改为普通数据表示 |
+
+输入根和缓存根必须同为对象或同为数组。字符串 `"null"`、空字符串、基本类型、错误 JSON 或错误根形状都不当作缺失记录。使用无原型临时对象和自有数据属性处理解析结果，递归拒绝 `__proto__`、`constructor`、`prototype` 数据键；编码采用同一键约束，不能写出自己无法恢复的数据。默认值中的同类持久化数据键也须按同一规则报告错误。
+
+回填先在临时数据上确定全部操作，再校验根的扩展性、待改数据属性的可写性/可删除性和数组 length 约束；不调用访问器来试写，也不把缓存键写入继承的 setter。无法安全应用时整份记录拒绝，内存保持原状态，不做“改了一半再跳过”。仅承诺正常可变对象/数组的数据字段；第三方 Proxy、运行期改变描述符/原型和特殊锁定数组不扩展为本期支持范围。异常诊断与后续修复遵守 16.6～16.7。
+
+### 16.6 串行写入与去重
+
+每个有效绑定最多一个实际在途 setItem，等待区只保留最新字符串。读阶段完成以前写入器关闭；读取完成后才按以下规则工作：
+
+1. 收尾时取得当时的有效快照及变更代次，交给 pending；每次新快照替换尚未开始的 pending，不积累每次修改的 Promise 链。
+2. 空闲时取出 pending；如果与 confirmed 相同则跳过，否则设置 inFlight 后，以原 adapter 为 this 调用 setItem。传入的是已经确定的字符串，不是在将来执行时重新 stringify 同一个可变对象。
+3. 同步 void 返回立即标记成功，更新 confirmed 并清除 inFlight；PromiseLike 通过 Promise.resolve 同化，在 fulfilled 时才更新 confirmed。普通浏览器 setItem 不统一变成微任务。异步适配器必须在实际写入结束时才 resolve，否则框架无法保证顺序。
+4. 有在途任务时只更新 pending，绝不并行调用下一个 setItem；当前任务完成后重新检查最新 pending。不能因为 pending 等于“旧 confirmed”就丢弃它：例如已存 S0、在途 S1、本地回到 S0，必须等待 S1 成功后再写 S0。
+5. 同步抛错或异步 reject 均不更新 confirmed，释放 inFlight 并报告一次。已有更新的 pending 继续执行；若只剩同一个失败快照则停止自动重试，等待后续状态变化或序列化修复，不启动定时器/无限重试循环。
+6. 观察到的数据变化即使编码失败，也要废弃尚未开始的旧 pending，避免继续提交过时快照；已经在途的请求无法由当前两方法协议取消。修复数据后重新生成最新快照；lastObserved、失败标记与 confirmed 分开，不能因失败快照曾被观察过就永久跳过重试。
+7. 所有异步续接检查 generation/active，成功、拒绝和处理回调自身抛错均有终结处理，不产生未处理 rejection。内部停止不能撤回已发出的请求，但阻止迟到结果回填状态、重开订阅或启动下一笔写入。
+
+用户连续两条普通同步赋值仍可产生两次同步存储写入；显式 batch 只写最终值。异步期间的中间状态允许被合并，保证最后成功写入反映最新有效状态，不承诺保存每一个历史版本，也不承诺页面关闭时尚未完成的异步写入必达。
+
+### 16.7 错误策略与可诊断性
+
+配置/绑定错误与运行期持久化错误分开。前者同步抛 TypeError，且在新增 I/O 之前失败；后者不回滚内存、不阻断本来有效的响应式更新。使用内部安全诊断函数输出 name、失败阶段和错误，不输出完整状态快照；console 不可用或诊断调用失败也不能破坏队列。首版不擅自给 StorageOptions 加 onError，调用者可在自定义 adapter 中接入自己的监控。
+
+| 失败位置 | 行为及后续恢复 |
+| --- | --- |
+| name/type/adapter/根参数无效、重复冲突绑定 | 同步抛错；不留下新订阅/控制器注册，不执行新增 get/set |
+| 浏览器不存在且无自定义 adapter | 正常内存回退，不作为错误报告；不建立空转的持久化观察器 |
+| 访问浏览器存储 getter 被拒绝 | 报告后按本次调用回退内存；不自动切换 local/session，不定时重试；环境改变后由应用显式重新创建/绑定 |
+| getItem 抛错、reject、非法返回、解析或回填预检失败 | 保留当时内存，结束 reading 并处理所有 rejection；初始化时不写回默认值，也不把读取期间排队的状态立即覆盖旧记录；以当前观察结果重新起步，之后新的状态变化可尝试写入，不自动重读 |
+| 快照编码失败 | 保持内存和上次有效记录，清掉未开始的旧 pending，保持依赖扫描；数据修复后恢复写入 |
+| setItem 抛错/reject，包括配额不足 | 保持内存和 confirmed，释放在途槽；按 16.6 继续较新的 pending 或等待后续变化 |
+| 正常业务 effect/watch 因回填或写入状态而抛错 | 仍按原内核结算其他通知，不回滚已完成变更；同步工厂尚未返回时 stop 新控制器、释放登记再重抛原错误；已返回状态的异步回填以 hydrate 阶段报告并保持控制器可用，不能误分类成缓存解析失败再覆盖状态 |
+
+读失败后不立刻覆盖旧值是明确的数据保留策略：即便读取期间用户已编辑，也先保留这份内存，等待新的修改再写；需要主动重试/等待恢复状态的应用应在 adapter 或上层启动流程中处理，首版不提供相应公开控制句柄。
+
+原生存储使用字符串键值；读取 Storage getter 可能被策略拒绝，setItem 可能因配额等原因失败，多上下文之间没有事务锁。这些环境依据参见 [WHATWG Web Storage 规范](https://html.spec.whatwg.org/multipage/webstorage.html#the-storage-interface)及 [localStorage getter](https://html.spec.whatwg.org/multipage/webstorage.html#the-localstorage-attribute)；本方案据此在取得存储对象和调用方法两个位置都处理异常。
+
+### 16.8 生命周期、SSR 与 React 使用边界
+
+控制器不挂在 state 上，生命周期随根对象。使用 `WeakMap<raw, Controller>` 保存同根绑定；后端登记使用 `WeakMap<adapter, Map<name, WeakRef<Controller>>>`。EffectNode 的长期回调只捕获控制器 WeakRef，不直接闭包捕获根、proxy、adapter 或 controller；否则一个外部仍持有的共享子对象就可能通过订阅节点把整个根永久留住。
+
+每次重收集立即移除已脱离图的依赖。FinalizationRegistry 可尽力清理节点和后端的失效弱条目，注册/查找时也清理失效条目；清理凭登记 token 比较，不能误删同名新绑定。正确性不能依赖 GC 触发时机。内部 stop 幂等地停止节点、清待写状态、解除匹配登记并推进 generation；用于初始化中止及清理，不成为公开 API。有限的队列回调或未决 I/O 可暂时持有控制器，完成后必须释放；不挂轮询、全局窗口事件或永久强引用集合。
+
+模块求值阶段不能读取 window/localStorage/sessionStorage。只在 storage 被调用、且没有自定义 adapter 时探测浏览器 window，再在 try/catch 中读取选中的属性；不能因为 Node 提供了同名全局属性就把它当浏览器存储。公共声明只用第 2 节的结构化类型，Node/SSR 不需要 DOM lib、React 或 localforage。SSR 缺少后端时返回 reactive 初值，不把状态放进进程级同名缓存，也不在稍后环境变化时自动恢复。
+
+storage 创建会访问外部存储，因此不要在 React render、useMemo 或可能重复执行的 Hook 初始化器中反复创建。推荐客户端启动时创建外部 store，再让 RC/Chip/Model 订阅它；卸载某个组件只清理 React 的订阅，不停止仍由应用使用的 store。SSR 的服务端初值、客户端首屏和浏览器缓存可能不同，storage 不自动解决 hydration 一致性：应用应保持首屏数据一致，在客户端挂载后的启动流程创建并接入持久化状态。该行为不会借用 props 提交来源或改变第 10.6 节的通知去重。
+
+### 16.9 使用示例与 localforage 适配
+
+原生存储示例在客户端执行，真实代码交付时同时写入 README：
+
+```ts
+import { batch, effect, storage } from '@canlooks/reactive'
+
+const state = storage({ count: 1, preferences: { theme: 'light' } }, {
+    name: 'app-preferences',
+    type: 'localStorage', // 可省略；也可改为 sessionStorage
+})
+
+const stop = effect(() => console.log(state.count))
+batch(() => {
+    state.count++
+    state.preferences.theme = 'dark'
+})
+stop() // 停止这个 effect；store 的自动保存仍然有效
+```
+
+localforage 的 getItem 是泛型 Promise 读取，setItem 返回写入值对应的 Promise，而设计要求 setItem 返回 void/PromiseLike<void>；不能把不匹配的返回类型通过 any 强制塞进 adapter。工作区已安装版本的声明在 `node_modules/localforage/typings/localforage.d.ts`，按以下方式做薄包装：
+
+```ts
+import localforage from 'localforage' // 由使用者自行安装
+import { storage, type StorageAdapter } from '@canlooks/reactive'
+
+const backend = localforage.createInstance({ name: 'my-app' })
+const adapter = {
+    getItem(key: string) {
+        return backend.getItem<string>(key)
+    },
+    async setItem(key: string, value: string) {
+        await backend.setItem(key, value)
+    },
+} satisfies StorageAdapter
+
+const state = storage({ count: 1 }, { name: 'counter', adapter })
+// state 立即可用；异步读取完成后按 16.4 的规则恢复。
+// 不要用 await storage(...) 表示恢复完成，它返回的是状态对象。
+```
+
+适配器负责传递 JSON 字符串，不再次对字符串进行 JSON 编码。泛型 `<string>` 只提供类型提示，已有外部记录仍要经过 storage 的运行时类型及 JSON 校验。包内不直接 import、动态安装或偷偷回退到 localforage；现有开发依赖不影响核心零运行时依赖的约束。
+
+### 16.10 性能与交付边界
+
+一次有效变更仅唤醒受影响 store 的扫描；普通 reactive 不执行深层序列化。依赖扫描为 O(N)，其中 N 包含当前数据图的节点和字段；稳定键排序另有各对象的 O(k log k) 成本，编码成本还取决于实际输出长度。共享子对象在依赖收集和投影构建时去重，JSON 输出仍按出现位置重复，不能把大型共享图的输出长度简单当作节点数量。控制器最多保留基线、当前/待写字符串和一个在途字符串，不保留无界历史快照或操作日志。大对象、高频编辑应由业务合理拆分 name、使用 batch 或选择异步 adapter。
+
+交付必须同时包含第 11.3 节的源码、真实调用示例、公开类型、六个核心导出、ESM/CJS/原生 ESM/混合入口检查、浏览器与无浏览器行为和实际 tarball 验证。旧阶段的五个核心导出是历史事实；本阶段任何产物遗漏 storage 都视为未完成。跨标签页同步、显式等待/刷新/销毁、路径级冲突合并和 schema 迁移需另行设计，不混入本期实现。
+
+## 17. 本次方案更新记录（2026-10-16）
+
+本次根据 design.md 新增的 4.1、4.2 更新执行方案，并核对了当前 reactive/effect/watch、公开入口、构建桥接、冒烟/隔离测试、无 DOM 类型配置及 localforage 声明。已补齐第 16 节的运行契约、11.3 的执行顺序和 12.4 的验收，修正总范围、API、文件组织及当前交付目标中“五个核心导出”的过时描述；第 11.1/11.2 和第 13～15 节的历史事实保留。
+
+已用仓库 TypeScript 7.0.2 CLI 在系统临时目录验证本文件的 StorageAdapter/StorageOptions/storage 声明：无 DOM/无额外 types 的对象、数组、PromiseLike 正例及关键负例通过；localforage 薄包装通过，直接返回 Promise<string> 的 setter 按预期不兼容。临时文件已清理。另检查章节编号、代码围栏和交叉引用，并比对确认既有完成阶段及第 13～15 节记录未改写。
+
+本次只修改本文件，未实现 storage，未改动 design.md 或已有业务代码；文档结构、差异和交叉引用检查不等于运行时验收。待实施完成后再按第 12 节执行测试、构建、类型与隔离消费检查并追加实际结果。
+
+## 18. 持久化存储实施记录（2026-10-16）
+
+已完成第 11.3 节全部工作，交付设计 4.1～4.2。根入口及 Node 桥接新增 storage、公开 StorageAdapter/StorageOptions 类型，根运行时导出为六个，React 仍为十九个；不新增运行时依赖，localforage 只使用已有开发依赖校验适配示例。
+
+`effect.ts` 通过私有对象变更依赖接入原有净变化日志和通知队列，增加 afterEffectsSettled 收尾入口；`reactive.ts` 仅为内部模块导出现有 toRaw。`storageSnapshot.ts` 完成描述符数据扫描、稳定 JSON、危险键和对象类型检查、恢复预检及浅合并/数组回填。`storage.ts` 管理同步/异步读取、整份本地优先、单个在途写入与最新等待快照、异常诊断、绑定冲突和弱引用生命周期；内部停止不从根入口公开。
+
+新增 34 项核心/浏览器用例与 2 项 React 用例。测试使用可控 deferred 和 PromiseLike 检查读取未决、跨批次回退、等内容对象替换、写入合并、失败恢复及停止后的迟到回调；独立 jsdom Window 覆盖 localStorage/sessionStorage、权限及配额错误，结束时还原全局对象。React 在 StrictMode 下检查外部 store、Chip、Model、异步恢复和卸载后的持续保存。恢复预检额外覆盖普通对象名为 length 的访问器和隐藏字段，避免误用数组 length 特例。
+
+新增 `.mts/.cts` 正负消费端类型用例及 README localforage 包装的编译检查。storage-smoke.cjs 同时用于原生 ESM、CJS、Node 双方向混合入口和真实 tarball；隔离核心消费者在导入时安装抛错的浏览器全局 getter，验证模块求值不访问它们，并确认未安装 React、React DOM、React 类型或 localforage。README 更新六个 API、默认/自定义存储、数据范围、异步冲突及写入规则、异常、SSR、React 和绑定生命周期。
+
+| 验证命令 | 实际结果 |
+| --- | --- |
+| npm test | 105 项核心测试、76 项 React 测试全部通过；源码、测试及 React 类型检查通过 |
+| npm run build | 原生 ESM、CJS、声明和两条 Node 桥接生成成功 |
+| npm run test:dist | 六个核心 / 十九个 React 导出、存储同步/异步冒烟、双方向混合入口、原生 ESM 与两种格式消费端类型通过 |
+| npm pack --dry-run | 90 个预期文件，包含 storage/storageSnapshot 的两种格式及声明 |
+| npm run test:package | 无 React/DOM/localforage 的核心隔离消费者，以及 React 19.3.0、18.3.1 的完整行为、格式、混合入口与类型检查全部通过 |
+
+沿用第 16 节范围：只支持 JSON 数据投影，不提供公开 ready/flush/dispose、跨标签页同步或字段级冲突合并；完整图扫描适合体积适中的状态，异步写入不承诺页面关闭前必达。保留工作区已有的类字段/loading 等改动，本阶段没有发布 npm 包。

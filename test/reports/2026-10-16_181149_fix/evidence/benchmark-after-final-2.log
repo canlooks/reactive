@@ -1,0 +1,58 @@
+START 2026-10-16T10:34:15.886Z
+CWD E:\projects\@canlooks\reactive
+COMMAND node --expose-gc test/reports/2026-10-16_181149_fix/scripts/benchmark.mjs
+
+[
+  {
+    "name": "proxy/deep fields=1000",
+    "medianMs": 2.1096000000000004,
+    "p95Ms": 3.508800000000008
+  },
+  {
+    "name": "proxy/deep fields=10000",
+    "medianMs": 15.41565,
+    "p95Ms": 25.866899999999987
+  },
+  {
+    "name": "computed 100000 cached reads",
+    "medianMs": 1.6660500000000127,
+    "p95Ms": 1.8268999999999664
+  },
+  {
+    "name": "10000 writes batch=false",
+    "medianMs": 16.38594999999998,
+    "p95Ms": 51.86450000000002
+  },
+  {
+    "name": "10000 writes batch=true",
+    "medianMs": 4.345699999999965,
+    "p95Ms": 4.8571000000000595
+  },
+  {
+    "name": "QUAL-008 sparse length=1e9 own indices=3",
+    "medianMs": 0.013249999999970896,
+    "p95Ms": 0.020800000000008367
+  },
+  {
+    "name": "QUAL-008 depth=100",
+    "medianMs": 0.44885000000004993,
+    "p95Ms": 0.7438000000000784
+  },
+  {
+    "name": "QUAL-008 depth=1000",
+    "medianMs": 4.680349999999976,
+    "p95Ms": 6.19399999999996
+  },
+  {
+    "name": "JSON shared graph=false",
+    "medianMs": 0.4714000000000169,
+    "p95Ms": 0.5762999999999465
+  },
+  {
+    "name": "JSON shared graph=true",
+    "medianMs": 0.14465000000001282,
+    "p95Ms": 0.1795999999999367
+  }
+]
+
+END 2026-10-16T10:34:16.673Z EXIT 0

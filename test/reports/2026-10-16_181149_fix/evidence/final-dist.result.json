@@ -1,0 +1,14 @@
+{
+  "name": "final-dist",
+  "command": "npm",
+  "args": [
+    "run",
+    "test:dist"
+  ],
+  "cwd": "E:\\projects\\@canlooks\\reactive",
+  "started": "2026-10-16T10:28:19.969Z",
+  "ended": "2026-10-16T10:28:21.650Z",
+  "durationMs": 1681,
+  "exitCode": 0,
+  "signal": null
+}

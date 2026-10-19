@@ -1,0 +1,16 @@
+{
+  "name": "readme-runtime-final",
+  "command": "node",
+  "args": [
+    "node_modules/tsx/dist/cli.mjs",
+    "--tsconfig",
+    "test/reports/2026-10-19_171129/scripts/readme-examples/tsconfig.json",
+    "test/reports/2026-10-19_171129/scripts/readme-runtime.tsx"
+  ],
+  "cwd": "E:\\projects\\@canlooks\\reactive",
+  "started": "2026-10-19T09:15:52.238Z",
+  "ended": "2026-10-19T09:15:53.307Z",
+  "durationMs": 1069,
+  "exitCode": 0,
+  "signal": null
+}

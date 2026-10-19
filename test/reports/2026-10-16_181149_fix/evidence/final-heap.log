@@ -1,0 +1,26 @@
+START 2026-10-16T10:32:48.109Z
+CWD E:\projects\@canlooks\reactive
+COMMAND node test/reports/2026-10-16_181149_fix/scripts/heap-check.mjs
+
+{
+  "computedCanaryObjects": 1,
+  "getterCanaryObjects": 1,
+  "capturedComputedPayloads": 0,
+  "incoming": [
+    {
+      "to": 372546,
+      "from": "system / AllocationSite",
+      "type": "internal",
+      "name": "transition_info"
+    },
+    {
+      "to": 372552,
+      "from": "system / AllocationSite",
+      "type": "internal",
+      "name": "transition_info"
+    }
+  ],
+  "note": "Source remains reachable. The report originally showed 1000 captured computed payloads; the fixed snapshot contains none."
+}
+
+END 2026-10-16T10:32:48.199Z EXIT 0

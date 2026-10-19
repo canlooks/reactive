@@ -1,0 +1,721 @@
+{
+  "inputs": {
+    "node_modules/react/cjs/react.production.js": {
+      "bytes": 18040,
+      "imports": [],
+      "format": "cjs"
+    },
+    "node_modules/react/index.js": {
+      "bytes": 186,
+      "imports": [
+        {
+          "path": "node_modules/react/cjs/react.production.js",
+          "kind": "require-call",
+          "original": "./cjs/react.production.js"
+        }
+      ],
+      "format": "cjs"
+    },
+    "node_modules/scheduler/cjs/scheduler.production.js": {
+      "bytes": 10181,
+      "imports": [],
+      "format": "cjs"
+    },
+    "node_modules/scheduler/index.js": {
+      "bytes": 194,
+      "imports": [
+        {
+          "path": "node_modules/scheduler/cjs/scheduler.production.js",
+          "kind": "require-call",
+          "original": "./cjs/scheduler.production.js"
+        }
+      ],
+      "format": "cjs"
+    },
+    "node_modules/react-dom/cjs/react-dom.production.js": {
+      "bytes": 7326,
+      "imports": [
+        {
+          "path": "node_modules/react/index.js",
+          "kind": "require-call",
+          "original": "react"
+        }
+      ],
+      "format": "cjs"
+    },
+    "node_modules/react-dom/index.js": {
+      "bytes": 1359,
+      "imports": [
+        {
+          "path": "node_modules/react-dom/cjs/react-dom.production.js",
+          "kind": "require-call",
+          "original": "./cjs/react-dom.production.js"
+        }
+      ],
+      "format": "cjs"
+    },
+    "node_modules/react-dom/cjs/react-dom-client.production.js": {
+      "bytes": 625168,
+      "imports": [
+        {
+          "path": "node_modules/scheduler/index.js",
+          "kind": "require-call",
+          "original": "scheduler"
+        },
+        {
+          "path": "node_modules/react/index.js",
+          "kind": "require-call",
+          "original": "react"
+        },
+        {
+          "path": "node_modules/react-dom/index.js",
+          "kind": "require-call",
+          "original": "react-dom"
+        }
+      ],
+      "format": "cjs"
+    },
+    "node_modules/react-dom/client.js": {
+      "bytes": 1373,
+      "imports": [
+        {
+          "path": "node_modules/react-dom/cjs/react-dom-client.production.js",
+          "kind": "require-call",
+          "original": "./cjs/react-dom-client.production.js"
+        }
+      ],
+      "format": "cjs"
+    },
+    "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/effect.js": {
+      "bytes": 13641,
+      "imports": [],
+      "format": "esm"
+    },
+    "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/reference.js": {
+      "bytes": 1831,
+      "imports": [],
+      "format": "esm"
+    },
+    "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/computed.js": {
+      "bytes": 2375,
+      "imports": [
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/effect.js",
+          "kind": "import-statement",
+          "original": "./effect.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/reference.js",
+          "kind": "import-statement",
+          "original": "./reference.js"
+        }
+      ],
+      "format": "esm"
+    },
+    "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/batch.js": {
+      "bytes": 277,
+      "imports": [
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/effect.js",
+          "kind": "import-statement",
+          "original": "./effect.js"
+        }
+      ],
+      "format": "esm"
+    },
+    "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/reactive.js": {
+      "bytes": 8472,
+      "imports": [
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/effect.js",
+          "kind": "import-statement",
+          "original": "./effect.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/computed.js",
+          "kind": "import-statement",
+          "original": "./computed.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/batch.js",
+          "kind": "import-statement",
+          "original": "./batch.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/reference.js",
+          "kind": "import-statement",
+          "original": "./reference.js"
+        }
+      ],
+      "format": "esm"
+    },
+    "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/watch.js": {
+      "bytes": 2166,
+      "imports": [
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/effect.js",
+          "kind": "import-statement",
+          "original": "./effect.js"
+        }
+      ],
+      "format": "esm"
+    },
+    "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/storageSnapshot.js": {
+      "bytes": 7052,
+      "imports": [
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/computed.js",
+          "kind": "import-statement",
+          "original": "./computed.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/effect.js",
+          "kind": "import-statement",
+          "original": "./effect.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/reactive.js",
+          "kind": "import-statement",
+          "original": "./reactive.js"
+        }
+      ],
+      "format": "esm"
+    },
+    "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/storage.js": {
+      "bytes": 11173,
+      "imports": [
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/effect.js",
+          "kind": "import-statement",
+          "original": "./effect.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/batch.js",
+          "kind": "import-statement",
+          "original": "./batch.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/reactive.js",
+          "kind": "import-statement",
+          "original": "./reactive.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/reference.js",
+          "kind": "import-statement",
+          "original": "./reference.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/storageSnapshot.js",
+          "kind": "import-statement",
+          "original": "./storageSnapshot.js"
+        }
+      ],
+      "format": "esm"
+    },
+    "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/index.js": {
+      "bytes": 234,
+      "imports": [
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/reactive.js",
+          "kind": "import-statement",
+          "original": "./reactive.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/effect.js",
+          "kind": "import-statement",
+          "original": "./effect.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/computed.js",
+          "kind": "import-statement",
+          "original": "./computed.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/batch.js",
+          "kind": "import-statement",
+          "original": "./batch.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/watch.js",
+          "kind": "import-statement",
+          "original": "./watch.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/storage.js",
+          "kind": "import-statement",
+          "original": "./storage.js"
+        }
+      ],
+      "format": "esm"
+    },
+    "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/props.js": {
+      "bytes": 4211,
+      "imports": [
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/effect.js",
+          "kind": "import-statement",
+          "original": "../effect.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/reference.js",
+          "kind": "import-statement",
+          "original": "../reference.js"
+        }
+      ],
+      "format": "esm"
+    },
+    "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/observer.js": {
+      "bytes": 5213,
+      "imports": [
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/effect.js",
+          "kind": "import-statement",
+          "original": "../effect.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/props.js",
+          "kind": "import-statement",
+          "original": "./props.js"
+        }
+      ],
+      "format": "esm"
+    },
+    "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/commit.js": {
+      "bytes": 1144,
+      "imports": [
+        {
+          "path": "node_modules/react/index.js",
+          "kind": "import-statement",
+          "original": "react"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/effect.js",
+          "kind": "import-statement",
+          "original": "../effect.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/observer.js",
+          "kind": "import-statement",
+          "original": "./observer.js"
+        }
+      ],
+      "format": "esm"
+    },
+    "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/functionComponent.js": {
+      "bytes": 1881,
+      "imports": [
+        {
+          "path": "node_modules/react/index.js",
+          "kind": "import-statement",
+          "original": "react"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/observer.js",
+          "kind": "import-statement",
+          "original": "./observer.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/commit.js",
+          "kind": "import-statement",
+          "original": "./commit.js"
+        }
+      ],
+      "format": "esm"
+    },
+    "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/hooks.js": {
+      "bytes": 1737,
+      "imports": [
+        {
+          "path": "node_modules/react/index.js",
+          "kind": "import-statement",
+          "original": "react"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/reactive.js",
+          "kind": "import-statement",
+          "original": "../reactive.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/watch.js",
+          "kind": "import-statement",
+          "original": "../watch.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/commit.js",
+          "kind": "import-statement",
+          "original": "./commit.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/observer.js",
+          "kind": "import-statement",
+          "original": "./observer.js"
+        }
+      ],
+      "format": "esm"
+    },
+    "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/chip.js": {
+      "bytes": 1877,
+      "imports": [
+        {
+          "path": "node_modules/react/index.js",
+          "kind": "import-statement",
+          "original": "react"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/functionComponent.js",
+          "kind": "import-statement",
+          "original": "./functionComponent.js"
+        }
+      ],
+      "format": "esm"
+    },
+    "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/model.js": {
+      "bytes": 4306,
+      "imports": [
+        {
+          "path": "node_modules/react/index.js",
+          "kind": "import-statement",
+          "original": "react"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/batch.js",
+          "kind": "import-statement",
+          "original": "../batch.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/effect.js",
+          "kind": "import-statement",
+          "original": "../effect.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/reactive.js",
+          "kind": "import-statement",
+          "original": "../reactive.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/reference.js",
+          "kind": "import-statement",
+          "original": "../reference.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/commit.js",
+          "kind": "import-statement",
+          "original": "./commit.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/functionComponent.js",
+          "kind": "import-statement",
+          "original": "./functionComponent.js"
+        }
+      ],
+      "format": "esm"
+    },
+    "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/loading.js": {
+      "bytes": 2768,
+      "imports": [
+        {
+          "path": "node_modules/react/index.js",
+          "kind": "import-statement",
+          "original": "react"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/batch.js",
+          "kind": "import-statement",
+          "original": "../batch.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/effect.js",
+          "kind": "import-statement",
+          "original": "../effect.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/reactive.js",
+          "kind": "import-statement",
+          "original": "../reactive.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/commit.js",
+          "kind": "import-statement",
+          "original": "./commit.js"
+        }
+      ],
+      "format": "esm"
+    },
+    "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/classState.js": {
+      "bytes": 3556,
+      "imports": [
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/effect.js",
+          "kind": "import-statement",
+          "original": "../effect.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/reactive.js",
+          "kind": "import-statement",
+          "original": "../reactive.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/reference.js",
+          "kind": "import-statement",
+          "original": "../reference.js"
+        }
+      ],
+      "format": "esm"
+    },
+    "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/loadingDecorator.js": {
+      "bytes": 6234,
+      "imports": [
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/batch.js",
+          "kind": "import-statement",
+          "original": "../batch.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/effect.js",
+          "kind": "import-statement",
+          "original": "../effect.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/reference.js",
+          "kind": "import-statement",
+          "original": "../reference.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/classState.js",
+          "kind": "import-statement",
+          "original": "./classState.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/observer.js",
+          "kind": "import-statement",
+          "original": "./observer.js"
+        }
+      ],
+      "format": "esm"
+    },
+    "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/classComponent.js": {
+      "bytes": 4783,
+      "imports": [
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/effect.js",
+          "kind": "import-statement",
+          "original": "../effect.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/observer.js",
+          "kind": "import-statement",
+          "original": "./observer.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/props.js",
+          "kind": "import-statement",
+          "original": "./props.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/batch.js",
+          "kind": "import-statement",
+          "original": "../batch.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/classState.js",
+          "kind": "import-statement",
+          "original": "./classState.js"
+        }
+      ],
+      "format": "esm"
+    },
+    "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/index.js": {
+      "bytes": 880,
+      "imports": [
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/functionComponent.js",
+          "kind": "import-statement",
+          "original": "./functionComponent.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/hooks.js",
+          "kind": "import-statement",
+          "original": "./hooks.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/chip.js",
+          "kind": "import-statement",
+          "original": "./chip.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/model.js",
+          "kind": "import-statement",
+          "original": "./model.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/loading.js",
+          "kind": "import-statement",
+          "original": "./loading.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/loadingDecorator.js",
+          "kind": "import-statement",
+          "original": "./loadingDecorator.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/functionComponent.js",
+          "kind": "import-statement",
+          "original": "./functionComponent.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/classComponent.js",
+          "kind": "import-statement",
+          "original": "./classComponent.js"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/classComponent.js",
+          "kind": "import-statement",
+          "original": "./classComponent.js"
+        }
+      ],
+      "format": "esm"
+    },
+    "node_modules/localforage/dist/localforage.js": {
+      "bytes": 93750,
+      "imports": [
+        {
+          "path": "<runtime>",
+          "kind": "import-statement",
+          "external": true
+        }
+      ],
+      "format": "cjs"
+    },
+    "test/reports/2026-10-16_170124/.runtime/browser-app.tsx": {
+      "bytes": 5686,
+      "imports": [
+        {
+          "path": "node_modules/react/index.js",
+          "kind": "import-statement",
+          "original": "react"
+        },
+        {
+          "path": "node_modules/react-dom/client.js",
+          "kind": "import-statement",
+          "original": "react-dom/client"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/index.js",
+          "kind": "import-statement",
+          "original": "@canlooks/reactive"
+        },
+        {
+          "path": "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/index.js",
+          "kind": "import-statement",
+          "original": "@canlooks/reactive/react"
+        },
+        {
+          "path": "node_modules/localforage/dist/localforage.js",
+          "kind": "import-statement",
+          "original": "localforage"
+        }
+      ],
+      "format": "esm"
+    }
+  },
+  "outputs": {
+    "stdin.js": {
+      "imports": [],
+      "exports": [],
+      "entryPoint": "test/reports/2026-10-16_170124/.runtime/browser-app.tsx",
+      "inputs": {
+        "node_modules/react/cjs/react.production.js": {
+          "bytesInOutput": 7969
+        },
+        "node_modules/react/index.js": {
+          "bytesInOutput": 51
+        },
+        "node_modules/scheduler/cjs/scheduler.production.js": {
+          "bytesInOutput": 3662
+        },
+        "node_modules/scheduler/index.js": {
+          "bytesInOutput": 51
+        },
+        "node_modules/react-dom/cjs/react-dom.production.js": {
+          "bytesInOutput": 3666
+        },
+        "node_modules/react-dom/index.js": {
+          "bytesInOutput": 253
+        },
+        "node_modules/react-dom/cjs/react-dom-client.production.js": {
+          "bytesInOutput": 205321
+        },
+        "node_modules/react-dom/client.js": {
+          "bytesInOutput": 253
+        },
+        "node_modules/localforage/dist/localforage.js": {
+          "bytesInOutput": 29636
+        },
+        "test/reports/2026-10-16_170124/.runtime/browser-app.tsx": {
+          "bytesInOutput": 4940
+        },
+        "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/effect.js": {
+          "bytesInOutput": 4642
+        },
+        "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/reference.js": {
+          "bytesInOutput": 956
+        },
+        "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/computed.js": {
+          "bytesInOutput": 733
+        },
+        "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/batch.js": {
+          "bytesInOutput": 100
+        },
+        "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/reactive.js": {
+          "bytesInOutput": 3299
+        },
+        "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/index.js": {
+          "bytesInOutput": 0
+        },
+        "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/watch.js": {
+          "bytesInOutput": 534
+        },
+        "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/storageSnapshot.js": {
+          "bytesInOutput": 3332
+        },
+        "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/storage.js": {
+          "bytesInOutput": 4990
+        },
+        "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/functionComponent.js": {
+          "bytesInOutput": 756
+        },
+        "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/props.js": {
+          "bytesInOutput": 1966
+        },
+        "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/observer.js": {
+          "bytesInOutput": 1823
+        },
+        "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/commit.js": {
+          "bytesInOutput": 357
+        },
+        "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/index.js": {
+          "bytesInOutput": 86
+        },
+        "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/hooks.js": {
+          "bytesInOutput": 478
+        },
+        "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/chip.js": {
+          "bytesInOutput": 852
+        },
+        "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/model.js": {
+          "bytesInOutput": 1658
+        },
+        "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/loading.js": {
+          "bytesInOutput": 1087
+        },
+        "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/classState.js": {
+          "bytesInOutput": 1661
+        },
+        "test/reports/2026-10-16_170124/.runtime/node_modules/@canlooks/reactive/dist/esm/react/classComponent.js": {
+          "bytesInOutput": 1889
+        }
+      },
+      "bytes": 289258
+    }
+  }
+}

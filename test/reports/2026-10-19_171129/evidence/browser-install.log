@@ -1,0 +1,8 @@
+START 2026-10-19T09:13:51.930Z
+CWD E:\projects\@canlooks\reactive
+COMMAND node test/reports/2026-10-19_171129/scripts/setup-browser.mjs
+
+
+added 10 packages in 5s
+
+END 2026-10-19T09:13:56.807Z EXIT 0

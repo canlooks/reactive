@@ -1,0 +1,18 @@
+START 2026-10-16T09:06:46.748Z
+CWD E:\projects\@canlooks\reactive
+COMMAND node --expose-gc test/reports/2026-10-16_170124/scripts/resources.mjs
+
+QUAL-009 1000 sync-batch [{"ms":7.266399999999976,"writes":1},{"ms":7.483400000000074,"writes":1},{"ms":6.307999999999993,"writes":1},{"ms":6.451999999999998,"writes":1},{"ms":6.321399999999926,"writes":1}]
+QUAL-009 1000 sync-unbatched [{"ms":5078.864600000001,"writes":10000},{"ms":5170.3833,"writes":10000},{"ms":5138.918100000001,"writes":10000},{"ms":5203.1446,"writes":10000},{"ms":5179.402900000001,"writes":10000}]
+QUAL-009 1000 async-pending [{"ms":5130.519600000003,"writes":2},{"ms":5074.006999999998,"writes":2},{"ms":5065.465500000006,"writes":2},{"ms":5047.8004,"writes":2},{"ms":5024.2425,"writes":2}]
+QUAL-009 10000 sync-batch [{"ms":10.402700000006007,"writes":1},{"ms":11.532500000001164,"writes":1},{"ms":11.08009999999922,"writes":1},{"ms":10.683699999994133,"writes":1},{"ms":10.53639999999723,"writes":1}]
+QUAL-009 10000 sync-unbatched [{"ms":57155.9672,"writes":10000},{"ms":55362.91989999999,"writes":10000},{"ms":56293.90109999999,"writes":10000},{"ms":56045.18029999998,"writes":10000},{"ms":55757.05429999996,"writes":10000}]
+QUAL-009 10000 async-pending [{"ms":56665.557299999986,"writes":2},{"ms":56675.568499999994,"writes":2},{"ms":56244.60690000001,"writes":2},{"ms":56162.60670000006,"writes":2},{"ms":56273.78729999997,"writes":2}]
+{
+  "storageSharedChildAlive": 1,
+  "storageAfterIoAlive": 1,
+  "computedPayloadsAliveWithSource": 1000,
+  "computedPayloadsAliveAfterSourceDropped": 0
+}
+
+END 2026-10-16T09:17:02.122Z EXIT 0

@@ -1,0 +1,8 @@
+START 2026-10-16T10:28:45.590Z
+CWD E:\projects\@canlooks\reactive
+COMMAND npm --prefix test/reports/2026-10-16_181149_fix/.runtime install --ignore-scripts --no-audit --no-fund
+
+
+added 7 packages in 3s
+
+END 2026-10-16T10:28:49.167Z EXIT 0

@@ -1,0 +1,14 @@
+START 2026-10-16T09:13:36.756Z
+CWD E:\projects\@canlooks\reactive
+COMMAND node test/reports/2026-10-16_170124/scripts/browser.mjs
+
+chromium 151.0.7922.34 18 development passed 9
+chromium 151.0.7922.34 18 production passed 9
+chromium 151.0.7922.34 19 development passed 9
+chromium 151.0.7922.34 19 production passed 9
+webkit 26.5 18 development passed 9
+webkit 26.5 18 production passed 9
+webkit 26.5 19 development passed 9
+webkit 26.5 19 production passed 9
+
+END 2026-10-16T09:13:44.910Z EXIT 1

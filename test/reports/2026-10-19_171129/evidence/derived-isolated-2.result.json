@@ -1,0 +1,15 @@
+{
+  "name": "derived-isolated-2",
+  "command": "node",
+  "args": [
+    "--expose-gc",
+    "test/reports/2026-10-19_171129/scripts/derived-benchmark-isolated.mjs",
+    "derived-isolated-2"
+  ],
+  "cwd": "E:\\projects\\@canlooks\\reactive",
+  "started": "2026-10-19T09:24:15.819Z",
+  "ended": "2026-10-19T09:24:17.103Z",
+  "durationMs": 1284,
+  "exitCode": 0,
+  "signal": null
+}

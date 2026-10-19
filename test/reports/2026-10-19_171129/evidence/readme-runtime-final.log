@@ -1,0 +1,57 @@
+START 2026-10-19T09:15:52.238Z
+CWD E:\projects\@canlooks\reactive
+COMMAND node node_modules/tsx/dist/cli.mjs --tsconfig test/reports/2026-10-19_171129/scripts/readme-examples/tsconfig.json test/reports/2026-10-19_171129/scripts/readme-runtime.tsx
+
+README 1 line 13: passed
+README 2 line 18: passed
+1 2
+2 4
+4 8
+README 3 line 29: passed
+Alice
+Bob
+Carol
+README 5 line 83: passed
+1
+10
+20
+README 6 line 104: passed
+README 7 line 124: passed
+2
+8
+README 8 line 149: passed
+4
+README 9 line 170: passed
+undefined 1
+1 3
+README 10 line 199: passed
+1 2
+2 4
+README 11 line 220: passed
+README 12 line 252: passed
+README 13 line 265: passed
+README 14 line 308: passed
+README 16 line 332: passed
+README 17 line 355: passed
+undefined 0
+0 1
+README 18 line 392: passed
+1 2
+README 19 line 405: passed
+README 20 line 445: passed
+README 21 line 461: passed
+README 22 line 482: passed
+README 23 line 517: passed
+README 24 line 545: passed
+README 25 line 587: passed
+1 2
+3 6
+1
+3
+README 27 line 665: passed
+README 28 line 714: passed
+3 3
+3 undefined
+README 29 line 744: passed
+
+END 2026-10-19T09:15:53.307Z EXIT 0

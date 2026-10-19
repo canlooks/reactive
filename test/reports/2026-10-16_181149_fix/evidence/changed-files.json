@@ -1,0 +1,22 @@
+[
+  "src/storageSnapshot.ts",
+  "test/AUTOMATION.md",
+  "test/cases/core.md",
+  "test/cases/quality.md",
+  "test/cases/storage.md",
+  "test/cases/ui.md",
+  "test/storage-smoke.cjs",
+  "test/storage.ts",
+  "README.md",
+  "src/effect.ts",
+  "src/react/model.ts",
+  "src/react/props.ts",
+  "src/reactive.ts",
+  "test/react-features.tsx",
+  "test/smoke-assertions.cjs",
+  "test/test.ts",
+  "test/types/react/features.cts",
+  "test/types/react/features.mts",
+  "test/types/react/features.tsx",
+  "test/derived-lifecycle.mjs"
+]

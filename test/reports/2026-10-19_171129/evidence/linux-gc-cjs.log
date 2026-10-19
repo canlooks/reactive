@@ -1,0 +1,17 @@
+✔ unused computed payloads and getter receivers are collectible while their source stays alive (126.811473ms)
+✔ effects and watches depending only on computed remain active without retained disposers (41.977532ms)
+✔ retained computed and getter caches stay lazy after their last consumer stops (19.998531ms)
+✔ read snapshots keep ephemeral upstream computations alive until commit or release (39.65683ms)
+✔ consumer reruns release temporary computed payloads and stop releases the final one (39.284463ms)
+✔ switching away from a derived branch releases it while the ordinary consumer remains active (40.661343ms)
+✔ an entire active source and derived consumer graph can be collected (22.692492ms)
+✔ props slots count retained derivations and ignore collected ones (40.068764ms)
+✔ shared storage children and completed I/O do not retain discarded roots (92.31863ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 470.885104

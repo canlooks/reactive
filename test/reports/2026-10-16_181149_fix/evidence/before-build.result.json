@@ -1,0 +1,14 @@
+{
+  "name": "before-build",
+  "command": "npm",
+  "args": [
+    "run",
+    "build"
+  ],
+  "cwd": "E:\\projects\\@canlooks\\reactive",
+  "started": "2026-10-16T10:14:30.013Z",
+  "ended": "2026-10-16T10:14:30.604Z",
+  "durationMs": 591,
+  "exitCode": 0,
+  "signal": null
+}

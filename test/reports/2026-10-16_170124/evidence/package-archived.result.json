@@ -1,0 +1,13 @@
+{
+  "name": "package-archived",
+  "command": "node",
+  "args": [
+    "test/reports/2026-10-16_170124/scripts/package-archived.mjs"
+  ],
+  "cwd": "E:\\projects\\@canlooks\\reactive",
+  "started": "2026-10-16T09:22:47.694Z",
+  "ended": "2026-10-16T09:23:21.943Z",
+  "durationMs": 34249,
+  "exitCode": 0,
+  "signal": null
+}

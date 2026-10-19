@@ -1,0 +1,29 @@
+START 2026-10-19T09:12:20.283Z
+CWD E:\projects\@canlooks\reactive
+COMMAND node node_modules/tsx/dist/cli.mjs --tsconfig test/reports/2026-10-19_171129/scripts/tsconfig.json test/reports/2026-10-19_171129/scripts/supplement-react.tsx
+
+✔ REACT-001 external wrappers and invalid categories matrix (0.8855ms)
+✔ REACT-002 memo object and function identity changes (21.2221ms)
+✔ REACT-035 ordinary class methods and getters do not batch or cache (4.2525ms)
+✔ UI-001 factory identities conditional list mounting and stable keys (4.9881ms)
+✔ UI-009 legal synchronous nodes and custom thenable rejection (4.3063ms)
+✔ UI-019 UI-020 Model DOM events target every property and setter once (17.8955ms)
+✔ UI-022 all invalid element shapes portal file and valueProp (1.3794ms)
+✔ UI-024 Model server values side effects and hydrate input (7.5979ms)
+✔ UI-025 genuine cross-document events currentTarget priority and target fallback (7.0906ms)
+✔ UI-026 defineModel class protocol children keys and stable mount (4.3ms)
+✔ LOAD-014 invalid fn all numeric edges uncommitted handle and MAX_SAFE_INTEGER (2.8131ms)
+✔ LOAD-032 same class instance rejects constructor/render then accepts committed event (1.6705ms)
+✔ QUAL-014 integrated Model watch computed concurrent load persist reload unmount (5.9563ms)
+✔ QUAL-010 1000 RC Chip Model loading mount/unmount cycles (3309.3231ms)
+✔ QUAL-015 50 recovery rounds with multiple RC stores watchers and adapter failures (23.4516ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3421.5298
+
+END 2026-10-19T09:12:25.351Z EXIT 0

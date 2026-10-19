@@ -1,0 +1,123 @@
+START 2026-10-16T09:05:06.483Z
+CWD E:\projects\@canlooks\reactive
+COMMAND node --test --test-reporter=tap test/reports/2026-10-16_170124/scripts/supplement-core.mjs
+
+TAP version 13
+# Subtest: CORE-069 computed object/function/undefined results and destructured snapshots
+ok 1 - CORE-069 computed object/function/undefined results and destructured snapshots
+  ---
+  duration_ms: 1.9205
+  type: 'test'
+  ...
+# Subtest: CORE-070 raw writes and enumeration negative controls
+ok 2 - CORE-070 raw writes and enumeration negative controls
+  ---
+  duration_ms: 1.1647
+  type: 'test'
+  ...
+# Subtest: CORE-071 Unicode empty keys false zero shared identities and net rollback
+ok 3 - CORE-071 Unicode empty keys false zero shared identities and net rollback
+  ---
+  duration_ms: 0.6262
+  type: 'test'
+  ...
+# Subtest: CORE-072 all invalid watch argument positions and ignored cleanup returns
+ok 4 - CORE-072 all invalid watch argument positions and ignored cleanup returns
+  ---
+  duration_ms: 0.4705
+  type: 'test'
+  ...
+# Subtest: STORE-037 JSON restore is not schema validation; adapter migration works
+ok 5 - STORE-037 JSON restore is not schema validation; adapter migration works
+  ---
+  duration_ms: 1.0604
+  type: 'test'
+  ...
+# reserved-key checks: 18
+# {"seeds":100,"outerBatches":100000,"operations":300040}
+# Subtest: STORE-038 invalid get/set results this binding and then access once
+ok 6 - STORE-038 invalid get/set results this binding and then access once
+  ---
+  duration_ms: 2.881
+  type: 'test'
+  ...
+# Subtest: STORE-039 QUAL-013 reserved keys 3x3 encode/decode and logger failures
+ok 7 - STORE-039 QUAL-013 reserved keys 3x3 encode/decode and logger failures
+  ---
+  duration_ms: 2.7811
+  type: 'test'
+  ...
+# Subtest: STORE-039 inherited setter preflight never runs or partially restores
+ok 8 - STORE-039 inherited setter preflight never runs or partially restores
+  ---
+  duration_ms: 0.3443
+  type: 'test'
+  ...
+# Subtest: STORE-040 Unicode Infinity array named properties and deleted default reload
+ok 9 - STORE-040 Unicode Infinity array named properties and deleted default reload
+  ---
+  duration_ms: 0.4734
+  type: 'test'
+  ...
+# Subtest: QUAL-012 100 seeds x 1000 operations independent descriptor model
+ok 10 - QUAL-012 100 seeds x 1000 operations independent descriptor model
+  ---
+  duration_ms: 889.8386
+  type: 'test'
+  ...
+# Subtest: QUAL-015 50 repeated storage/watch failures isolate healthy instances
+ok 11 - QUAL-015 50 repeated storage/watch failures isolate healthy instances
+  ---
+  duration_ms: 2.3143
+  type: 'test'
+  ...
+# Subtest: PKG-016 public entry and deep import rejection
+ok 12 - PKG-016 public entry and deep import rejection
+  ---
+  duration_ms: 6.8448
+  type: 'test'
+  ...
+# Subtest: EXPLORATORY cross-realm plain object gets reactive updates
+not ok 13 - EXPLORATORY cross-realm plain object gets reactive updates
+  ---
+  duration_ms: 1.2297
+  type: 'test'
+  location: 'E:\\projects\\@canlooks\\reactive\\test\\reports\\2026-10-16_170124\\scripts\\supplement-core.mjs:91:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+      [
+        0,
+    -   1
+      ]
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    0: 0
+    1: 1
+  actual:
+    0: 0
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///E:/projects/@canlooks/reactive/test/reports/2026-10-16_170124/scripts/supplement-core.mjs:92:146)
+    Test.runInAsyncScope (node:async_hooks:228:14)
+    Test.run (node:internal/test_runner/test:1118:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+    Test.postRun (node:internal/test_runner/test:1247:19)
+    Test.run (node:internal/test_runner/test:1175:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:787:7)
+  ...
+1..13
+# tests 13
+# suites 0
+# pass 12
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 983.6178
+
+END 2026-10-16T09:05:07.518Z EXIT 1

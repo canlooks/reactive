@@ -6,10 +6,10 @@ const dom = new JSDOM('<!doctype html><html><body></body></html>')
 Object.assign(globalThis, { window: dom.window, document: dom.window.document, IS_REACT_ACT_ENVIRONMENT: true })
 const { createRoot } = await import('react-dom/client')
 
-export default async function verifyReact(api, reactApi) {
+export default async function verifyReact(api, reactApi, decoratorApi = reactApi) {
     assert.deepEqual(Object.keys(reactApi).sort(), [
         'RC', 'RCC', 'RFC', 'ReactiveClassComponent', 'ReactiveComponent', 'ReactiveFunctionComponent', 'useWatch',
-        'useReactive', 'Chip', 'AsyncChip', 'chip', 'strictChip', 'asyncChip', 'asyncStrictChip', 'useModel', 'Model', 'defineModel', 'useLoading',
+        'useReactive', 'Chip', 'AsyncChip', 'chip', 'strictChip', 'asyncChip', 'asyncStrictChip', 'useModel', 'Model', 'defineModel', 'useLoading', 'loading',
     ].sort())
     assert.equal(reactApi.RC, reactApi.ReactiveComponent)
     assert.equal(reactApi.RFC, reactApi.ReactiveFunctionComponent)
@@ -81,6 +81,47 @@ export default async function verifyReact(api, reactApi) {
         assert.equal(loading.loading, 2)
         assert.equal(loading.stacksCount, 0)
         assert.equal(container.textContent, '2|6|2:0')
+
+        class ClassView extends React.Component {
+            count = 0
+            busy = false
+            stack = 2
+            async run(promise, suffix) {
+                assert.equal(this.busy, true)
+                return await promise + suffix
+            }
+            async concurrent(promise) { return promise }
+            render() { return React.createElement('span', null, `${this.count}:${this.busy}:${this.stack}`) }
+        }
+        for (const [method, source] of [['run', ctx => ctx.busy], ['concurrent', ctx => ctx.stack]]) {
+            const descriptor = Object.getOwnPropertyDescriptor(ClassView.prototype, method)
+            decoratorApi.loading(source)(ClassView.prototype, method, descriptor)
+            Object.defineProperty(ClassView.prototype, method, descriptor)
+        }
+        const Class = reactApi.RC(ClassView)
+        const ref = React.createRef()
+        await React.act(async () => root.render(React.createElement(Class, { ref })))
+        const instance = ref.current
+        await React.act(async () => { instance.count++ })
+        assert.equal(container.textContent, '1:false:2')
+        let resolve, reject, a, b, numeric
+        const one = new Promise(done => { resolve = done })
+        const two = new Promise((_done, fail) => { reject = fail })
+        await React.act(async () => { a = instance.run(one, '!'); b = instance.run(two, '?'); numeric = instance.concurrent(one) })
+        assert.equal(container.textContent, '1:true:3')
+        const error = new Error('smoke failure')
+        const rejected = assert.rejects(b, e => e === error)
+        await React.act(async () => { reject(error); await rejected })
+        assert.equal(container.textContent, '1:true:3')
+        await React.act(async () => { resolve('done'); assert.equal(await a, 'done!'); assert.equal(await numeric, 'done') })
+        assert.equal(container.textContent, '1:false:2')
+        let finish, retained
+        await React.act(async () => { retained = instance.run(new Promise(done => { finish = done }), '') })
+        await React.act(async () => root.render(null))
+        await assert.rejects(instance.run(Promise.resolve('late'), ''), /unmount/)
+        finish('settled')
+        assert.equal(await retained, 'settled')
+        assert.equal(instance.busy, true)
     } finally { await React.act(() => root.unmount()) }
     state.count++
     assert.deepEqual(changes, [[6, 2]])

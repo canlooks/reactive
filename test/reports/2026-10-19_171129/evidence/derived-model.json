@@ -1,0 +1,8 @@
+{
+  "seeds": 100,
+  "outerBatches": 100000,
+  "computedNodesPerSeed": 12,
+  "operations": 277936,
+  "intermediateReads": 277936,
+  "status": "passed"
+}

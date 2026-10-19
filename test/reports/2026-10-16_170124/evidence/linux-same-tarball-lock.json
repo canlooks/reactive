@@ -1,0 +1,31 @@
+{
+  "name": "linux-same-tarball",
+  "lockfileVersion": 3,
+  "requires": true,
+  "packages": {
+    "": {
+      "name": "linux-same-tarball",
+      "dependencies": {
+        "@canlooks/reactive": "file:../../../mnt/e/projects/@canlooks/reactive/test/reports/2026-10-16_170124/evidence/canlooks-reactive-5.0.0.tgz"
+      }
+    },
+    "node_modules/@canlooks/reactive": {
+      "version": "5.0.0",
+      "resolved": "file:../../../mnt/e/projects/@canlooks/reactive/test/reports/2026-10-16_170124/evidence/canlooks-reactive-5.0.0.tgz",
+      "integrity": "sha512-ZXfydXBehZnKKCqjtGMy/TIqP/MCAeI12g5VSzm/Iz88dExRwF1ElFNdTZn6t514qq4MA7cA5N+RGlOW6pspPQ==",
+      "license": "MIT",
+      "peerDependencies": {
+        "@types/react": "^18.3.0 || ^19.0.0",
+        "react": "^18.3.1 || ^19.0.0"
+      },
+      "peerDependenciesMeta": {
+        "@types/react": {
+          "optional": true
+        },
+        "react": {
+          "optional": true
+        }
+      }
+    }
+  }
+}

@@ -81,8 +81,10 @@ function ModelView<T, A extends unknown[]>(props: ModelProps<T, A>): ReactElemen
     const child = Children.only(children) as ReactElement<ControlProps>
     if (child.type === 'input' && child.props.type === 'file') throw new TypeError('Model does not support file inputs')
     const reference = captureReference(source)
-    const field = valueProp ?? (typeof reference.value === 'boolean' ? 'checked' : 'value')
-    if (field !== 'value' && field !== 'checked') throw new TypeError('Model valueProp must be value or checked')
+    if (valueProp !== undefined && valueProp !== 'value' && valueProp !== 'checked') {
+        throw new TypeError('Model valueProp must be value or checked')
+    }
+    const field = valueProp === undefined ? (typeof reference.value === 'boolean' ? 'checked' : 'value') : valueProp
     const committed = useCommittedRef({ source, postValue, onChange: child.props.onChange })
     const [onChange] = useState(() => (...args: A) => {
         if (!committed.active) return

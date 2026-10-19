@@ -1,0 +1,15 @@
+START 2026-10-16T10:32:24.163Z
+CWD E:\projects\@canlooks\reactive
+COMMAND node test/reports/2026-10-16_181149_fix/evidence/before/scripts/build.mjs
+
+
+  ...\reports\2026-10-16_181149_fix\evidence\before\dist\cjs\effect.js  13.1kb
+  ...reports\2026-10-16_181149_fix\evidence\before\dist\cjs\storage.js  10.3kb
+  ...eports\2026-10-16_181149_fix\evidence\before\dist\cjs\reactive.js   8.1kb
+  ...2026-10-16_181149_fix\evidence\before\dist\cjs\storageSnapshot.js   7.1kb
+  ...-16_181149_fix\evidence\before\dist\cjs\react\loadingDecorator.js   6.2kb
+  ...and 16 more output files...
+
+Done in 12ms
+
+END 2026-10-16T10:32:24.619Z EXIT 0

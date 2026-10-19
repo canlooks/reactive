@@ -1,0 +1,10 @@
+START 2026-10-19T09:15:20.008Z
+CWD E:\projects\@canlooks\reactive
+COMMAND wsl -d Ubuntu -- bash /mnt/e/projects/@canlooks/reactive/test/reports/2026-10-19_171129/scripts/linux-browser.sh
+
+firefox 153.0 18 development passed 10
+firefox 153.0 18 production passed 10
+firefox 153.0 19 development passed 10
+firefox 153.0 19 production passed 10
+
+END 2026-10-19T09:15:29.604Z EXIT 0

@@ -1,0 +1,111 @@
+{
+  "sourceFiles": 79,
+  "productionFilesChanged": [
+    "src/effect.ts",
+    "src/react/model.ts",
+    "src/react/props.ts",
+    "src/reactive.ts",
+    "src/storageSnapshot.ts"
+  ],
+  "browserTarballMatchesBuild": true,
+  "unchangedPublicDeclarations": true,
+  "browserMatrix": [
+    {
+      "engine": "chromium",
+      "browserVersion": "151.0.7922.34",
+      "reactVersion": "18.3.1",
+      "major": 18,
+      "mode": "development",
+      "status": "passed"
+    },
+    {
+      "engine": "chromium",
+      "browserVersion": "151.0.7922.34",
+      "reactVersion": "18.3.1",
+      "major": 18,
+      "mode": "production",
+      "status": "passed"
+    },
+    {
+      "engine": "chromium",
+      "browserVersion": "151.0.7922.34",
+      "reactVersion": "19.3.0",
+      "major": 19,
+      "mode": "development",
+      "status": "passed"
+    },
+    {
+      "engine": "chromium",
+      "browserVersion": "151.0.7922.34",
+      "reactVersion": "19.3.0",
+      "major": 19,
+      "mode": "production",
+      "status": "passed"
+    },
+    {
+      "engine": "webkit",
+      "browserVersion": "26.5",
+      "reactVersion": "18.3.1",
+      "major": 18,
+      "mode": "development",
+      "status": "passed"
+    },
+    {
+      "engine": "webkit",
+      "browserVersion": "26.5",
+      "reactVersion": "18.3.1",
+      "major": 18,
+      "mode": "production",
+      "status": "passed"
+    },
+    {
+      "engine": "webkit",
+      "browserVersion": "26.5",
+      "reactVersion": "19.3.0",
+      "major": 19,
+      "mode": "development",
+      "status": "passed"
+    },
+    {
+      "engine": "webkit",
+      "browserVersion": "26.5",
+      "reactVersion": "19.3.0",
+      "major": 19,
+      "mode": "production",
+      "status": "passed"
+    },
+    {
+      "engine": "firefox",
+      "browserVersion": "153.0",
+      "reactVersion": "18.3.1",
+      "major": 18,
+      "mode": "development",
+      "status": "passed"
+    },
+    {
+      "engine": "firefox",
+      "browserVersion": "153.0",
+      "reactVersion": "18.3.1",
+      "major": 18,
+      "mode": "production",
+      "status": "passed"
+    },
+    {
+      "engine": "firefox",
+      "browserVersion": "153.0",
+      "reactVersion": "19.3.0",
+      "major": 19,
+      "mode": "development",
+      "status": "passed"
+    },
+    {
+      "engine": "firefox",
+      "browserVersion": "153.0",
+      "reactVersion": "19.3.0",
+      "major": 19,
+      "mode": "production",
+      "status": "passed"
+    }
+  ],
+  "tarballSha256": "8b69139047d7386e88c7c4bb1672ab16512b64b61368ec06d46eeec46a75a0e2"
+}

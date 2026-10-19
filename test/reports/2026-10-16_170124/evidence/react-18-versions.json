@@ -1,0 +1,9 @@
+{
+  "react": "18.3.1",
+  "react-dom": "18.3.1",
+  "@types/react": "18.3.31",
+  "@types/react-dom": "18.3.7",
+  "typescript": "7.0.2",
+  "tsx": "4.23.13",
+  "jsdom": "29.1.1"
+}

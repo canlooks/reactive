@@ -1,0 +1,13 @@
+{
+  "name": "npm-test",
+  "command": "npm",
+  "args": [
+    "test"
+  ],
+  "cwd": "E:\\projects\\@canlooks\\reactive",
+  "started": "2026-10-16T09:02:04.684Z",
+  "ended": "2026-10-16T09:02:08.820Z",
+  "durationMs": 4136,
+  "exitCode": 0,
+  "signal": null
+}

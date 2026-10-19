@@ -1,0 +1,288 @@
+{
+  "started": "2026-10-19T09:11:42.369Z",
+  "timezone": "Asia/Shanghai",
+  "root": "E:\\projects\\@canlooks\\reactive",
+  "head": "d0f7e04faa353b8572481067573f20e9d3f466ed",
+  "platform": "win32",
+  "release": "10.0.26300",
+  "arch": "x64",
+  "cpus": [
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 3474343,
+        "nice": 0,
+        "sys": 3342281,
+        "idle": 74962125,
+        "irq": 500015
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 723218,
+        "nice": 0,
+        "sys": 1119562,
+        "idle": 79935796,
+        "irq": 269468
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 3442093,
+        "nice": 0,
+        "sys": 4347671,
+        "idle": 73988812,
+        "irq": 867828
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 701562,
+        "nice": 0,
+        "sys": 755984,
+        "idle": 80321000,
+        "irq": 96734
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 3088921,
+        "nice": 0,
+        "sys": 2713671,
+        "idle": 75975984,
+        "irq": 278593
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 686328,
+        "nice": 0,
+        "sys": 866203,
+        "idle": 80226046,
+        "irq": 141421
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 2696750,
+        "nice": 0,
+        "sys": 2660406,
+        "idle": 76421421,
+        "irq": 385218
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 601625,
+        "nice": 0,
+        "sys": 694593,
+        "idle": 80482328,
+        "irq": 83843
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 12229046,
+        "nice": 0,
+        "sys": 7130281,
+        "idle": 62419203,
+        "irq": 665125
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 4451750,
+        "nice": 0,
+        "sys": 2755796,
+        "idle": 74571031,
+        "irq": 284875
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 12177781,
+        "nice": 0,
+        "sys": 7025390,
+        "idle": 62575406,
+        "irq": 622734
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 4298734,
+        "nice": 0,
+        "sys": 2531750,
+        "idle": 74948078,
+        "irq": 200203
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 2387593,
+        "nice": 0,
+        "sys": 1828515,
+        "idle": 77562484,
+        "irq": 158281
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 495078,
+        "nice": 0,
+        "sys": 453500,
+        "idle": 80829984,
+        "irq": 49109
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 3600437,
+        "nice": 0,
+        "sys": 2079234,
+        "idle": 76098859,
+        "irq": 196640
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 623078,
+        "nice": 0,
+        "sys": 454109,
+        "idle": 80701375,
+        "irq": 49750
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 4597531,
+        "nice": 0,
+        "sys": 3820562,
+        "idle": 73360484,
+        "irq": 230437
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 3139328,
+        "nice": 0,
+        "sys": 2870125,
+        "idle": 75769125,
+        "irq": 153203
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 3113062,
+        "nice": 0,
+        "sys": 2900296,
+        "idle": 75765218,
+        "irq": 146250
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 3186734,
+        "nice": 0,
+        "sys": 3030921,
+        "idle": 75560921,
+        "irq": 140640
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 5483718,
+        "nice": 0,
+        "sys": 5328453,
+        "idle": 70966406,
+        "irq": 227687
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 3668921,
+        "nice": 0,
+        "sys": 3710187,
+        "idle": 74399468,
+        "irq": 148781
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 3614968,
+        "nice": 0,
+        "sys": 3690109,
+        "idle": 74473500,
+        "irq": 138906
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 4285718,
+        "nice": 0,
+        "sys": 4995734,
+        "idle": 72497125,
+        "irq": 153562
+      }
+    }
+  ],
+  "ramBytes": 33974046720,
+  "node": "v24.14.1",
+  "versions": {
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "tsx": "4.23.13",
+    "typescript": "7.0.2",
+    "jsdom": "29.1.1",
+    "localforage": "1.10.0",
+    "esbuild": "0.28.2"
+  }
+}

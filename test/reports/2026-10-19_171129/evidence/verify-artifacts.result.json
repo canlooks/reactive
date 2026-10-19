@@ -1,0 +1,13 @@
+{
+  "name": "verify-artifacts",
+  "command": "node",
+  "args": [
+    "test/reports/2026-10-19_171129/scripts/verify-artifacts.mjs"
+  ],
+  "cwd": "E:\\projects\\@canlooks\\reactive",
+  "started": "2026-10-19T09:24:02.394Z",
+  "ended": "2026-10-19T09:24:02.556Z",
+  "durationMs": 162,
+  "exitCode": 0,
+  "signal": null
+}

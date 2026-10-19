@@ -1,0 +1,13 @@
+{
+  "name": "benchmark-before",
+  "command": "node",
+  "args": [
+    "test/reports/2026-10-16_181149_fix/scripts/benchmark-before.mjs"
+  ],
+  "cwd": "E:\\projects\\@canlooks\\reactive",
+  "started": "2026-10-16T10:19:41.633Z",
+  "ended": "2026-10-16T10:19:42.377Z",
+  "durationMs": 744,
+  "exitCode": 0,
+  "signal": null
+}

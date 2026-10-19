@@ -1,0 +1,18 @@
+{
+  "platform": "win32",
+  "release": "10.0.26300",
+  "node": "v24.14.1",
+  "cpu": "Intel(R) Core(TM) i7-14650HX",
+  "threads": 24,
+  "ramBytes": 33974046720,
+  "versions": {
+    "typescript": "7.0.2",
+    "tsx": "4.23.13",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "@types/react": "19.3.0",
+    "jsdom": "29.1.1",
+    "localforage": "1.10.0",
+    "esbuild": "0.28.2"
+  }
+}

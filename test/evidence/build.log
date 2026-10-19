@@ -1,0 +1,13 @@
+
+> @canlooks/reactive@5.0.0 build
+> node scripts/build.mjs
+
+
+  dist\cjs\effect.js                  13.1kb
+  dist\cjs\storage.js                 10.3kb
+  dist\cjs\reactive.js                 8.1kb
+  dist\cjs\storageSnapshot.js          7.1kb
+  dist\cjs\react\loadingDecorator.js   6.2kb
+  ...and 16 more output files...
+
+Done in 10ms

@@ -1,0 +1,14 @@
+{
+  "name": "before-react",
+  "command": "npm",
+  "args": [
+    "run",
+    "test:react"
+  ],
+  "cwd": "E:\\projects\\@canlooks\\reactive",
+  "started": "2026-10-16T10:14:25.615Z",
+  "ended": "2026-10-16T10:14:26.985Z",
+  "durationMs": 1370,
+  "exitCode": 1,
+  "signal": null
+}

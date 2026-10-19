@@ -1,0 +1,6031 @@
+{
+  "run": "2026-10-19_171129",
+  "started": "2026/10/19 17:11:42",
+  "ended": "2026/10/19 17:25:34",
+  "timezone": "Asia/Shanghai",
+  "head": "d0f7e04faa353b8572481067573f20e9d3f466ed",
+  "tarballHash": "8b69139047d7386e88c7c4bb1672ab16512b64b61368ec06d46eeec46a75a0e2",
+  "sourceIntegrity": {
+    "files": 79,
+    "changed": []
+  },
+  "counts": {
+    "通过": 237,
+    "失败": 2,
+    "未执行": 3
+  },
+  "priorities": {
+    "P0": 140,
+    "P1": 98,
+    "P2": 4
+  },
+  "cases": [
+    {
+      "id": "CORE-001",
+      "mod": "core",
+      "priority": "P0",
+      "title": "立即执行、属性级依赖与重复读取",
+      "preconditions": "count=1、message=hello；两个 effect 分别读取字段",
+      "steps": "1. 注册；2. 在 count effect 连读两次；3. 分别修改 count/message",
+      "expected": "注册各执行一次；一次 count 修改只重跑对应 effect 一次；message 同理；赋值返回前已通知",
+      "mapping": "A: N01",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-002",
+      "mod": "core",
+      "priority": "P0",
+      "title": "条件依赖和嵌套收集",
+      "preconditions": "flag=true、a=1、b=10；外层读条件及 tail，内部另建 effect",
+      "steps": "1. flag=false；2. 改 a、b、inner；3. 改 tail；每次重建内层前 stop 旧内层",
+      "expected": "a 旧分支不触发；b 新分支触发；inner 只驱动内层；tail 仍属于外层；外层不会代管内层 stop",
+      "mapping": "A: N02",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-003",
+      "mod": "core",
+      "priority": "P0",
+      "title": "stop 幂等、排队取消和自停",
+      "preconditions": "先注册的 effect 可停止后注册 effect",
+      "steps": "1. 触发后停止待执行节点；2. 回调内自停后继续读 tail；3. 重复 stop；4. 再改数据",
+      "expected": "已排队节点不执行；自停后读取不重新订阅；重复 stop 无异常；其他消费者照常执行",
+      "mapping": "A: N03",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-004",
+      "mod": "core",
+      "priority": "P0",
+      "title": "Object.is 和 raw/proxy 归一",
+      "preconditions": "value=NaN、nested=raw",
+      "steps": "1. 再写 NaN；2. nested 写同 raw 的 proxy；3. value 写 +0、-0",
+      "expected": "前两项不通知；NaN→+0、+0→-0 各通知一次；raw/proxy 不误判新对象",
+      "mapping": "A: N04",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-005",
+      "mod": "core",
+      "priority": "P0",
+      "title": "缺失/undefined/删除/失败写入",
+      "preconditions": "空对象，fixed 为不可写不可配置；effect 读缺失 value",
+      "steps": "1. value=undefined；2. 删除两次；3. Reflect.set/delete fixed",
+      "expected": "缺失→存在 undefined、存在→缺失各通知；重复删除无通知；失败返回 false，fixed 保持 2",
+      "mapping": "A: N05",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-006",
+      "mod": "core",
+      "priority": "P0",
+      "title": "深层代理身份、环、旧分支清理",
+      "preconditions": "raw.child.n=1，raw.self=raw",
+      "steps": "1. 重复 reactive(raw/proxy)；2. 读取 child/self；3. 替换 child；4. 修改旧 child 与新 child",
+      "expected": "代理身份稳定，self===proxy；替换触发；旧 child 不再触发，新 child 正常触发；无递归溢出",
+      "mapping": "A: N06",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-007",
+      "mod": "core",
+      "priority": "P0",
+      "title": "嵌套 batch、返回值、多字段去重",
+      "preconditions": "a=1、b=10；effect 同读 a/b",
+      "steps": "1. 外层 a=2，内层 a=3，回到1；2. 新批次 a=2→3、b=11；3. 批外连续 a++ 两次",
+      "expected": "内层结束不通知；回退批次无通知；变化批次只追加 [3,11]；返回值原样；批外两次各通知",
+      "mapping": "A: N07",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-008",
+      "mod": "core",
+      "priority": "P0",
+      "title": "净变化包含属性存在性",
+      "preconditions": "{value:1}，effect 读 value",
+      "steps": "1. 同批删除再恢复1；2. 独立删除；3. 同批新增2再删除；4. 写 undefined",
+      "expected": "步骤1/3不额外通知；步骤2通知；步骤4虽读取值仍 undefined，存在性改变仍通知",
+      "mapping": "A: N08",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-009",
+      "mod": "core",
+      "priority": "P1",
+      "title": "batch 内依赖及新 effect",
+      "preconditions": "effect 内通过 batch 读 a；外部 batch 内另建读 b 的 effect",
+      "steps": "1. 修改 a；2. 批内新建 effect；3. stop 原 effect；4. 再改 b",
+      "expected": "batch 不屏蔽收集；新 effect 当场运行；停止项不在结算复活；b 净变化正常通知",
+      "mapping": "A: N09",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-010",
+      "mod": "core",
+      "priority": "P1",
+      "title": "空批次与非法参数",
+      "preconditions": "null、显式 undefined、1、字符串、布尔、symbol",
+      "steps": "1. batch 空函数；2. batch/effect 传 null；3. reactive 显式传每个基本类型",
+      "expected": "空 batch 返回 undefined；非法调用 TypeError；reactive() 无参工厂与 reactive(undefined) 严格区分",
+      "mapping": "A: N10、N43",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-011",
+      "mod": "core",
+      "priority": "P0",
+      "title": "首次 effect 失败自动清理",
+      "preconditions": "effect 读 value 后抛 E；另一个正常 effect",
+      "steps": "1. 捕获创建异常；2. 注册正常 effect；3. 改 value",
+      "expected": "原样抛 E；失败 effect 总共运行一次；后续正常订阅更新，收集上下文未泄漏",
+      "mapping": "A: N11",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-012",
+      "mod": "core",
+      "priority": "P0",
+      "title": "回调/通知多错误与恢复",
+      "preconditions": "batch 错误 E0；两个更新 effect 抛 E1/E2；第三个记录值",
+      "steps": "1. batch 写1后抛 E0；2. 捕获；3. 写2；4. 单独 throw undefined",
+      "expected": "errors 为 [E0,E1,E2]；记录者仍看到1；写2正常；成功写入不回滚；单个 undefined 异常不被吞",
+      "mapping": "A: N12",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-013",
+      "mod": "core",
+      "priority": "P0",
+      "title": "flush 中再写与自递归抑制",
+      "preconditions": "先订阅 [source,derived]，后订阅 source→derived=source×2",
+      "steps": "1. source 0→1；2. 创建读写自身的 effect",
+      "expected": "可观察 [0,0]→[1,0]→[1,2]，后续写是新批次；当前运行的 effect 不直接递归自身",
+      "mapping": "A: N13",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-014",
+      "mod": "core",
+      "priority": "P0",
+      "title": "setter 合并、异常与无隐式求值",
+      "preconditions": "setter 同时写 a/b，值2时抛 E；getter 计数",
+      "steps": "1. 不读 getter 直接设置1；2. 设置2并捕获",
+      "expected": "观察者仅见 [1,1]、[2,2] 完整状态；getter 调用0；原 E 抛出，已写数据仍结算",
+      "mapping": "A: N14",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-015",
+      "mod": "core",
+      "priority": "P0",
+      "title": "惰性计算与缓存",
+      "preconditions": "count=1，double=count×2，getterCalls=0",
+      "steps": "1. 创建；2. 连读两次；3. count=2→3且不读；4. 再读；5. computed(null)",
+      "expected": "调用次数0→1→1→2；结果2/6；无消费者时写入不主动求值；非法 getter TypeError",
+      "mapping": "A: N15、N70",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-016",
+      "mod": "core",
+      "priority": "P0",
+      "title": "计算分支隔离",
+      "preconditions": "computed(flag?a:b)，消费者只读 computed",
+      "steps": "1. true→false；2. a++；3. b++",
+      "expected": "序列1→10→11；消费者不因旧 a 变化运行；派生内部依赖不泄漏给外部",
+      "mapping": "A: N16",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-017",
+      "mod": "core",
+      "priority": "P0",
+      "title": "链与菱形一次新鲜通知",
+      "preconditions": "a=count+1，b=count×2，total=a+b，chain=total×10",
+      "steps": "1. effect 同读源和全部派生；2. count=2；3. batch 3→4",
+      "expected": "序列 [1,2,2,4,40]、[2,3,4,7,70]、[4,5,8,13,130]；无旧缓存或重复通知",
+      "mapping": "A: N17",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-018",
+      "mod": "core",
+      "priority": "P0",
+      "title": "中途读取与净回退",
+      "preconditions": "count=1，double、chain=double+1",
+      "steps": "batch 中 count=2，读 chain，再恢复1；批后再读两层",
+      "expected": "中途为5；effect 不追加；批后 double=2、chain=3，不保留中间值",
+      "mapping": "A: N18",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-019",
+      "mod": "core",
+      "priority": "P1",
+      "title": "结算不废弃最终有效缓存",
+      "preconditions": "getter 每次改变依赖读取顺序，集合相同",
+      "steps": "batch 写 count=2并读 final；批次结束让消费者读",
+      "expected": "final=4；getter 总计只计算2次；依赖顺序变化不导致多一次重算",
+      "mapping": "A: N19",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-020",
+      "mod": "core",
+      "priority": "P0",
+      "title": "恢复原分支后不漏净变化",
+      "preconditions": "flag=true、a=1、b=10；computed 选分支",
+      "steps": "batch 切到 b并读取；a=2；flag=true；结束后再改 a",
+      "expected": "结束通知原分支最终2，后续 a 仍能触发；按原依赖判断变化",
+      "mapping": "A: N20",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-021",
+      "mod": "core",
+      "priority": "P0",
+      "title": "临时分支变化不误通知",
+      "preconditions": "同 CORE-020",
+      "steps": "batch 切 b并读，修改 b，flag 恢复；再独立改 a/b",
+      "expected": "本批无原分支净变化则不通知；a 后续触发，临时 b 不触发",
+      "mapping": "A: N21",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-022",
+      "mod": "core",
+      "priority": "P0",
+      "title": "无批后读取也恢复依赖",
+      "preconditions": "同上",
+      "steps": "batch 切换/读取/恢复；不主动读 computed，直接改 a",
+      "expected": "a 修改仍驱动消费者；不能依赖批后手动读取修复订阅",
+      "mapping": "A: N22",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-023",
+      "mod": "core",
+      "priority": "P0",
+      "title": "多层 computed 分支图恢复",
+      "preconditions": "内外两层 computed 均可切分支",
+      "steps": "批内切换读取再恢复；分别修改原/临时分支",
+      "expected": "上下游订阅双向一致，原分支有效、临时分支无多余通知；最终缓存正确",
+      "mapping": "A: N23",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-024",
+      "mod": "core",
+      "priority": "P1",
+      "title": "批内首次计算的基线",
+      "preconditions": "computed 创建时未读，批内首次读并订阅",
+      "steps": "首次求值后再变更并结算",
+      "expected": "首次实际收集的依赖成为该批基线；之后变化不丢、不误用空依赖",
+      "mapping": "A: N24",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-025",
+      "mod": "core",
+      "priority": "P0",
+      "title": "分支恢复不复活 stop 节点",
+      "preconditions": "消费者订阅 computed",
+      "steps": "批内切分支后 stop 消费者，再回退/结束；后续写源",
+      "expected": "停止节点不再执行；computed 依赖恢复不会重新激活消费者",
+      "mapping": "A: N25",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-026",
+      "mod": "core",
+      "priority": "P1",
+      "title": "不按派生结果去重",
+      "preconditions": "computed(count%2)，count=1",
+      "steps": "count=3",
+      "expected": "消费者仍通知，新旧派生值均1；不是 computed 结果相等过滤",
+      "mapping": "A: N26",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-027",
+      "mod": "core",
+      "priority": "P0",
+      "title": "计算失败重试和循环检测",
+      "preconditions": "首次/条件失败的 getter；直接及互相循环 computed",
+      "steps": "1. 读失败；2. 修复再读；3. 读循环；4. 新建正常订阅",
+      "expected": "错误不缓存为成功；修复可重试；循环抛明确 Circular 错误；后续上下文正常",
+      "mapping": "A: N27",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-028",
+      "mod": "core",
+      "priority": "P0",
+      "title": "抛错批次也恢复计算依赖",
+      "preconditions": "条件 computed，batch 中切分支读后抛 E",
+      "steps": "捕获，修改最终有效分支",
+      "expected": "已完成修改按最终状态结算；后续依赖仍有效，无损坏队列",
+      "mapping": "A: N28",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-029",
+      "mod": "core",
+      "priority": "P0",
+      "title": "自动 getter 缓存与 setter",
+      "preconditions": "count=1，get/set double",
+      "steps": "连读 double；设 double=8；再次读取",
+      "expected": "getter 惰性且缓存，setter 写 count=4使缓存失效；结果8，消费者收到新状态",
+      "mapping": "A: N29",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-030",
+      "mod": "core",
+      "priority": "P1",
+      "title": "原型 getter 按 receiver 隔离",
+      "preconditions": "两对象共享原型 getter，数据值不同；原型也经代理",
+      "steps": "分别读两实例多次，改其中一个",
+      "expected": "缓存各自独立且 this 正确；改 A 不污染 B；代理原型不导致重包错误",
+      "mapping": "A: N30",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-031",
+      "mod": "core",
+      "priority": "P1",
+      "title": "getter 删除与替换",
+      "preconditions": "自有可配置 getter，已有消费者",
+      "steps": "删除 getter；经受支持的属性赋值恢复/替换数据；读取",
+      "expected": "属性消费者获得删除后的值和新数据；不以 defineProperty 本身须通知作为要求",
+      "mapping": "A: N31",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-032",
+      "mod": "core",
+      "priority": "P1",
+      "title": "Proxy 不变量",
+      "preconditions": "不可配置不可写对象属性；没有 getter 的固定访问器",
+      "steps": "读固定引用/空 getter；尝试失败写入",
+      "expected": "固定引用返回原对象，空 getter 为 undefined，无 Proxy invariant 异常；不强制深代理",
+      "mapping": "A: N32",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-033",
+      "mod": "core",
+      "priority": "P1",
+      "title": "代理位于原型链的 receiver",
+      "preconditions": "parent proxy、Object.create(parent) 子对象",
+      "steps": "观察 parent；通过 child 写同名属性",
+      "expected": "写入落到子对象，不误通知父对象；父值不变",
+      "mapping": "A: N33",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-034",
+      "mod": "core",
+      "priority": "P1",
+      "title": "内建对象保留身份",
+      "preconditions": "Map/Set/Date/Promise/URL/Headers 等；置于响应式属性",
+      "steps": "reactive(内建对象)并比较引用；对Map调用set；整体替换Map字段",
+      "expected": "各内建对象返回原引用；Map内部set可执行但不通知；整体替换Map通知",
+      "mapping": "A: N34",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-035",
+      "mod": "core",
+      "priority": "P1",
+      "title": "类型判定无用户 getter 副作用",
+      "preconditions": "自定义 Symbol.toStringTag getter；类有同名数据标识",
+      "steps": "reactive 并读写正常字段",
+      "expected": "不调用 tag getter 判代理资格；正常用户类仍可追踪",
+      "mapping": "A: N35",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-036",
+      "mod": "core",
+      "priority": "P1",
+      "title": "null 原型与 symbol",
+      "preconditions": "Object.create(null)，symbol key",
+      "steps": "代理、订阅 symbol，修改值",
+      "expected": "值正常，原型不变，symbol 按属性通知",
+      "mapping": "A: N36",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-037",
+      "mod": "core",
+      "priority": "P0",
+      "title": "数组索引/长度/截断",
+      "preconditions": "[1,2,3]；分别观察 length、尾项、缺失索引",
+      "steps": "写越界索引、push、delete 索引、缩短 length",
+      "expected": "隐式增长通知 length；删除索引不改变 length；截断通知实际被删索引和长度",
+      "mapping": "A: N37",
+      "status": "失败",
+      "actual": "计划原始普通数组步骤通过；扩展到不可删除索引时，length 写入失败但数组部分截断，通知与持久化遗漏（D04）。为防止掩盖同一功能的已知失败，本行整体记失败。",
+      "logs": [
+        "npm-test.log",
+        "exploratory-arrays-source.log",
+        "exploratory-arrays-source.json",
+        "browser-defect.json",
+        "browser-defect-firefox.json"
+      ],
+      "defects": [
+        "D04"
+      ]
+    },
+    {
+      "id": "CORE-038",
+      "mod": "core",
+      "priority": "P0",
+      "title": "数组净回退",
+      "preconditions": "[1,2,3]；观察 length 和索引2",
+      "steps": "1. batch push/pop；2. batch length=1再=3；3. 删除再恢复同索引同值",
+      "expected": "完整回退不通知；恢复 length 不恢复丢失的元素，索引2为 undefined且通知；存在性独立比较",
+      "mapping": "A: N38",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-039",
+      "mod": "core",
+      "priority": "P1",
+      "title": "length 派生中途读取",
+      "preconditions": "computed(()=>list.length)，有消费者",
+      "steps": "batch 内增长/截断并逐次读取，最后回退",
+      "expected": "中途派生立即更新；最终通知遵循净变化，不读旧 length 缓存",
+      "mapping": "A: N39",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-040",
+      "mod": "core",
+      "priority": "P1",
+      "title": "稀疏数组与非规范索引",
+      "preconditions": "大 length、少量真实索引；键 01、-1、4294967295",
+      "steps": "缩短 length；读非规范键",
+      "expected": "仅处理真实数组索引；非规范键不作为 length 索引被误删，稀疏截断可完成",
+      "mapping": "A: N40",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-041",
+      "mod": "core",
+      "priority": "P1",
+      "title": "splice 与原生方法身份",
+      "preconditions": "[1,2,3]",
+      "steps": "核对 splice 身份；batch 内 splice 多次写入",
+      "expected": "保持原生数组方法；批内消费者一次看到终态；未包 batch 不承诺一次通知",
+      "mapping": "A: N41",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-042",
+      "mod": "core",
+      "priority": "P0",
+      "title": "@reactive 构造、实例与静态批次",
+      "preconditions": "F4，构造参数1，方法连增两次",
+      "steps": "new、instanceof、调用实例/静态方法、roundTrip",
+      "expected": "构造参数和返回值正确；实例/静态各一次最终通知；往返无通知；原型正常",
+      "mapping": "A: N42",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-043",
+      "mod": "core",
+      "priority": "P0",
+      "title": "@reactive() 等价能力",
+      "preconditions": "与 CORE-042 同类定义但工厂形式",
+      "steps": "重复构造、getter 读取、方法和静态变化",
+      "expected": "与直接装饰器同语义；构造类型、缓存、批处理保留",
+      "mapping": "A: N43",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-044",
+      "mod": "core",
+      "priority": "P1",
+      "title": "reactive(Class) 与工厂身份",
+      "preconditions": "普通用户类",
+      "steps": "比较 reactive(Class)、reactive()(Class)、重复代理；构造调用",
+      "expected": "同一构造代理；参数与方法签名保留；行为和装饰器一致",
+      "mapping": "A: N44",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-045",
+      "mod": "core",
+      "priority": "P0",
+      "title": "继承/super/互调最外层批次",
+      "preconditions": "父子类实例/静态方法，内部显式 batch",
+      "steps": "子方法调用 super和其他方法，每层写两次",
+      "expected": "直到最外层结束才通知；共用原始基线；无重复包装通知",
+      "mapping": "A: N45",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-046",
+      "mod": "core",
+      "priority": "P1",
+      "title": "继承 getter/方法接收对象",
+      "preconditions": "多实例、父子构造函数静态 getter",
+      "steps": "交错读取和修改不同 receiver",
+      "expected": "实例和静态缓存各自隔离，继承方法读取当前调用者数据",
+      "mapping": "A: N46",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-047",
+      "mod": "core",
+      "priority": "P1",
+      "title": "包装身份、替换、动态 this",
+      "preconditions": "取 method 两次，准备另一个接收对象",
+      "steps": "比较包装引用；替换原方法后重读；call/apply；无 receiver 调用",
+      "expected": "未替换时同一函数；替换后新包装；this由调用方式决定，不自动 bind",
+      "mapping": "A: N47",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-048",
+      "mod": "core",
+      "priority": "P1",
+      "title": "不误包装普通函数属性",
+      "preconditions": "普通对象 method；reactive(new Store())",
+      "steps": "方法内通过代理写两次",
+      "expected": "不自动合并这两次写；直接代理实例仅代理属性，不等价于类构造装饰",
+      "mapping": "A: N48",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-049",
+      "mod": "core",
+      "priority": "P1",
+      "title": "函数字段/getter返回函数边界",
+      "preconditions": "实例箭头/绑定字段、静态函数字段、getter返回函数",
+      "steps": "读取比较身份并调用；另经显式 batch写代理",
+      "expected": "不作为原型方法自动包装；构造捕获 raw 不被强制修正；受支持写入仍按显式 batch",
+      "mapping": "A: N49",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-050",
+      "mod": "core",
+      "priority": "P1",
+      "title": "固定静态方法与 TS private",
+      "preconditions": "不可写不可配置静态方法；TS private普通字段",
+      "steps": "读方法；调用 public方法改 private数据",
+      "expected": "不违反 Proxy 不变量；TS private 可追踪；不据此宣称核心支持 #private",
+      "mapping": "A: N50",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-051",
+      "mod": "core",
+      "priority": "P0",
+      "title": "类方法失败后的结算",
+      "preconditions": "方法写状态后抛 E；观察者也可抛",
+      "steps": "调用失败方法，捕获，再调用成功方法",
+      "expected": "已写值通知；单错保真，多错包含业务及通知错误；实例可继续用",
+      "mapping": "A: N51",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-052",
+      "mod": "core",
+      "priority": "P1",
+      "title": "方法内读取和数组批次",
+      "preconditions": "effect 调用读取字段的方法；另一个方法修改数组",
+      "steps": "改被读字段；调用数组多写方法",
+      "expected": "方法包装不隔离 effect 收集；数组写入在方法边界一次结算",
+      "mapping": "A: N52",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-053",
+      "mod": "core",
+      "priority": "P0",
+      "title": "batch 不等待 Promise",
+      "preconditions": "async 回调在 await 前/后分别写两次",
+      "steps": "保存原 Promise与 batch返回值；分段控制完成",
+      "expected": "返回同一个 Promise；await前合并，await后独立通知，除非另加 batch",
+      "mapping": "A: N53",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-054",
+      "mod": "core",
+      "priority": "P1",
+      "title": "async方法/生成器/微任务/定时器",
+      "preconditions": "类 async方法、生成器迭代和排队回调",
+      "steps": "分段执行并观察每个阶段",
+      "expected": "仅当前同步调用栈共享批次；后续迭代/回调不延长旧 batch",
+      "mapping": "A: N54",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-055",
+      "mod": "core",
+      "priority": "P1",
+      "title": "effect 仅收集同步读",
+      "preconditions": "effect 同步读 a、await或回调后读 b",
+      "steps": "完成异步读取；分别修改 a/b",
+      "expected": "a 变化重跑，b 的异步读取不成为原 effect 依赖",
+      "mapping": "A: N55",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-056",
+      "mod": "core",
+      "priority": "P1",
+      "title": "净变化逐属性判断",
+      "preconditions": "NaN、±0、raw/proxy、两个嵌套字段",
+      "steps": "同批往返/交换引用/只改其中一字段",
+      "expected": "按 Object.is及归一后的属性状态比较，不做深相等；独立字段互不吞通知",
+      "mapping": "A: N56",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-057",
+      "mod": "core",
+      "priority": "P1",
+      "title": "捕获内层异常不重置基线",
+      "preconditions": "外层 batch；内层写后抛并在外层捕获",
+      "steps": "继续外层写入/回退；另测单一通知错误",
+      "expected": "仍使用最外层初值，通知次数正确；单错严格等于原错误",
+      "mapping": "A: N57",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-058",
+      "mod": "core",
+      "priority": "P1",
+      "title": "不可扩展与非法 length",
+      "preconditions": "preventExtensions对象、普通可变数组",
+      "steps": "添加属性失败；设置非法 length；再写合法数据",
+      "expected": "JS失败语义正确，没有虚假通知或遗留批次；合法后续写仍通知",
+      "mapping": "A: N58",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-059",
+      "mod": "core",
+      "priority": "P0",
+      "title": "更新期 computed失败不阻断其他人",
+      "preconditions": "一消费者读取可能抛错的 computed，另一人记录源",
+      "steps": "源触发失败；修复后再读/再改",
+      "expected": "其他消费者执行；computed可重试；错误不使队列永久停止",
+      "mapping": "A: N59",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-060",
+      "mod": "core",
+      "priority": "P1",
+      "title": "自动 getter分支与静态回退",
+      "preconditions": "类 getter条件分支；静态 roundTrip",
+      "steps": "批内切换并回退；后续改原分支；调用静态往返方法",
+      "expected": "原依赖恢复，静态回退无额外通知，缓存最终值正确",
+      "mapping": "A: N60",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-061",
+      "mod": "core",
+      "priority": "P1",
+      "title": "API 返回语义",
+      "preconditions": "effect返回一个函数；batch返回对象/基本值",
+      "steps": "stop effect；比较 batch原返回引用/类型",
+      "expected": "effect回调返回函数不被自动调用，stop不是runner；batch原样返回",
+      "mapping": "A: N61、T-CORE",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-062",
+      "mod": "core",
+      "priority": "P0",
+      "title": "watch默认/immediate/void/配置",
+      "preconditions": "source返回数值或undefined；缺省/空/false/true选项",
+      "steps": "创建；修改；创建后改options.immediate；stop",
+      "expected": "默认只读一次不回调；true在返回前(initial,undefined)；后续old推进；undefined不是未初始化标记；改选项不补发",
+      "mapping": "A: N62",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-063",
+      "mod": "core",
+      "priority": "P0",
+      "title": "watch回调及选项读隔离",
+      "preconditions": "在外层effect建watch，callback/options getter读旁路字段",
+      "steps": "改旁路、源和外层专属字段",
+      "expected": "旁路不绑定watch或外层effect；source只订阅自身同步读取",
+      "mapping": "A: N63",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-064",
+      "mod": "core",
+      "priority": "P0",
+      "title": "watch分支/同值/对象引用",
+      "preconditions": "source为条件、count%2、对象及嵌套字段",
+      "steps": "切分支；1→3；修改嵌套或替换对象",
+      "expected": "旧依赖解除；同结果仍回调(1,1)；仅返回对象不深监听；old对象不是历史快照",
+      "mapping": "A: N64",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-065",
+      "mod": "core",
+      "priority": "P1",
+      "title": "批内immediate与同步写回",
+      "preconditions": "batch内创建immediate watch；callback写自身源",
+      "steps": "记录创建前后顺序；批内变更/回退",
+      "expected": "首回调不等批次；当前watch不会直接自递归；后续按净变化结算",
+      "mapping": "A: N65",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-066",
+      "mod": "core",
+      "priority": "P0",
+      "title": "watch错误时旧值推进",
+      "preconditions": "首次source/callback抛；更新source/callback可控失败",
+      "steps": "分别失败后修复并改源",
+      "expected": "首次失败无残留订阅；更新source失败保留上次成功值；callback失败已保存本次新值，其他观察者继续",
+      "mapping": "A: N66",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-067",
+      "mod": "core",
+      "priority": "P0",
+      "title": "watch停止与聚合错误",
+      "preconditions": "多watch、可排队停止/自停，两个callback抛错",
+      "steps": "触发同批变化、捕获，再变更",
+      "expected": "被停项不执行；多错误保留；其他watch继续；后续队列可用",
+      "mapping": "A: N67",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-068",
+      "mod": "core",
+      "priority": "P0",
+      "title": "Computed外壳只读与身份",
+      "preconditions": "computed(()=>count×2)；对象/数组内保存它",
+      "steps": "尝试调用、直接赋value、Reflect.set；reactive(computed)；缓存命中后新建消费者",
+      "expected": "冻结外壳；Reflect.set=false，严格写/调用TypeError；无自动解包/二次代理；缓存命中也能订阅",
+      "mapping": "A: X01",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-069",
+      "mod": "core",
+      "priority": "P1",
+      "title": "计算结果引用与解构快照",
+      "preconditions": "computed返回对象/函数/undefined；解构value",
+      "steps": "读两次比较引用；修改结果对象；修改源；再读解构局部值",
+      "expected": "结果不自动代理/冻结；类型保持；提前解构仅旧值；消费者需在同步回调读.value",
+      "mapping": "P: X01、T-CORE；补充运行时对象结果与提前解构断言",
+      "status": "通过",
+      "actual": "对象结果可修改且同次缓存保留引用；函数/undefined 原样返回；解构值保持旧快照。",
+      "logs": [
+        "supplement-core.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-070",
+      "mod": "core",
+      "priority": "P1",
+      "title": "raw和结构追踪范围",
+      "preconditions": "raw/proxy同对象；effect分别只用in/Object.keys/for...in",
+      "steps": "直接改raw；通过proxy新增/删除；另建显式读字段的effect",
+      "expected": "raw写无通知；仅结构枚举不因结构变更重跑；显式字段读仍通知；storage内部观察不扩大该契约",
+      "mapping": "P: S08、N06；补充in/for...in及raw写入负向对照",
+      "status": "通过",
+      "actual": "raw 写入、in/Object.keys/for...in 不触发结构订阅；代理字段写入正常通知。",
+      "logs": [
+        "supplement-core.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-071",
+      "mod": "core",
+      "priority": "P1",
+      "title": "序列化以外的字符串/对象边界",
+      "preconditions": "空键、中文/emoji键、空数组、共享嵌套对象、0与false值",
+      "steps": "分别读写、重复代理、两个根共享子对象，批内回退",
+      "expected": "键/值原样保留；各真实读取依赖正确；共享对象代理一致；无truthy/falsy误判",
+      "mapping": "P: N36、N04、X02；补充Unicode键和false/0参数表",
+      "status": "通过",
+      "actual": "空键、中文、emoji、symbol、false/0、空数组和跨根共享 child 身份及批内回退通过。",
+      "logs": [
+        "supplement-core.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-072",
+      "mod": "core",
+      "priority": "P1",
+      "title": "watch输入验证与返回值非清理",
+      "preconditions": "source/callback分别传null/undefined/数值，callback返回函数",
+      "steps": "每项单独调用；合法watch停止/更新",
+      "expected": "非函数TypeError，无残留；返回的stop幂等且不执行callback返回函数；后续合法watch正常",
+      "mapping": "P: N62、N66；补充全部非法参数和清理返回值运行时检查",
+      "status": "通过",
+      "actual": "null/undefined/数字分别置于 source/callback 均拒绝；stop 幂等，回调返回函数未执行。",
+      "logs": [
+        "supplement-core.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "CORE-073",
+      "mod": "core",
+      "priority": "P1",
+      "title": "跨 realm 普通对象与代理边界（D01）",
+      "preconditions": "Node vm 的嵌套普通对象、数组、null 原型、用户类和内建实例；constructor/tag 访问器",
+      "steps": "创建代理并重复取值；批量改子对象和类字段；对照内建身份及访问器次数",
+      "expected": "普通对象/用户类正确通知且身份稳定；内建保持原样；分类不执行访问器、不收紧同 realm 自定义原型",
+      "mapping": "A: N68、N69、D-CORE；真实 iframe 另见复测报告",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log",
+        "browser-results.json",
+        "browser-results-linux-firefox.json",
+        "package-archived.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-001",
+      "mod": "storage",
+      "priority": "P0",
+      "title": "根入口storage可用",
+      "preconditions": "从核心入口导入",
+      "steps": "检查函数并创建同步内存store",
+      "expected": "导出为function；不需要React；返回可用响应式对象",
+      "mapping": "A: S01、D-STORAGE",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-002",
+      "mod": "storage",
+      "priority": "P1",
+      "title": "对象名为length的受保护字段",
+      "preconditions": "普通对象length分别为getter/不可枚举只读，count=0；缓存count=4,length=2",
+      "steps": "创建；读取length；count++",
+      "expected": "length仍9；count恢复4；纯恢复不写；之后仅存count=5，不误用数组length特例",
+      "mapping": "A: S02",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-003",
+      "mod": "storage",
+      "priority": "P0",
+      "title": "同步恢复、浅合并及本地行为保留",
+      "preconditions": "F1默认初值；本地方法/getter/hidden/symbol；缓存试图覆盖它们",
+      "steps": "创建即读；重复读getter；调用方法",
+      "expected": "返回前count=8；enabled保留；profile.size消失；根===reactive(raw)；方法/getter/hidden/symbol保留，恢复不调用getter、不回写",
+      "mapping": "A: S03",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-004",
+      "mod": "storage",
+      "priority": "P0",
+      "title": "缺失记录初存及key原样",
+      "preconditions": "get返回null；name=' app:key '",
+      "steps": "外层batch创建count=1再写2；结束后写3",
+      "expected": "get一次使用原样key；batch内set=0；边界写count=2一次；之后写3；不偷偷trim key",
+      "mapping": "A: S04",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-005",
+      "mod": "storage",
+      "priority": "P0",
+      "title": "未读取字段深层新增/删除与分支替换",
+      "preconditions": "child={}，业务不预读新键；持有旧child",
+      "steps": "新增deep=1→2；删除；替换child；修改旧child；新child再新增",
+      "expected": "每次有效数据变化自动保存；旧分支不再引发写；新分支无需业务预读也生效",
+      "mapping": "A: S05",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-006",
+      "mod": "storage",
+      "priority": "P0",
+      "title": "净变化/相同JSON/抛错批次",
+      "preconditions": "count=1、child={value:1}、computed=count×2",
+      "steps": "batch 2→3；batch4→3；raw/proxy互换；同JSON替换；写4后抛E",
+      "expected": "变化批次仅最终JSON；净回退及同JSON替换不重复set；抛错仍保存4且原E保留；内存观察正常",
+      "mapping": "A: S06",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-007",
+      "mod": "storage",
+      "priority": "P0",
+      "title": "根数组原位恢复和孔洞",
+      "preconditions": "raw=[1,2,3]，缓存[9]",
+      "steps": "创建；索引3=4；删0；length=1；batch push/pop；batch splice",
+      "expected": "根代理不变；依次JSON [9,null,null,4]、[null,null,null,4]、[null]；回退不写；splice一次终态",
+      "mapping": "A: S07",
+      "status": "失败",
+      "actual": "计划原始普通数组步骤通过；扩展到不可删除索引时，length 写入失败但数组部分截断，通知与持久化遗漏（D04）。为防止掩盖同一功能的已知失败，本行整体记失败。",
+      "logs": [
+        "npm-test.log",
+        "exploratory-arrays-source.log",
+        "exploratory-arrays-source.json",
+        "browser-defect.json",
+        "browser-defect-firefox.json"
+      ],
+      "defects": [
+        "D04"
+      ]
+    },
+    {
+      "id": "STORE-008",
+      "mod": "storage",
+      "priority": "P0",
+      "title": "等业务通知完成后保存",
+      "preconditions": "count=0,mirror=0；watch将mirror设count×10；另有getter计数与Object.keys effect",
+      "steps": "count=1；新增字段",
+      "expected": "存储仅写含count=1,mirror=10的最终快照；不执行派生getter；普通枚举effect不被扩展为结构监听",
+      "mapping": "A: S08",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-009",
+      "mod": "storage",
+      "priority": "P1",
+      "title": "adapter及引用捕获隔离",
+      "preconditions": "adapter get/set读other.dependency；外层effect创建store",
+      "steps": "改other；经captureReference选择业务字段；写store再改other",
+      "expected": "不额外绑定外层effect/store；引用仍指向业务字段；get/set读取不污染Model定位",
+      "mapping": "A: S09",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-010",
+      "mod": "storage",
+      "priority": "P1",
+      "title": "共享子图、独立控制器",
+      "preconditions": "两个根/adapter共享child={value:0}",
+      "steps": "改共享child；第一根替换child；再改第二根child",
+      "expected": "初次两份都保存；替换后第一根不响应旧child；第二根继续；控制器不混用",
+      "mapping": "A: S10",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-011",
+      "mod": "storage",
+      "priority": "P0",
+      "title": "异步读立即返回且禁写",
+      "preconditions": "deferred get；结果分别null/有效缓存",
+      "steps": "创建后立即读并注册effect；断言pending；resolve后turn",
+      "expected": "pending读初值、set=0；null后保存初值；缓存后一次恢复通知且set=0；返回值不是Promise",
+      "mapping": "A: S11",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-012",
+      "mod": "storage",
+      "priority": "P0",
+      "title": "整份本地状态优先",
+      "preconditions": "延迟读；初值有count/theme/nested/list/remove",
+      "steps": "pending中batch改count、nested、list并删remove；返回旧缓存",
+      "expected": "本地全树保留，theme不从旧缓存补入；删除不复活；读取完只保存本地最终JSON",
+      "mapping": "A: S12",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-013",
+      "mod": "storage",
+      "priority": "P0",
+      "title": "净回退/跨批回退/等内容替换",
+      "preconditions": "value={count:1}；延迟缓存count=8",
+      "steps": "三个独立用例：同批1→2→1；跨批1→2→1；替换{count:1}",
+      "expected": "仅同批回退允许恢复8；另两项保留本地1并保存；冲突使用修改历史而非最终JSON相等",
+      "mapping": "A: S13",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-014",
+      "mod": "storage",
+      "priority": "P0",
+      "title": "回填一批及业务追加写",
+      "preconditions": "初始a=b=1；缓存a=8,b=9；watch a==8时b=10",
+      "steps": "resolve缓存，记录effect与writes",
+      "expected": "effect先见[1,1]、[8,9]，业务再见[8,10]；set仅最终{a:8,b:10}一次；不回声保存纯缓存",
+      "mapping": "A: S14",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-015",
+      "mod": "storage",
+      "priority": "P0",
+      "title": "单写在途/最新等待/回到旧成功值",
+      "preconditions": "已存0；第一set受控不完成",
+      "steps": "count=1→2→3→0；先断言调用；完成第一、再第二",
+      "expected": "第一只写1；等待阶段不并发；完成后必须写0；中间2/3合并；maxActiveWrites=1、最终磁盘0",
+      "mapping": "A: S15",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-016",
+      "mod": "storage",
+      "priority": "P0",
+      "title": "写失败重试与无无限循环",
+      "preconditions": "delayedWriter已存0",
+      "steps": "写1，等待中改2→3；第一reject；第二reject；turn后改4并resolve",
+      "expected": "失败后继续最新3；无新状态不再自动重试；改4能保存；成功基线不因失败推进，maxActive=1",
+      "mapping": "A: S16",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-017",
+      "mod": "storage",
+      "priority": "P0",
+      "title": "编码失败丢弃过期pending",
+      "preconditions": "{count:0,extra:0}，写1在途；等待count=2",
+      "steps": "extra=BigInt；完成在途；再extra=0",
+      "expected": "编码失败清除旧pending，不能续写过时快照；修复后保存{count:2,extra:0}，无永久去重屏蔽",
+      "mapping": "A: S17",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-018",
+      "mod": "storage",
+      "priority": "P0",
+      "title": "读reject保留旧记录",
+      "preconditions": "旧磁盘count=9，初值1，deferred读",
+      "steps": "pending中count=2；reject；turn；再count=3",
+      "expected": "内存2保留，磁盘9不立刻覆盖，set=0；新修改后保存3；诊断phase=get",
+      "mapping": "A: S18",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-019",
+      "mod": "storage",
+      "priority": "P0",
+      "title": "非法缓存/根形状/危险键",
+      "preconditions": "每次独立预置空串、null文本、数值、字符串、[]、损坏JSON、__proto__、嵌套constructor",
+      "steps": "创建对象根，检查数据和原型；再合法修改count",
+      "expected": "整份拒绝，初值保留、无初始化set；原型不污染；新变化可写合法快照",
+      "mapping": "A: S19",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-020",
+      "mod": "storage",
+      "priority": "P1",
+      "title": "同步get/set错误与诊断失败",
+      "preconditions": "get throw；第一次set throw；console.warn可抛",
+      "steps": "创建；count=1→2；再注入编码错误并修复",
+      "expected": "内存通知0→1→2正常；报告get/set；logger失败不破坏队列；数据修复后仍可存",
+      "mapping": "A: S20",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-021",
+      "mod": "storage",
+      "priority": "P0",
+      "title": "纯数据投影/不执行getter或toJSON",
+      "preconditions": "NaN、-0、undefined、function、symbol、数组孔洞/Infinity、危险getter/toJSON；payload可变",
+      "steps": "首存；逐项payload=BigInt/环/Date/Map/Set/Promise/类/Computed；改另一个tail；修复payload",
+      "expected": "getter/toJSON调用0；省略对象不可JSON字段，数组转null，NaN转null，-0转0；非法图不覆盖好记录；修复可恢复保存",
+      "mapping": "A: S21",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-022",
+      "mod": "storage",
+      "priority": "P1",
+      "title": "null原型与无环共享图",
+      "preconditions": "null原型根a/b共用同子对象",
+      "steps": "存储后改a.value",
+      "expected": "原型保持null，a/b内存共用；JSON两处保存等值；无误判循环；重新解析JSON不保留别名身份",
+      "mapping": "A: S22",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-023",
+      "mod": "storage",
+      "priority": "P0",
+      "title": "恢复预检无半修改",
+      "preconditions": "count可写但另字段只读；不可扩展根；锁length/尾索引数组",
+      "steps": "缓存同时尝试合法和非法修改",
+      "expected": "整份拒绝，所有初值和数组内容不变；不先修改count再失败；phase=restore",
+      "mapping": "A: S23",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-024",
+      "mod": "storage",
+      "priority": "P0",
+      "title": "回填业务异常保真与绑定释放",
+      "preconditions": "effect在恢复到8时抛E；同步与异步两条路径",
+      "steps": "同步创建失败后stop业务effect再重建；异步resolve后再改9",
+      "expected": "同步原E抛出并释放绑定，重建成功；异步phase=hydrate且原E保留，store后续可用；不误归为decode错误",
+      "mapping": "A: S24",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-025",
+      "mod": "storage",
+      "priority": "P0",
+      "title": "参数和绑定唯一性",
+      "preconditions": "非对象根/类/Computed；无name/空白name/错误type/坏adapter；一个已绑定raw",
+      "steps": "逐项非法调用；同根同后端/key重复；改key/adapter；同后端key绑第二根",
+      "expected": "TypeError在新增I/O前发生；重复合法绑定同proxy、只get一次；冲突拒绝；不同key合法",
+      "mapping": "A: S25",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-026",
+      "mod": "storage",
+      "priority": "P1",
+      "title": "内部停止/迟到回调保护",
+      "preconditions": "白盒stopStorage；读/写deferred",
+      "steps": "停止两次；完成旧read/write；再写proxy；另建同后端key绑定",
+      "expected": "停止幂等；不恢复、不续pending、不重订阅；可新建；不要求取消已经发出的adapter I/O",
+      "mapping": "A: S26",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-027",
+      "mod": "storage",
+      "priority": "P1",
+      "title": "PromiseLike与then异常",
+      "preconditions": "非Promise thenable重复resolve/reject；then getter抛",
+      "steps": "get返回thenable；turn；另测get/set then getter失败",
+      "expected": "只同化一次且只接受首次结果；不提前同步回填；诊断阶段get/set正确；无未处理拒绝",
+      "mapping": "A: S27",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-028",
+      "mod": "storage",
+      "priority": "P1",
+      "title": "每次调用独立识别同步/异步",
+      "preconditions": "同步get；set1同步、set2延迟、set3同步",
+      "steps": "依次写1/2/3；完成2",
+      "expected": "先调用[1,2]；3等2完成；最终[1,2,3]；不能由getter或第一次set推断后续模式",
+      "mapping": "A: S28",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-029",
+      "mod": "storage",
+      "priority": "P0",
+      "title": "local/session默认与隔离",
+      "preconditions": "jsdom同源两后端相同含空格key分别存2/8",
+      "steps": "默认store与session store创建；分别修改",
+      "expected": "默认local；返回前已恢复；缓存缺默认字段不回写；两个后端互不污染；key原样",
+      "mapping": "A: B01",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-030",
+      "mod": "storage",
+      "priority": "P0",
+      "title": "浏览器数组初存/缓存原位恢复",
+      "preconditions": "local缺失；session缓存[9]",
+      "steps": "新建[1,2,3]并batch splice/push；另用reactive数组恢复",
+      "expected": "local创建快照并写最终[3,4]；session原proxy恢复为[9]、长度一致",
+      "mapping": "A: B02",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-031",
+      "mod": "storage",
+      "priority": "P1",
+      "title": "adapter优先，不触碰浏览器getter",
+      "preconditions": "local/session getter均计数并抛；显式adapter",
+      "steps": "设置type=session仍传adapter，创建并修改",
+      "expected": "浏览器getter访问0；adapter正常get/set且this正确",
+      "mapping": "A: B03、S03",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-032",
+      "mod": "storage",
+      "priority": "P1",
+      "title": "存储getter被禁用及显式再绑定",
+      "preconditions": "localStorage getter抛SecurityError",
+      "steps": "创建后内存修改；恢复getter；显式storage同root再修改",
+      "expected": "降级内存、报告access；恢复环境不自动触发；显式调用才绑定并继续存储",
+      "mapping": "A: B04",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-033",
+      "mod": "storage",
+      "priority": "P1",
+      "title": "QuotaExceededError不破坏响应式",
+      "preconditions": "Storage.setItem模拟配额错误，之后恢复可写",
+      "steps": "初始化及修改各失败；恢复后再修改",
+      "expected": "每次实际失败有诊断；无忙重试；effect持续收到数据；恢复后保存最新值",
+      "mapping": "A: B05",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-034",
+      "mod": "storage",
+      "priority": "P0",
+      "title": "SSR无window不使用Node全局storage",
+      "preconditions": "删除window；globalThis.localStorage getter抛且计数",
+      "steps": "创建不同name内存store并修改；还原环境",
+      "expected": "不访问Node全局storage，访问次数0；无持久化占位绑定；只返回响应式初值",
+      "mapping": "A: B06",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-035",
+      "mod": "storage",
+      "priority": "P0",
+      "title": "外部storage+RC/Chip/Model+StrictMode",
+      "preconditions": "客户端render前创建store，F3 StrictMode",
+      "steps": "修改store、真实输入改Model；卸载组件后再改store",
+      "expected": "UI与最终JSON一致；卸载只停React订阅，仍保存外部store；无重复绑定",
+      "mapping": "A: F01",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-036",
+      "mod": "storage",
+      "priority": "P0",
+      "title": "异步恢复驱动React与表单",
+      "preconditions": "初值state、延迟缓存；已提交RC/Chip/Model",
+      "steps": "resolve有效缓存；再输入新值",
+      "expected": "恢复统一通知DOM/控件；纯恢复不回写；随后表单编辑保存新状态",
+      "mapping": "A: F02",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-037",
+      "mod": "storage",
+      "priority": "P1",
+      "title": "缓存不是业务schema校验",
+      "preconditions": "初值count:number；缓存count='eight'，带未知普通字段",
+      "steps": "创建并检查；另用自定义adapter先验证/迁移再返回字符串",
+      "expected": "默认接受合法JSON字段，不承诺number校验；自定义迁移按自身协议生效；不得编写默认丢弃字符串的错误预期",
+      "mapping": "M: F1；记录实际字段类型及adapter迁移结果",
+      "status": "通过",
+      "actual": "合法 JSON 的 count=\"eight\" 和未知字段按数据恢复；adapter 显式迁移后为数字 8。",
+      "logs": [
+        "supplement-core.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-038",
+      "mod": "storage",
+      "priority": "P1",
+      "title": "非法adapter返回值与this",
+      "preconditions": "get返回undefined/数字/普通对象；set同步返回非undefined值；then计数",
+      "steps": "每项独立运行，记录get/set this和阶段；随后合法操作",
+      "expected": "非法get报告decode，非法同步set报告set；记录不被错误确认成功；this为adapter；then只读一次",
+      "mapping": "P: S03、S20、S27；补充非法返回值及then getter读取次数",
+      "status": "通过",
+      "actual": "非法 get 返回值报告 decode；非法同步 set 报告 set；this 为 adapter，then getter 各读取一次。",
+      "logs": [
+        "supplement-core.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-039",
+      "mod": "storage",
+      "priority": "P0",
+      "title": "所有危险键和继承setter防护",
+      "preconditions": "以defineProperty构建__proto__/constructor/prototype数据键，根/深层/数组元素各一份；Object.prototype临时setter测试在独立进程",
+      "steps": "编码、解码各测三键；恢复将命中继承setter的字段",
+      "expected": "拒绝危险数据投影，无原型污染；继承setter不被执行，预检失败不半恢复；finally恢复全局描述符",
+      "mapping": "P: S19、S21、S23；补充prototype/编码方向/继承setter矩阵",
+      "status": "通过",
+      "actual": "三危险键 × 根/嵌套/数组元素 × 编码/解码共 18 组；继承 setter 独立进程测试无执行及半恢复。",
+      "logs": [
+        "supplement-core.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-040",
+      "mod": "storage",
+      "priority": "P1",
+      "title": "JSON细节与重新初始化默认字段",
+      "preconditions": "Unicode/换行字符串、±Infinity、数组命名属性；初值可删除字段x=1",
+      "steps": "保存后JSON.parse；删x并保存；释放测试绑定，用同初值重新创建",
+      "expected": "字符串等值；无限数null；数组命名属性不保存；缺失x由初值重新补回且纯恢复不回写，长期空值应显式null",
+      "mapping": "P: S03、S07、S21；补充Unicode、数组命名属性及重载删除默认字段",
+      "status": "通过",
+      "actual": "中文/emoji/换行、±Infinity→null、数组命名属性忽略；删除默认字段后重载补回且纯恢复不写回。",
+      "logs": [
+        "supplement-core.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "STORE-041",
+      "mod": "storage",
+      "priority": "P1",
+      "title": "跨 realm 数据持久化与安全边界（D01）",
+      "preconditions": "vm 普通根/嵌套/数组/null 原型、延迟读取、类/内建/危险键、getter/toJSON",
+      "steps": "恢复再编辑；延迟缓存前编辑；非法根和编码/解码逐项验证",
+      "expected": "根身份不变、纯恢复不回写、深层编辑保存、本地优先；危险键拒绝且无半恢复；访问器不执行",
+      "mapping": "A: S29、S30、D-STORAGE",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log",
+        "browser-results.json",
+        "browser-results-linux-firefox.json",
+        "package-archived.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "REACT-001",
+      "mod": "react",
+      "priority": "P0",
+      "title": "别名、统一分发、包装缓存、非法类别",
+      "preconditions": "同步函数、类、已包装对象；外部memo/forwardRef/lazy、async函数、错误类型",
+      "steps": "对三组别名与RC/RFC/RCC包装结果比较；重复包装；逐项传非法组件",
+      "expected": "RC/RFC/RCC各等于其全名；RC函数与RFC同一包装；重复本库包装不叠加；函数/类合法分发，非法类别TypeError",
+      "mapping": "P: R01；补充真实memo/forwardRef/lazy对象的非法包装矩阵",
+      "status": "通过",
+      "actual": "真实 memo/forwardRef/lazy、async、null/undefined/数字/对象全部拒绝；重复本库包装保持身份。",
+      "logs": [
+        "supplement-react.log",
+        "supplement-react18.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "REACT-002",
+      "mod": "react",
+      "priority": "P0",
+      "title": "自动memo不屏蔽有效更新",
+      "preconditions": "RC函数读store、React state、context，记录render增量",
+      "steps": "相同props父更新；对象/函数引用变化；store/state/context分别变化",
+      "expected": "相同props跳过；真实props变化正常；store/state/context仍驱动正确DOM，不因memo漏更新",
+      "mapping": "P: R02；补充对象和函数引用更换的memo比较断言",
+      "status": "通过",
+      "actual": "相同对象与函数引用跳过渲染；替换引用、store 更新正确显示；React 18/19 补充复测通过。",
+      "logs": [
+        "supplement-react.log",
+        "supplement-react18.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "REACT-003",
+      "mod": "react",
+      "priority": "P0",
+      "title": "props仅watch读取与无二次render",
+      "preconditions": "props.count=1；JSX不读或同时读；useWatch记录参数",
+      "steps": "一次父级更新count=2",
+      "expected": "watch恰收到(2,1)，回调读props为2；受控render只增1，无同源补渲染",
+      "mapping": "A: R03",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "REACT-004",
+      "mod": "react",
+      "priority": "P0",
+      "title": "props派生候选缓存",
+      "preconditions": "computed/getter链依赖props，已有已提交缓存",
+      "steps": "父级1→2；render和watch读取派生值",
+      "expected": "本次render即用新props；成功提交后采用新缓存；不需要第二次修正render",
+      "mapping": "A: R04",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "REACT-005",
+      "mod": "react",
+      "priority": "P1",
+      "title": "props视图身份、浅层只读、存在性",
+      "preconditions": "props含对象/函数/children、缺失字段、NaN、±0",
+      "steps": "连续提交；检查代理身份/嵌套引用；尝试写/删/define；新增undefined、删键、改±0",
+      "expected": "同挂载代理稳定；浅层原引用；顶层拒写，不修改冻结React props；按存在性/Object.is通知",
+      "mapping": "A: R05",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "REACT-006",
+      "mod": "react",
+      "priority": "P0",
+      "title": "props选择source和最新闭包",
+      "preconditions": "props决定watch读store.a或b，callback带label",
+      "steps": "父级切分支/label并提交；改旧/新字段",
+      "expected": "此次props回调仍保留上一成功oldValue；新闭包生效；旧分支解绑，新分支更新",
+      "mapping": "A: R06",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "REACT-007",
+      "mod": "react",
+      "priority": "P0",
+      "title": "外层batch包含多次props提交",
+      "preconditions": "已watch props.count=1",
+      "steps": "batch内提交2再3；另一batch提交4再3；每次flushSync受控提交",
+      "expected": "正常变化一次(3,1)；回退无回调；结算前静默刷新不得吞旧值",
+      "mapping": "A: R10",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "REACT-008",
+      "mod": "react",
+      "priority": "P0",
+      "title": "useReactive身份/useWatch提交时序",
+      "preconditions": "inline初值、immediate watch，StrictMode对照",
+      "steps": "首次render/提交；重渲染换initial/options；卸载再写；重新挂载",
+      "expected": "render不调用watch callback；layout setup按immediate执行；同挂载不重置/补发；卸载停止，重挂载新基线",
+      "mapping": "A: R07",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "REACT-009",
+      "mod": "react",
+      "priority": "P0",
+      "title": "render到subscribe之间变化",
+      "preconditions": "layout中可修改store；新分支未在旧提交订阅",
+      "steps": "首次render读取后、订阅前改源；切新分支后窗口中再改",
+      "expected": "版本复查发现候选过期，最终显示最新值；不能长期停留旧首帧",
+      "mapping": "A: R08",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "REACT-010",
+      "mod": "react",
+      "priority": "P0",
+      "title": "Suspense保留已提交props/缓存/回调",
+      "preconditions": "已提交A；新props B的transition被受控Promise挂起",
+      "steps": "挂起期间读已保存props、触发watch、读computed；随后释放并提交B",
+      "expected": "挂起候选不发布、不改oldValue或缓存；旧事件读A；提交后才读B并通知正确一次",
+      "mapping": "A: R09",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "REACT-011",
+      "mod": "react",
+      "priority": "P0",
+      "title": "props回调写入和通知中同步提交",
+      "preconditions": "useWatch props变更时写local/store；React listener可flushSync提交",
+      "steps": "更新props并观察DOM/通知序列",
+      "expected": "own-props去重只消除已覆盖来源；callback真实写入仍驱动必要后续更新，无丢失重入",
+      "mapping": "A: R11",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "REACT-012",
+      "mod": "react",
+      "priority": "P1",
+      "title": "候选收集不订阅、快照失效",
+      "preconditions": "白盒Observer，未subscribe的attempt读取a",
+      "steps": "仅render候选后改a；比较snapshot；再subscribe/commit",
+      "expected": "收集期间无永久订阅；无变化snapshot稳定；订阅前失效被发现",
+      "mapping": "A: R17",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "REACT-013",
+      "mod": "react",
+      "priority": "P0",
+      "title": "owner来源确认隔离",
+      "preconditions": "两observer、普通store更新同时排队",
+      "steps": "确认A已提交props原因，保留B或普通store原因",
+      "expected": "仅A自身已覆盖原因被清除；其他owner/store通知不被吞",
+      "mapping": "A: R18",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "REACT-014",
+      "mod": "react",
+      "priority": "P0",
+      "title": "notify节点依赖与重排队",
+      "preconditions": "白盒notify节点订阅字段，通知中写新数据",
+      "steps": "连续变化及通知内再次写",
+      "expected": "notify不清空已提交依赖、不直接调用组件函数；可再次入队，最终读最新值",
+      "mapping": "A: R19",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "REACT-015",
+      "mod": "react",
+      "priority": "P0",
+      "title": "外层batch中的props快照确认",
+      "preconditions": "own-props提交发生于未结束batch",
+      "steps": "提交后但结算前多次读取snapshot；结束batch",
+      "expected": "已覆盖的own-props版本不制造额外失效；真正新来源仍能触发",
+      "mapping": "A: R28",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "REACT-016",
+      "mod": "react",
+      "priority": "P0",
+      "title": "类ref/PureComponent/生命周期/实例隔离",
+      "preconditions": "两个包装类实例，static标记、props watch，生命周期日志",
+      "steps": "props更新/字段变化/卸载；比较ref、prevProps、构造/方法参数",
+      "expected": "ref为原类实例，instanceof/静态成员保留；生命周期参数正常；实例订阅独立；手工watch自行stop",
+      "mapping": "A: R12",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "REACT-017",
+      "mod": "react",
+      "priority": "P1",
+      "title": "shouldComponentUpdate语义",
+      "preconditions": "SCU=false类；有/无活动props消费者；另有外部store",
+      "steps": "父props浅变；同props；外部store变；forceUpdate",
+      "expected": "原SCU被调用；有活动props消费者且浅变时放行一次；其他遵守SCU；外部依赖更新不被阻断",
+      "mapping": "A: R13",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "REACT-018",
+      "mod": "react",
+      "priority": "P1",
+      "title": "PureComponent的key/ref普通state字段",
+      "preconditions": "state={key:1,ref:2}，RC(PureComponent)",
+      "steps": "setState key=3，再ref=4",
+      "expected": "DOM依次3:2、3:4；不能把state的key/ref当React特殊props忽略",
+      "mapping": "A: F22",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "REACT-019",
+      "mod": "react",
+      "priority": "P0",
+      "title": "SSR及hydrate基线",
+      "preconditions": "无window SSR；immediate useWatch；相同客户端初值",
+      "steps": "renderToString；改服务端store；hydrateRoot；客户端更新",
+      "expected": "SSR不建watch、不callback；相同初值无hydration警告；首次客户端提交按immediate建立基线，不补历史变化",
+      "mapping": "A: R14",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "REACT-020",
+      "mod": "react",
+      "priority": "P1",
+      "title": "普通组件useWatch静默刷新",
+      "preconditions": "未经RC的函数组件，source捕获普通props/context",
+      "steps": "改普通props/context并提交；再改响应式源",
+      "expected": "无响应式变化时不伪造回调；source绑定与callback更新到最新提交，之后使用新闭包",
+      "mapping": "A: R15",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "REACT-021",
+      "mod": "react",
+      "priority": "P0",
+      "title": "排队watch旧值不被先行渲染覆盖",
+      "preconditions": "同轮较早消费者触发同步React提交；watch尚排队",
+      "steps": "触发源变化，记录watch next/previous",
+      "expected": "静默refresh不吞队列、不提前改oldValue；只收到应有新旧值",
+      "mapping": "A: R16",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "REACT-022",
+      "mod": "react",
+      "priority": "P0",
+      "title": "首次挂起/抛错不得初始化watch",
+      "preconditions": "初次render在useWatch之后挂起或抛错",
+      "steps": "执行失败render，改store，再解除挂起成功挂载",
+      "expected": "未提交期间callback=0、无残留订阅；成功提交才按配置初始化",
+      "mapping": "A: R21",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "REACT-023",
+      "mod": "react",
+      "priority": "P0",
+      "title": "后续setup失败清理已建watch",
+      "preconditions": "一个组件多个immediate useWatch，后一个首次callback抛E",
+      "steps": "挂载失败；之后修改所有source",
+      "expected": "之前已初始化句柄也全部停止，无遗留回调，即使React尚未注册各自cleanup",
+      "mapping": "A: R22",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "REACT-024",
+      "mod": "react",
+      "priority": "P1",
+      "title": "外层batch内immediate setup时机",
+      "preconditions": "batch内同步挂载组件/useWatch immediate",
+      "steps": "记录setup内与batch结束顺序",
+      "expected": "immediate在setup当场执行，不推迟到外层batch结束，也不递归重复初始化",
+      "mapping": "A: R27",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "REACT-025",
+      "mod": "react",
+      "priority": "P0",
+      "title": "render分支与事件/子节点依赖隔离",
+      "preconditions": "父RC按flag读a或b；事件读c；独立子读d",
+      "steps": "切分支并提交；分别改a/b/c/d",
+      "expected": "父只响应当前render依赖；事件读和独立子组件读不进入父订阅；旧分支清理",
+      "mapping": "A: R20",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "REACT-026",
+      "mod": "react",
+      "priority": "P0",
+      "title": "类生命周期字段/context及挂载窗口",
+      "preconditions": "类字段形式生命周期，context，StrictMode；挂载前窗口修改",
+      "steps": "mount/unmount/mount重放；改store/context",
+      "expected": "用户生命周期正常、窗口变化最终可见；重连后有效订阅一份，卸载后停止",
+      "mapping": "A: R23",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "REACT-027",
+      "mod": "react",
+      "priority": "P0",
+      "title": "类props整槽通知与历史引用",
+      "preconditions": "this.props.count手工watch；只改其他props；记录prevProps和forceUpdate",
+      "steps": "父props多次更新、同值外壳对照",
+      "expected": "整槽浅变可回调相同count；旧props引用保持历史；不额外forceUpdate同源props更新",
+      "mapping": "A: R24",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "REACT-028",
+      "mod": "react",
+      "priority": "P1",
+      "title": "局部状态独立/显式共享",
+      "preconditions": "两组件分别inline初值；另两组件共享raw",
+      "steps": "各自写状态；父级重渲染换initial",
+      "expected": "inline互不干扰；共享raw同代理且互相可见；本次挂载忽略新initial",
+      "mapping": "A: R25",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "REACT-029",
+      "mod": "react",
+      "priority": "P1",
+      "title": "解构值与props引用语义",
+      "preconditions": "RC(props)，const {count}=props；另读props.count和对象字段",
+      "steps": "父级提交count及嵌套引用变化",
+      "expected": "source闭包中的解构值不建立props订阅；视图字段读取可监听；嵌套引用不深复制",
+      "mapping": "A: R26",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "REACT-030",
+      "mod": "react",
+      "priority": "P0",
+      "title": "所有类入口直接字段响应",
+      "preconditions": "RC/ReactiveComponent/RCC/ReactiveClassComponent分别包类；普通count字段",
+      "steps": "无loading装饰器，挂载后count++",
+      "expected": "四入口都更新DOM，不需额外reactive；不能仅在加载字段场景验证类字段能力",
+      "mapping": "A: L01",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "REACT-031",
+      "mod": "react",
+      "priority": "P0",
+      "title": "类字段深层身份/实例/净回退",
+      "preconditions": "两实例字段含对象/数组；明确共享raw的对照",
+      "steps": "深层改动、整体替换、同值、batch回退及多写",
+      "expected": "普通实例独立；共享raw共享；深层proxy稳定；多写一次通知，回退无通知",
+      "mapping": "A: L03",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "REACT-032",
+      "mod": "react",
+      "priority": "P1",
+      "title": "类描述符/symbol/空键/#private",
+      "preconditions": "configurable普通字段、readonly/hidden/symbol/空键、访问器、#private方法；另有不可配置可写字段",
+      "steps": "包装、读取/写入，调用原方法；构造非法字段类",
+      "expected": "ref/this为原实例，#private方法可用；枚举性/只读保留；已有访问器和固定只读不变；不可配置可写字段TypeError含键",
+      "mapping": "A: L04",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "REACT-033",
+      "mod": "react",
+      "priority": "P0",
+      "title": "桥接字段贯通全部消费者",
+      "preconditions": "原实例字段被effect/watch/computed/Chip/Model使用",
+      "steps": "通过字段与Model修改；观察父/片段计数",
+      "expected": "所有消费者见同一状态；片段/控件可独立更新，未读取字段的父不增render；外部手工订阅仍需stop",
+      "mapping": "A: L05",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "REACT-034",
+      "mod": "react",
+      "priority": "P1",
+      "title": "React保留字段与loading共存",
+      "preconditions": "state/context/refs、PureComponent、props watch与busy字段",
+      "steps": "setState、context/props更新、业务任务开始完成",
+      "expected": "React字段不被普通用户字段接管；各类更新正常；props去重不误屏蔽busy更新",
+      "mapping": "A: L12",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "REACT-035",
+      "mod": "react",
+      "priority": "P1",
+      "title": "RC类方法无自动批次及getter边界",
+      "preconditions": "类count/a/b和普通getter；普通原型方法连续写两次",
+      "steps": "用外部effect计数，调用普通方法；显式batch对照；重复读getter",
+      "expected": "普通方法两次独立通知，显式batch一次；类getter不承诺computed缓存；不依赖动态新增/删除字段响应",
+      "mapping": "P: L03、L04；补充普通方法通知次数和getter非缓存对照",
+      "status": "通过",
+      "actual": "普通方法两次写入通知两次，显式 batch 一次；getter 重读两次求值，18/19 一致。",
+      "logs": [
+        "supplement-react.log",
+        "supplement-react18.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "UI-001",
+      "mod": "ui",
+      "priority": "P0",
+      "title": "四个片段工厂无副作用/身份稳定",
+      "preconditions": "chip/strictChip/asyncChip/asyncStrictChip传计数回调",
+      "steps": "在render外调用；条件/列表生成element；随后挂载",
+      "expected": "工厂只创建element、不调用回调/Hook；type分别为对应组件；相同key保持组件身份",
+      "mapping": "P: F23、D-REACT；补充条件/列表及相同key挂载次数",
+      "status": "通过",
+      "actual": "四工厂调用时零 children 执行；条件/列表挂载各一次，相同 key 重渲染不重挂载。",
+      "logs": [
+        "supplement-react.log",
+        "supplement-react18.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "UI-002",
+      "mod": "ui",
+      "priority": "P0",
+      "title": "A/B局部更新与父隔离",
+      "preconditions": "父只创建两个Chip，子回调分别读a/b；计数parent/A/B",
+      "steps": "改a；改b；同批a往返",
+      "expected": "改a仅A更新、改b仅B更新；父不增render；净回退不更新片段",
+      "mapping": "A: F23",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "UI-003",
+      "mod": "ui",
+      "priority": "P1",
+      "title": "普通Chip采纳新闭包",
+      "preconditions": "children捕获父普通label",
+      "steps": "父label A→B后提交，再改片段store",
+      "expected": "采用B闭包，父更新造成一次正常片段更新，无自身props补渲染",
+      "mapping": "A: F24",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "UI-004",
+      "mod": "ui",
+      "priority": "P1",
+      "title": "Strict忽略父props但响应自身/context",
+      "preconditions": "Chip.Strict及strictChip；闭包label与reactive count/context",
+      "steps": "父换label；再改count/context；最后换key",
+      "expected": "父更新被跳过的新闭包不替换旧闭包；count/context仍更新；换key后使用新label",
+      "mapping": "A: F24",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "UI-005",
+      "mod": "ui",
+      "priority": "P0",
+      "title": "分支/嵌套子组件/卸载隔离",
+      "preconditions": "Chip按flag读a/b，嵌套Chip与独立子组件；StrictMode",
+      "steps": "切flag，改旧/新分支，卸载后改值",
+      "expected": "仅当前分支有效；子订阅不混入父；StrictMode最终一份有效订阅，卸载无回调",
+      "mapping": "A: F26",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "UI-006",
+      "mod": "ui",
+      "priority": "P0",
+      "title": "Strict读取稳定props视图及派生值",
+      "preconditions": "RC父props.count，Strict Chip读props与computed",
+      "steps": "父props更新并确认own-props来源",
+      "expected": "Strict仍因响应式props/派生依赖更新；父去重不吞片段更新；终值正确",
+      "mapping": "A: F25、F13",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "UI-007",
+      "mod": "ui",
+      "priority": "P0",
+      "title": "Async首次fallback与最新数据",
+      "preconditions": "AsyncChip/AsyncChip.Strict，fallback文本；SSR和hydrate",
+      "steps": "SSR；客户端layout阶段读取；激活前改store；effect后读取",
+      "expected": "SSR/首帧为fallback且children未执行/未订阅；effect后首次读最新值；默认工厂fallback为null",
+      "mapping": "A: F27",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "UI-008",
+      "mod": "ui",
+      "priority": "P1",
+      "title": "Async未提交树与StrictMode",
+      "preconditions": "初次挂起/卸载的Async gate；StrictMode重放",
+      "steps": "激活前终止；另正常挂载、重连、更新",
+      "expected": "未提交树不激活/不遗留订阅；正常重连可更新；无定时器或“等待网络Promise”语义",
+      "mapping": "A: F28",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "UI-009",
+      "mod": "ui",
+      "priority": "P1",
+      "title": "非同步children与失败render",
+      "preconditions": "非函数、async函数、返回Promise/thenable；普通同步null/text/Fragment/array",
+      "steps": "分别render；抛错/挂起后改源",
+      "expected": "非同步输入TypeError；失败候选不订阅；合法同步ReactNode正常渲染；回调内Hook不属于支持写法",
+      "mapping": "P: F29；补充合法ReactNode参数表及返回自定义thenable",
+      "status": "通过",
+      "actual": "null/text/Fragment/array 同步 ReactNode 可用；自定义 thenable 被 TypeError 拒绝。",
+      "logs": [
+        "supplement-react.log",
+        "supplement-react18.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "UI-010",
+      "mod": "ui",
+      "priority": "P0",
+      "title": "useModel身份/重渲染/初值函数",
+      "preconditions": "字符串、布尔、对象、函数字面值模型，普通父+Chip",
+      "steps": "真实输入；提取onChange直接调用；直接写value；换initial重渲染",
+      "expected": "模型和onChange稳定；初值函数作为数据不调用；当前值不重置；Chip更新而父不因Hook自动刷新",
+      "mapping": "A: F14",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "UI-011",
+      "mod": "ui",
+      "priority": "P0",
+      "title": "普通target对象不是事件",
+      "preconditions": "model对象值含target:{value:'data'}，另有函数值",
+      "steps": "onChange传对象/函数",
+      "expected": "第一个参数完整作为新数据；不当事件读取target.value，不当React updater执行函数",
+      "mapping": "A: F14、F18",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "UI-012",
+      "mod": "ui",
+      "priority": "P0",
+      "title": "Model/defineModel真实双向输入",
+      "preconditions": "state.name=Alice；单input含key/ref/data-*和defaultValue；另TextInput refer",
+      "steps": "挂载；输入Bob；外部设Carol",
+      "expected": "初值Alice；两控件同步Bob/Carol；ref指同input且卸载清空；业务props保留；覆盖受控value并移除defaultValue，无受控警告",
+      "mapping": "A: F15",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "UI-013",
+      "mod": "ui",
+      "priority": "P0",
+      "title": "一次写入与原回调顺序",
+      "preconditions": "Model转换可计数；原onChange读state.name并写extra",
+      "steps": "派发一次事件",
+      "expected": "转换一次→模型写一次→原回调一次且完整原参数；回调已见新值；extra写与模型同batch，仅最终一次业务通知",
+      "mapping": "A: F15、F18",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "UI-014",
+      "mod": "ui",
+      "priority": "P0",
+      "title": "事件时重新定位嵌套目标",
+      "preconditions": "Model source=()=>state.user.name，保存稳定handler和旧user",
+      "steps": "同batch替换user，立刻handler('X')",
+      "expected": "写当前user.name，旧user不变；不使用render时保存的过期位置",
+      "mapping": "A: F17",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "UI-015",
+      "mod": "ui",
+      "priority": "P0",
+      "title": "Suspense事件配置仅取已提交版本",
+      "preconditions": "已提交first/old转换与callback；候选second/new挂起",
+      "steps": "候选期间调用旧handler；成功提交后再调用同handler",
+      "expected": "未提交时只写first，用old转换/callback；提交后写second用new配置；handler身份稳定",
+      "mapping": "A: F17",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "UI-016",
+      "mod": "ui",
+      "priority": "P0",
+      "title": "原生控件提取与null显示",
+      "preconditions": "checkbox(undefined,显式checked)、radio(false)、textarea(null)、单选、多选(undefined)、number(3)",
+      "steps": "挂载检查；click/input/change；number显式postValue",
+      "expected": "checked=false、文本=''、多选=[]仅用于显示不回写；事件得布尔/字符串/字符串数组；数字显式转12；checkbox提交value保留",
+      "mapping": "A: F16",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "UI-017",
+      "mod": "ui",
+      "priority": "P1",
+      "title": "自定义值/valueProp/完整参数",
+      "preconditions": "布尔value控件、对象控件、金额控件onChange(number,unit)",
+      "steps": "显式valueProp=value；传对象；defineModel转换4,'kg'为8",
+      "expected": "布尔不误注入checked；对象按数据；转换/原回调完整参数；label等必填业务props保留",
+      "mapping": "A: F18",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "UI-018",
+      "mod": "ui",
+      "priority": "P0",
+      "title": "转换/写入/回调失败与净回退",
+      "preconditions": "state.value=1；转换抛E、字段只读、callback抛E/恢复原值",
+      "steps": "四模式独立触发一次事件",
+      "expected": "转换/写失败不调原callback；callback失败不回滚已写2；callback把3恢复2时本批无净通知；错误原样保留",
+      "mapping": "A: F19",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "UI-019",
+      "mod": "ui",
+      "priority": "P1",
+      "title": "合法属性位置矩阵",
+      "preconditions": "nested.x、数组0、symbol、空键、缺失可扩展字段",
+      "steps": "对每项captureReference读取后write；挂载Model对照",
+      "expected": "只写指定终端；0/空键不被当未绑定；可新增缺失字段；不按“值相同”猜测位置",
+      "mapping": "P: X02；内部矩阵已覆盖，补充这些位置的真实Model事件集成",
+      "status": "通过",
+      "actual": "nested、数组 0、symbol、空键、缺失字段的真实 DOM input 事件均写到正确位置。",
+      "logs": [
+        "supplement-react.log",
+        "supplement-react18.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "UI-020",
+      "mod": "ui",
+      "priority": "P0",
+      "title": "可写getter与一次setter",
+      "preconditions": "reactive对象get/set name，getter内部读其他字段",
+      "steps": "captureReference/Model指向name；写新值",
+      "expected": "setter只执行一次，getter内部读不劫持目标；正确更新backing字段和消费者",
+      "mapping": "P: X03；白盒已覆盖，补充Model DOM集成",
+      "status": "通过",
+      "actual": "Model DOM 输入触发可写 getter 的 setter 恰好一次，backing 字段正确。",
+      "logs": [
+        "supplement-react.log",
+        "supplement-react18.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "UI-021",
+      "mod": "ui",
+      "priority": "P0",
+      "title": "无效/只读/派生/歧义引用",
+      "preconditions": "常量、raw属性、Computed缓存命中、只读props/getter、算术/多字段/不连续链、不可扩展缺失字段",
+      "steps": "每项捕获/Model渲染；失败后执行合法引用写入",
+      "expected": "可识别非法表达式TypeError，无错写；收集/定位上下文恢复；不要求识别所有碰巧同值的运算，selector必须直接选择可赋值位置",
+      "mapping": "A: X04、F20",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "UI-022",
+      "mod": "ui",
+      "priority": "P1",
+      "title": "子element形状与valueProp校验",
+      "preconditions": "null/text/数组/多个元素/Fragment/portal/file input；非法valueProp含null/空串/错误字符串/数值/布尔/对象",
+      "steps": "逐项渲染独立错误边界；再渲染单有效input",
+      "expected": "非法形状/协议拒绝，file不尝试写value；合法单控件正常；错误不污染后续绑定",
+      "mapping": "P: F20、F30；valueProp仅省略/undefined/value/checked合法，模型数据null仍合法；portal/多元素见补充脚本",
+      "status": "通过",
+      "actual": "非法元素形状、portal、file input、全部非法 valueProp（含 null）均拒绝；随后合法输入正常。D03 修复维持有效。",
+      "logs": [
+        "supplement-react.log",
+        "supplement-react18.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "UI-023",
+      "mod": "ui",
+      "priority": "P0",
+      "title": "StrictMode重连与遗留handler失效",
+      "preconditions": "Model/useModel已提交并保留onChange",
+      "steps": "StrictMode setup/cleanup后输入；卸载；调用遗留handler",
+      "expected": "重连可写；卸载后不改状态、不执行子原回调；真正新实例不被旧handler影响",
+      "mapping": "A: F21、F14、F17",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "UI-024",
+      "mod": "ui",
+      "priority": "P1",
+      "title": "SSR只输出受控值",
+      "preconditions": "SSR单input/checkbox/select及Model getter+setter计数；无window",
+      "steps": "renderToString；记录setter/callback；客户端同值hydrate再输入",
+      "expected": "SSR输出当前值，setter/callback=0，无永久观察订阅；匹配hydrate无warning，提交后才能处理事件",
+      "mapping": "P: R14、F20；补充Model专属SSR副作用计数与hydrate链路",
+      "status": "通过",
+      "actual": "SSR input/checkbox/select 输出正确，setter/callback 零执行；匹配 hydrate 后输入调用各一次，无 warning。",
+      "logs": [
+        "supplement-react.log",
+        "supplement-react18.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "UI-025",
+      "mod": "ui",
+      "priority": "P1",
+      "title": "currentTarget/target与跨文档事件",
+      "preconditions": "来自另一个同源Document的input，真实Event或具备事件方法的参数",
+      "steps": "currentTarget有效时与target不同；currentTarget无效时target为原生控件；事件结束后检查",
+      "expected": "调用期间同步读取有效currentTarget优先，否则target；用控件自身ownerDocument识别；普通数据对象保持原样",
+      "mapping": "M: F3；用真实iframe或独立jsdom Window，捕获值与回调参数",
+      "status": "通过",
+      "actual": "第二个 jsdom Window 的真实 Event：有效 currentTarget 优先，否则使用 target；结束后 currentTarget=null 不影响已取值；普通对象保留为数据。",
+      "logs": [
+        "supplement-react.log",
+        "supplement-react18.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "UI-026",
+      "mod": "ui",
+      "priority": "P1",
+      "title": "defineModel保持业务协议与挂载",
+      "preconditions": "自定义函数/类控件，必填label，value/onChange(number,unit)；保留key切换",
+      "steps": "外部值更新、输入、同key重渲染、换key；比较调用参数",
+      "expected": "业务props/children正常；同key无意外重挂载；换key按React重建；不承诺HOC静态复制/React18 ref转发/任意泛型保真",
+      "mapping": "P: F15、F18、T-REACT；补充类控件运行时和key重挂载",
+      "status": "通过",
+      "actual": "defineModel 类控件保留 label/children/onChange(7,\"kg\")；相同 key 不重挂，换 key 按 React 重建。",
+      "logs": [
+        "supplement-react.log",
+        "supplement-react18.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "LOAD-001",
+      "mod": "loading",
+      "priority": "P0",
+      "title": "所有初值及乱序计数",
+      "preconditions": "initial分别省略/false/true/0/2；两个deferred",
+      "steps": "挂载不调用；load0、load1；先完成1再失败0",
+      "expected": "不自动执行业务；stacks 0→1→2→1→0；数字loading=n+stacks；布尔最后false，初始true未调用前仍true",
+      "mapping": "A: F03",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "LOAD-002",
+      "mod": "loading",
+      "priority": "P1",
+      "title": "返回对象/load稳定与初值不重置",
+      "preconditions": "同一挂载、保存对象与解构load",
+      "steps": "开始两任务；父重渲染initial=99；完成",
+      "expected": "对象/load严格同引用；不重置计数或模式；解构load不需要this",
+      "mapping": "A: F03",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "LOAD-003",
+      "mod": "loading",
+      "priority": "P0",
+      "title": "普通值/Promise/thenable与只读外壳",
+      "preconditions": "fn分别返回普通值、Promise、thenable",
+      "steps": "提交后调用load；检查返回与Reflect.set loading/stacksCount",
+      "expected": "始终Promise<Awaited<R>>，值正确；外壳只读；不承诺原Promise身份",
+      "mapping": "A: F04",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "LOAD-004",
+      "mod": "loading",
+      "priority": "P0",
+      "title": "业务同步/异步/then访问失败",
+      "preconditions": "fn同步抛E、Promise.reject(E)、then getter抛E",
+      "steps": "逐项load并等待reject；随后成功调用",
+      "expected": "单错误原对象；每次只释放本token；最终false/0，之后可成功，不永久loading",
+      "mapping": "A: F04",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "LOAD-005",
+      "mod": "loading",
+      "priority": "P0",
+      "title": "开始/业务/结束多错误",
+      "preconditions": "订阅者分别开始抛E1、结束抛E3；业务抛E2",
+      "steps": "load并捕获；关闭故障再调用",
+      "expected": "业务仍启动；finally释放；AggregateError.errors=[E1,E2,E3]，无错误丢失；下次成功",
+      "mapping": "A: F05",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "LOAD-006",
+      "mod": "loading",
+      "priority": "P0",
+      "title": "immediate/props watch可用句柄与最新函数",
+      "preconditions": "组件先声明useWatch，随后useModel/useLoading；fn捕获label",
+      "steps": "首次immediate执行；props count/label更新",
+      "expected": "setup前句柄已激活；首次A1!、下一次B2!；旧load引用使用最新已提交fn；Model同步可写",
+      "mapping": "A: F06",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "LOAD-007",
+      "mod": "loading",
+      "priority": "P0",
+      "title": "候选闭包隔离与在途固定",
+      "preconditions": "A提交后load1；B候选挂起；再load2；C成功提交后load3",
+      "steps": "统一释放等待Promise",
+      "expected": "结果依次A1/A2/C3；B不泄漏；在途1不因C改用新函数；计数归零",
+      "mapping": "A: F07",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "LOAD-008",
+      "mod": "loading",
+      "priority": "P0",
+      "title": "卸载停止发布/保留调用结果/新挂载独立",
+      "preconditions": "numeric baseline2；一个在途请求，保存旧对象",
+      "steps": "卸载；调用遗留load；新挂载；完成旧请求42",
+      "expected": "遗留调用拒绝且fn不启动；旧请求仍返回42；旧公开值冻结在断开时快照，新实例仍2/0，无跨实例发布",
+      "mapping": "A: F08",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "LOAD-009",
+      "mod": "loading",
+      "priority": "P0",
+      "title": "StrictMode重连、SSR和双Hook隔离",
+      "preconditions": "两个Hook，a初始true；layout只启动一次；SSR纯render",
+      "steps": "SSR；StrictMode挂载/清理/重连；完成a",
+      "expected": "SSR业务调用0；重连不重复业务；a计数恢复真实未完成数，b不受影响；清理窗口调用拒绝",
+      "mapping": "A: F09",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "LOAD-010",
+      "mod": "loading",
+      "priority": "P1",
+      "title": "内部记账/业务读不泄漏依赖",
+      "preconditions": "外层effect只显式读trigger并调用load；fn读other",
+      "steps": "完成；other++；trigger++",
+      "expected": "other和loading内部发布不使外层重复执行；trigger变化才新调用",
+      "mapping": "A: F10",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "LOAD-011",
+      "mod": "loading",
+      "priority": "P0",
+      "title": "Suspense隐藏期间结算与恢复",
+      "preconditions": "baseline2、任务未完；已挂载树同步挂起隐藏",
+      "steps": "隐藏后调用load；完成旧任务；恢复同树",
+      "expected": "隐藏期间新调用拒绝；旧请求完成但公开计数不发布；重连刷新为2/0，不保留假请求",
+      "mapping": "A: F11",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "LOAD-012",
+      "mod": "loading",
+      "priority": "P0",
+      "title": "commit失败统一断开句柄",
+      "preconditions": "Model/loading创建后immediate useWatch抛E，ErrorBoundary兜底",
+      "steps": "挂载失败；调用遗留model.onChange与load",
+      "expected": "Model无写入；load拒绝且业务调用0；不依赖后续尚未安装的React cleanup",
+      "mapping": "A: F12",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "LOAD-013",
+      "mod": "loading",
+      "priority": "P0",
+      "title": "props/Strict Chip/Model/load提交链",
+      "preconditions": "props.count切到2；watch调用load(value×已提交count)并写name",
+      "steps": "更新props，等待请求，再输入Model",
+      "expected": "load结果4，Strict Chip显示2:false，input=2；own-props确认不吞子更新，后续输入3写回",
+      "mapping": "A: F13",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "LOAD-014",
+      "mod": "loading",
+      "priority": "P1",
+      "title": "非法初值/回调及首次提交前",
+      "preconditions": "initial=-1/小数/NaN/±Infinity/超安全整数，fn非函数；首次render保存load后挂起；另仅挂载MAX_SAFE_INTEGER不启动任务",
+      "steps": "参数各独立SSR/挂载；调用未提交load；检查业务次数",
+      "expected": "非法参数TypeError；首次提交前拒绝、不启动fn；最大安全整数作为初值可接受；不将未约定的累计溢出行为写成保证",
+      "mapping": "P: F04、F09；补充非函数、-Infinity、未提交保留句柄及最大合法初值",
+      "status": "通过",
+      "actual": "所有非法数值及非函数拒绝，MAX_SAFE_INTEGER 初值接受；首次 Suspense 未提交句柄拒绝且业务次数零。",
+      "logs": [
+        "supplement-react.log",
+        "supplement-react18.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "LOAD-015",
+      "mod": "loading",
+      "priority": "P0",
+      "title": "导出边界",
+      "preconditions": "React子入口与根入口",
+      "steps": "检查loading导出；类型层从根尝试导入",
+      "expected": "仅React入口有loading；根入口不泄漏；十九个React导出准确",
+      "mapping": "A: L02、D-REACT、T-REACT",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "LOAD-016",
+      "mod": "loading",
+      "priority": "P0",
+      "title": "布尔/数字字段基线",
+      "preconditions": "RC类busy初值false/true/0/3，原型async方法",
+      "steps": "提交后调用/等待；记录方法同步部分看到的busy",
+      "expected": "开始即见true或n+1；结束布尔false、数字回n；未调用的true保留；不额外返回Hook状态对象",
+      "mapping": "A: L06",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "LOAD-017",
+      "mod": "loading",
+      "priority": "P0",
+      "title": "同字段多方法/互调共享token",
+      "preconditions": "方法fetch和other共用busy；other调用fetch",
+      "steps": "同时直接fetch0及other1；先完成1后0",
+      "expected": "other及内层fetch各登记token，总并发3；完成1释放其两层，仍保留0的token；最后回基线",
+      "mapping": "A: L06",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "LOAD-018",
+      "mod": "loading",
+      "priority": "P1",
+      "title": "动态this、参数和结果",
+      "preconditions": "方法含必填/默认/rest参数",
+      "steps": "instance.method、call、bind；另解构后无receiver调用",
+      "expected": "this为原实例，参数/成功值保留；无receiver拒绝，不自动bind；返回Promise不要求身份相同",
+      "mapping": "A: L06、T-REACT",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "LOAD-019",
+      "mod": "loading",
+      "priority": "P0",
+      "title": "每次选择一次并固定字段",
+      "preconditions": "selector由闭包选择left或right且计次",
+      "steps": "调用A选择left；切选择right开始B；乱序完成",
+      "expected": "每次source仅1次，完成时不重选；各自归还原字段token，不因闭包变化串字段",
+      "mapping": "A: L07",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "LOAD-020",
+      "mod": "loading",
+      "priority": "P1",
+      "title": "继承、多实例与Hook隔离",
+      "preconditions": "父类装饰方法，子类super，两个实例和独立useLoading",
+      "steps": "启动并交错完成三任务",
+      "expected": "实例/字段/Hook计数互相独立；继承结果与this保留",
+      "mapping": "A: L07",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "LOAD-021",
+      "mod": "loading",
+      "priority": "P0",
+      "title": "JS返回值、thenable、错误聚合",
+      "preconditions": "运行时桥接普通值/thenable/同步抛/拒绝/then getter；状态订阅抛",
+      "steps": "逐项调用；开始+业务+结束同时失败；再恢复",
+      "expected": "普通值/thenable按await；每token释放；单E原样；多错按开始/业务/结束顺序；业务不被开始发布失败阻断",
+      "mapping": "A: L08",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "LOAD-022",
+      "mod": "loading",
+      "priority": "P0",
+      "title": "selector拒绝非法定位/变更",
+      "preconditions": "常量、缺字段、取反、多次/多字段读、nested、getter、readonly、props/state、调用方法；set/delete/define/枚举等",
+      "steps": "每项独立调用装饰方法，记录业务次数/字段",
+      "expected": "可识别非法表达式TypeError且业务0次；临时ctx只读；不把ctx当业务this；字段保持初值",
+      "mapping": "A: L09",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "LOAD-023",
+      "mod": "loading",
+      "priority": "P1",
+      "title": "selector异常与追踪上下文恢复",
+      "preconditions": "source读后抛E；外部effect/Model引用捕获中调用；字段之后被重定义",
+      "steps": "修复selector合法调用；改旁路字段；重定义被管理字段再调用",
+      "expected": "source E保真；合法调用恢复；内部/业务同步读不污染外层依赖或引用；重定义字段被拒绝",
+      "mapping": "A: L09",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "LOAD-024",
+      "mod": "loading",
+      "priority": "P0",
+      "title": "非法数字、容量溢出及首次失败不锁模式",
+      "preconditions": "initial=NaN/Infinity/-1/0.5/MAX_SAFE_INTEGER；另MAX_SAFE_INTEGER-1",
+      "steps": "分别调用；非法首次后改0重试；边界已占一token再启动第二个",
+      "expected": "非法值TypeError/容量RangeError在业务前；无token泄漏；修复可调用；再启动会溢出时拒绝且原请求计数不变",
+      "mapping": "A: L10",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "LOAD-025",
+      "mod": "loading",
+      "priority": "P0",
+      "title": "活动字段写保护",
+      "preconditions": "stack请求在途；持有实例与Model handler",
+      "steps": "直接赋0、Model赋0、引用write0；同值写；模式改布尔",
+      "expected": "不同值/模式在修改前抛错；业务原token不受影响；同值写安全，不追加通知",
+      "mapping": "A: L10",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "LOAD-026",
+      "mod": "loading",
+      "priority": "P1",
+      "title": "空闲基线调整与模式固定",
+      "preconditions": "首组完成后stack为数字基线",
+      "steps": "空闲改5并发下一组；再写负数或布尔；布尔组对照",
+      "expected": "下一组从5计数并回5；非法值/跨模式拒绝；未被loading使用的普通字段不加此限制",
+      "mapping": "A: L10",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "LOAD-027",
+      "mod": "loading",
+      "priority": "P0",
+      "title": "通知回调重入与部分失败",
+      "preconditions": "watch stack==1时发第二请求",
+      "steps": "启动第一；第二失败；第一成功",
+      "expected": "token先登记再发布，观察序列0→1→2→1→0；第二失败不释放第一；无重复减计数",
+      "mapping": "A: L11",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "LOAD-028",
+      "mod": "loading",
+      "priority": "P1",
+      "title": "props/React原生状态并存",
+      "preconditions": "PureComponent，state/context/refs，busy字段与props watch",
+      "steps": "更新props及state/context；加载开始/结束",
+      "expected": "props正常一次更新；原生机制正常；loading变化仍可刷新，不被去重/SCU屏蔽",
+      "mapping": "A: L12",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "LOAD-029",
+      "mod": "loading",
+      "priority": "P0",
+      "title": "componentDidMount可启动及StrictMode重连",
+      "preconditions": "用户didMount中有防重复条件；子layout改count",
+      "steps": "StrictMode挂载/断开/重连；完成任务",
+      "expected": "didMount调用合法；库不重复业务；字段窗口变化补齐；任务与普通字段后续都响应",
+      "mapping": "A: L13",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "LOAD-030",
+      "mod": "loading",
+      "priority": "P0",
+      "title": "隐藏树保留活动集合与空闲调整",
+      "preconditions": "数字基线2；三个分支：隐藏时仍active、已settled、settled后手改5",
+      "steps": "隐藏后尝试新调用；按分支完成/调整；恢复同实例",
+      "expected": "隐藏不发布或forceUpdate，新调用拒绝；恢复分别显示3/2/5；不会重新执行业务；最终基线正确",
+      "mapping": "A: L14",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "LOAD-031",
+      "mod": "loading",
+      "priority": "P0",
+      "title": "卸载与新实例隔离",
+      "preconditions": "旧实例请求在途，外部watch旧busy",
+      "steps": "卸载；旧实例再调用；新挂载；完成旧请求",
+      "expected": "旧调用拒绝；旧请求仍兑现；不发布旧busy结束值、不更新新实例；新实例初值false",
+      "mapping": "A: L15",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "LOAD-032",
+      "mod": "loading",
+      "priority": "P0",
+      "title": "构造/render/首次未提交/SSR禁调用",
+      "preconditions": "装饰方法业务次数计数；构造和render中尝试；SSR/hydration/首次Suspense",
+      "steps": "所有拒绝Promise由测试捕获；正常提交后合法事件调用对照",
+      "expected": "拒绝无业务调用、无假loading；SSR保留初值；识别到render上下文时拒绝；合法提交后可用",
+      "mapping": "P: L16；禁止阶段已覆盖，补充同一实例合法事件恢复对照",
+      "status": "通过",
+      "actual": "同一类实例构造/render 调用拒绝；成功提交后相同方法返回 7，busy 正常归零。",
+      "logs": [
+        "supplement-react.log",
+        "supplement-react18.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "LOAD-033",
+      "mod": "loading",
+      "priority": "P0",
+      "title": "挂载/提交失败和卸载抛错先断开",
+      "preconditions": "didMount启动请求后抛E，willUnmount也抛；forceUpdate计数",
+      "steps": "ErrorBoundary处理；旧实例改count、调用run、完成在途",
+      "expected": "观察/连接已同步释放；旧run拒绝；完成不发布/forceUpdate；用户清理异常不留下库订阅",
+      "mapping": "A: L17",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "LOAD-034",
+      "mod": "loading",
+      "priority": "P1",
+      "title": "装饰目标/传统语法校验",
+      "preconditions": "static/getter/arrow/render/lifecycle/constructor、重复装饰、Stage3、未RC类",
+      "steps": "应用装饰器或调用方法",
+      "expected": "不支持目标TypeError，重复/Stage3明确失败；未包装类调用拒绝；普通业务原型方法合法",
+      "mapping": "A: L18、T-REACT",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "LOAD-035",
+      "mod": "loading",
+      "priority": "P1",
+      "title": "symbol/空字符串字段与props监听",
+      "preconditions": "RCC类symbol布尔字段和空键数字2；props watch启动两任务",
+      "steps": "props count1→2；观察字段/forceUpdate/结果；完成",
+      "expected": "symbol/空键均可定位；已提交props回调可启动；自身props不额外通知，加载字段必要更新保留",
+      "mapping": "A: L19",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "PKG-001",
+      "mod": "package",
+      "priority": "P0",
+      "title": "源码和测试编译",
+      "preconditions": "当前锁定依赖；strict、experimentalDecorators",
+      "steps": "npm test中的typecheck/typecheck:test/typecheck:react",
+      "expected": "全部退出0；noUnusedLocals/noImplicitOverride等配置有效；没有以any绕过公共API类型",
+      "mapping": "A: BUILD、T-CORE、T-REACT",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log",
+        "dist.log",
+        "package-archived.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "PKG-002",
+      "mod": "package",
+      "priority": "P0",
+      "title": "reactive/batch/类构造泛型",
+      "preconditions": "types/esm.mts、commonjs.cts；对象和装饰类",
+      "steps": "核对对象属性、构造参数、方法参数、batch返回推断；负例错误赋值/构造",
+      "expected": ".mts/.cts保持精确类型；错误用法产生预期诊断，不退化为any",
+      "mapping": "A: T-CORE",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log",
+        "dist.log",
+        "package-archived.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "PKG-003",
+      "mod": "package",
+      "priority": "P0",
+      "title": "Computed只读.value迁移",
+      "preconditions": "computed.mts/.cts",
+      "steps": "正例标量/对象/undefined/函数/嵌套；反例value赋值、computed()旧调用、watch(computed)",
+      "expected": "value类型T正确，仅外壳只读；负例有错；watch要求读取闭包",
+      "mapping": "A: T-CORE",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log",
+        "dist.log",
+        "package-archived.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "PKG-004",
+      "mod": "package",
+      "priority": "P1",
+      "title": "watch/useWatch immediate重载",
+      "preconditions": "缺省/false/true/boolean变量/WatchOptions或undefined",
+      "steps": "编译new/old推断和不处理undefined的负例",
+      "expected": "默认/false旧值T；可能immediate时旧值T或undefined；void可用；错误callback类型与选项拒绝；useWatch返回void",
+      "mapping": "A: T-CORE、T-REACT",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log",
+        "dist.log",
+        "package-archived.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "PKG-005",
+      "mod": "package",
+      "priority": "P0",
+      "title": "storage结构类型、无DOM依赖",
+      "preconditions": "storage.mts/.cts；lib ES2022、types=[]；sync/async/PromiseLike adapter",
+      "steps": "编译对象/数组推断；缺name、错type、根基本值、坏getter/setter返回等负例",
+      "expected": "状态保留T；正例全部通过；反例确有诊断；无需DOM/React/localforage声明",
+      "mapping": "A: T-CORE",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log",
+        "dist.log",
+        "package-archived.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "PKG-006",
+      "mod": "package",
+      "priority": "P1",
+      "title": "localforage薄包装",
+      "preconditions": "开发依赖localforage；getItem<string>，async setItem等待后void返回",
+      "steps": "typecheck:test包含storage-localforage.ts；错误直接Promise<string> setter对照",
+      "expected": "推荐包装可编译，错误返回类型被拒绝；不据此声称真实IndexedDB已验证",
+      "mapping": "A: T-LF、T-CORE",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log",
+        "dist.log",
+        "package-archived.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "PKG-007",
+      "mod": "package",
+      "priority": "P0",
+      "title": "React组件类型与Hook命名",
+      "preconditions": "18/19匹配类型；esm/commonjs/jsx",
+      "steps": "编译RC/RFC必填props、RCC构造/ref/静态；useReactive对象返回；旧useState导入负例",
+      "expected": "JSX必填属性保留；不返回tuple；旧useState未导出；各别名类型一致",
+      "mapping": "A: T-REACT",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log",
+        "dist.log",
+        "package-archived.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "PKG-008",
+      "mod": "package",
+      "priority": "P1",
+      "title": "Chip/Model/defineModel类型",
+      "preconditions": "features.mts/.cts/.tsx；文本/布尔/数组/数字模型、带label的控件",
+      "steps": "正反例编译：children函数、source/refer、postValue返回、完整tuple、必填业务props、数字事件",
+      "expected": "支持输入通过；数字model直接传DOM事件拒绝；错误转换/缺props拒绝；onChange只读",
+      "mapping": "A: T-REACT",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log",
+        "dist.log",
+        "package-archived.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "PKG-009",
+      "mod": "package",
+      "priority": "P1",
+      "title": "useLoading类型",
+      "preconditions": "fn必填/多参数/同步值/Promise；初始true/false/0/2/联合类型",
+      "steps": "推断load返回与loading类型；写stacksCount、错参数、误认为常量类型的负例",
+      "expected": "返回Promise<Awaited<R>>；参数tuple保持；布尔/数字拓宽，联合保持；状态只读",
+      "mapping": "A: T-REACT",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log",
+        "dist.log",
+        "package-archived.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "PKG-010",
+      "mod": "package",
+      "priority": "P1",
+      "title": "@loading传统方法类型",
+      "preconditions": "loading.mts/.cts/.tsx，显式泛型/ctx注解/简写",
+      "steps": "编译可选/rest/泛型/重载/继承/静态成员/JSX；同步方法/箭头/getter/错字段负例",
+      "expected": "方法签名保留；类型层拒绝同步方法等；显式ctx类型检查拼写；不要求简写反推完整类字段",
+      "mapping": "A: T-REACT",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log",
+        "dist.log",
+        "package-archived.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "PKG-011",
+      "mod": "package",
+      "priority": "P0",
+      "title": "构建布局与两个Node桥",
+      "preconditions": "dist允许重建；使用当前tsconfig",
+      "steps": "npm run build；检查esm/cjs所有js/d.ts及cjs/package.json和node.js/node-react.js",
+      "expected": "产物齐全；CJS目录type=commonjs；桥接导出与源码一致，target ES2022；只清理项目生成目录",
+      "mapping": "A: BUILD、PKG",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log",
+        "dist.log",
+        "package-archived.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "PKG-012",
+      "mod": "package",
+      "priority": "P0",
+      "title": "公开导出准确、纯CJS可用",
+      "preconditions": "构建完成；ESM/CJS消费者",
+      "steps": "test:dist；CJS加--no-experimental-require-module",
+      "expected": "根恰reactive/effect/computed/batch/watch/storage；React十九个及别名准确；require不依赖实验性加载ESM",
+      "mapping": "A: D-CORE、D-REACT",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log",
+        "dist.log",
+        "package-archived.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "PKG-013",
+      "mod": "package",
+      "priority": "P0",
+      "title": "混合入口共享内核/绑定",
+      "preconditions": "Node import核心+require React、反方向；同raw/Computed/storage",
+      "steps": "对比API引用、proxy身份；跨格式订阅/批次/存储/组件；另独立运行原生ESM图",
+      "expected": "Node两个方向共用内核和绑定；原生ESM核心与React配套使用成功；不混用原生ESM与Node桥而要求同内核",
+      "mapping": "A: D-CORE、D-STORAGE、D-REACT",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log",
+        "dist.log",
+        "package-archived.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "PKG-014",
+      "mod": "package",
+      "priority": "P0",
+      "title": "真实tarball与可选依赖隔离",
+      "preconditions": "test:package联网；临时core-only/react18/react19消费者",
+      "steps": "dry-run白名单→实际pack/install→行为和类型；安装前全局window/storage getter抛错；清空NODE_PATH",
+      "expected": "核心无React/DOM/localforage也成功；模块导入不读浏览器全局；React18/19完整行为均通过；包仅dist/README/package/LICENSE，当前90文件",
+      "mapping": "A: PKG",
+      "status": "通过",
+      "actual": "本轮完整主套件及对应类型/产物检查的直接断言通过。按原 A 映射核对；并不据此推定未声明平台或任意参数全部通过。",
+      "logs": [
+        "npm-test.log",
+        "dist.log",
+        "package-archived.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "PKG-015",
+      "mod": "package",
+      "priority": "P1",
+      "title": "README示例与迁移说明可执行",
+      "preconditions": "README核心、装饰器、storage/localforage、RC、Model、两loading示例",
+      "steps": "复制至最小TS/TSX消费者；fetch示例用可控mock；按例操作；核对.value/useReactive名称",
+      "expected": "示例类型及结果与文档一致；无旧computed()/库useState残留；依赖安装说明准确，不进行真实网络业务请求",
+      "mapping": "P: T-LF、D-CORE、D-REACT；需逐个摘录README示例完整复跑",
+      "status": "通过",
+      "actual": "逐段提取 README 的 26 个可执行代码块，严格类型和运行断言全部通过；fetch/localforage 示例用可控夹具。",
+      "logs": [
+        "readme-types.log",
+        "readme-runtime-final.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "PKG-016",
+      "mod": "package",
+      "priority": "P1",
+      "title": "内部API/深导入不可误发布",
+      "preconditions": "六/十九导出列表；stopStorage/toRaw/captureReference等内部符号；exports只有根和/react",
+      "steps": "类型负例导入内部符号；安装包尝试受exports限制的深路径；检查无源码/测试/工作区私有文件入包",
+      "expected": "公共入口不导出内部符号；未声明子路径按Node exports拒绝；包文件遵循白名单，测试文档不进入发布包",
+      "mapping": "P: T-CORE、PKG；补充安装包深路径运行时拒绝断言",
+      "status": "通过",
+      "actual": "真实 tarball 的 require/import 深路径均 ERR_PACKAGE_PATH_NOT_EXPORTED；内部符号未公开，90 文件白名单通过。",
+      "logs": [
+        "package-archived.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "QUAL-001",
+      "mod": "quality",
+      "priority": "P1",
+      "title": "三引擎真实表单与局部更新",
+      "preconditions": "目标Chromium/Firefox/WebKit确切版本；React18/19各一页面；Model/Chip/加载按钮",
+      "steps": "输入中文/emoji、粘贴、IME组合输入；切checkbox/单/多选；数字输入清空；只改Chip A；启动两个任务乱序完成",
+      "expected": "最终model、DOM、回调参数一致；文本不丢/截断，依React事件语义不凭空重复转换；数字空值由显式postValue策略处理；父/兄弟更新符合用例；无非预期warning",
+      "mapping": "M: 真实浏览器交互；留事件序列、录像/截图与console",
+      "status": "未执行",
+      "actual": "三引擎 × React 18/19 × dev/prod 共 12 组常规表单、Unicode/emoji、Chip、乱序 loading 通过。系统级 IME 与真实系统剪贴板粘贴未执行；insertText 仅是自动化文本输入，整行不能算通过。Windows Firefox 启动阻塞，Firefox 结果来自 Linux。",
+      "logs": [
+        "browser-results.json",
+        "browser-results-linux-firefox.json"
+      ],
+      "defects": []
+    },
+    {
+      "id": "QUAL-002",
+      "mod": "quality",
+      "priority": "P1",
+      "title": "原生local/session刷新与边界",
+      "preconditions": "专用同源页面与key；local/session分别写不同值",
+      "steps": "修改后刷新同页；新建独立标签页；关闭对应会话后重新访问；另一页改local",
+      "expected": "同页恢复各自记录；local跨页可读，session按浏览器会话语义隔离；库不自动监听跨标签更新，不期待实时合并",
+      "mapping": "M: 浏览器Storage面板与刷新日志；浏览器复制标签行为须单独记录",
+      "status": "通过",
+      "actual": "原生 local/session 同页刷新、独立新标签、关闭原标签后重开；local 共享且 session 隔离；跨页修改不自动同步内存。",
+      "logs": [
+        "browser-results.json",
+        "browser-results-linux-firefox.json"
+      ],
+      "defects": []
+    },
+    {
+      "id": "QUAL-003",
+      "mod": "quality",
+      "priority": "P1",
+      "title": "浏览器禁止存储/配额/恢复",
+      "preconditions": "专用测试origin；权限阻断或受控抛SecurityError/QuotaExceededError；不写满真实用户空间",
+      "steps": "初始化失败；仍编辑；恢复权限/后端；显式重建或新变化",
+      "expected": "内存持续工作；诊断阶段正确；读失败不立刻覆盖；恢复按公开规则继续；无无限重试/假成功",
+      "mapping": "P: B04、B05；补充真实浏览器策略与配额环境",
+      "status": "通过",
+      "actual": "真实浏览器环境注入 SecurityError / QuotaExceededError，内存可继续编辑，恢复后写入成功；没有实际填满磁盘或修改用户浏览器权限。",
+      "logs": [
+        "browser-results.json",
+        "browser-results-linux-firefox.json"
+      ],
+      "defects": []
+    },
+    {
+      "id": "QUAL-004",
+      "mod": "quality",
+      "priority": "P1",
+      "title": "真实localforage/IndexedDB",
+      "preconditions": "独立数据库、强制IndexedDB驱动，F1包装",
+      "steps": "首次无缓存→编辑→等待adapter完成→刷新恢复；延迟get期间编辑；模拟set拒绝后恢复",
+      "expected": "实际后端为IndexedDB；保存JSON字符串不二次编码；刷新等值；本地优先和单写在途成立；Promise<void>包装正确",
+      "mapping": "P: T-LF、S11、S15；当前只有类型/模拟adapter，真实驱动待执行",
+      "status": "通过",
+      "actual": "强制 asyncStorage/IndexedDB 驱动，保存 JSON 字符串、纯刷新恢复、迟到读取与本地编辑冲突、写失败恢复及 maxActive=1 通过。",
+      "logs": [
+        "browser-results.json",
+        "browser-results-linux-firefox.json"
+      ],
+      "defects": []
+    },
+    {
+      "id": "QUAL-005",
+      "mod": "quality",
+      "priority": "P1",
+      "title": "真浏览器SSR/hydration及请求隔离",
+      "preconditions": "SSR服务每请求新store；A/B不同初值；匹配客户端快照；持久化在hydrate后接入",
+      "steps": "并发请求A/B，hydrate；提交后启用storage；更新/卸载；另做不匹配快照负对照",
+      "expected": "A/B无串数据；匹配快照无hydration警告；SSR无订阅/自动任务；负对照警告归应用初值不一致，不假称库自动解决",
+      "mapping": "P: R14、L16、F27；补充真实服务/浏览器和双请求",
+      "status": "通过",
+      "actual": "Node HTTP SSR 独立 A/B 请求；浏览器等待提交后 hydrate 更新及启用 storage；匹配无错误，不匹配负对照产生预期错误。SSR 夹具为 React 19 的简单 p 元素，18/19 客户端均验证；既有包级 SSR 在各自 React major 内执行。",
+      "logs": [
+        "browser-results.json",
+        "browser-results-linux-firefox.json"
+      ],
+      "defects": []
+    },
+    {
+      "id": "QUAL-006",
+      "mod": "quality",
+      "priority": "P1",
+      "title": "同包跨OS与打包器消费",
+      "preconditions": "同一tarball；Linux Node24，目标macOS；团队实际构建工具固定版本",
+      "steps": "各运行完整基线命令；浏览器production bundle中导入两入口；查看产物解析",
+      "expected": "无路径大小写/扩展名/模块解析问题；浏览器不选Node专用桥；production UI行为一致；无React核心消费者仍可用",
+      "mapping": "M: 归档每环境退出码、构建配置、依赖锁与包散列",
+      "status": "未执行",
+      "actual": "Windows 与 Ubuntu/WSL Node 24 完整基线及安装包测试通过；相同 Windows tarball 在 Linux 消费成功；esbuild 0.28.2 dev/prod 和原生浏览器 ESM 通过。macOS/Safari 未验证，若将它们纳入发布目标仍须追加验收。 本行保守记未执行：Windows/Linux 子项已通过，macOS 子项未完成；不代表已执行环境失败。",
+      "logs": [
+        "linux-test.log",
+        "linux-build.log",
+        "linux-dist.log",
+        "linux-package.log",
+        "linux-tarball-core.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "QUAL-007",
+      "mod": "quality",
+      "priority": "P2",
+      "title": "代理/缓存/通知性能",
+      "preconditions": "固定机器；1k/10k字段，getter计数，10k写",
+      "steps": "计时首proxy、深层首次/重复读；computed连读100k次；batch与不batch各写10k次",
+      "expected": "未读不求值；未失效重复读getter只1次；单effect未batch 10k净写对应10k通知，batch仅1次；无与无关字段订阅规模相同的通知膨胀；记录性能基线",
+      "mapping": "M: Node performance.now与次数断言，按本页门槛评审",
+      "status": "通过",
+      "actual": "3 次预热 + 10 次计时；computed 100k 读取只求值 1 次；10k 写入普通/batch 通知 10000/1；10k 无关订阅只有目标字段 1 次通知。",
+      "logs": [
+        "benchmark-after-1.json",
+        "benchmark-after-2.json",
+        "supplement-core.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "QUAL-008",
+      "mod": "quality",
+      "priority": "P2",
+      "title": "稀疏数组和深层图资源边界",
+      "preconditions": "length=1e9、自有索引3个；深度100/1000对象，禁止序列化超大稀疏数组",
+      "steps": "核心数组length缩短；只对可控小体积图存储；逐级读取深层对象",
+      "expected": "核心截断与真实索引数关联，不遍历1e9孔洞；无异常长阻塞；深度结果如实记录；不推导无限深JSON能力",
+      "mapping": "P: N40；补充规模/耗时和递增深度资源观察",
+      "status": "通过",
+      "actual": "length=1e9、3 个自有索引截断通过；深度 100/1000 代理与 JSON 存储通过，未推导无限深度支持。",
+      "logs": [
+        "benchmark-after-2.json"
+      ],
+      "defects": []
+    },
+    {
+      "id": "QUAL-009",
+      "mod": "quality",
+      "priority": "P1",
+      "title": "存储扫描/等待队列有界",
+      "preconditions": "1k/10k字段，5轮每轮10k编辑；set一直pending至轮末",
+      "steps": "同步batch、未batch、异步在途分别测；轮末完成请求",
+      "expected": "同绑定maxActive=1；异步等待只留最终快照，未因1万次编辑积累1万次set；最后磁盘等最新JSON；扫描耗时/输出大小独立记录",
+      "mapping": "P: S15、S16；补充高频压力和堆/队列有界证据",
+      "status": "通过",
+      "actual": "1k/10k 字段 × 同步批量/同步逐次/异步在途 × 5 轮，每轮 10k 编辑；写入数 1/10000/2，异步 maxActive=1，最终 JSON 正确。",
+      "logs": [
+        "resources.json"
+      ],
+      "defects": []
+    },
+    {
+      "id": "QUAL-010",
+      "mod": "quality",
+      "priority": "P1",
+      "title": "stop/unmount长期订阅清理",
+      "preconditions": "预热；1,000轮创建/停止effect/watch及挂载/卸载RC/Chip/Model/loading；每轮完成deferred",
+      "steps": "每轮结束再写旧源/调旧handler；每100轮记录计数和堆",
+      "expected": "停止后回调0、卸载后库发布0；新实例正常；无随轮数增加的活跃监听；若堆增长检查保留链后再判泄漏",
+      "mapping": "M: N70；生命周期循环脚本、业务计数、至少3次堆快照对比；派生回收与活动订阅对照见 derived-lifecycle.mjs",
+      "status": "通过",
+      "actual": "1000 轮 effect/watch 创建与停止、React 19 源码和 React 18 实际包各 1000 轮 RC/Chip/Model/loading 挂载卸载通过；各存 3 份堆快照。独立 derived GC 套件 ESM/CJS 各 9 项通过，D02 未复现。堆大小仅作诊断，不构成绝对无泄漏证明。",
+      "logs": [
+        "supplement-react.log",
+        "supplement-react18.log",
+        "gc-esm.log",
+        "gc-cjs.log",
+        "memory.json"
+      ],
+      "defects": []
+    },
+    {
+      "id": "QUAL-011",
+      "mod": "quality",
+      "priority": "P2",
+      "title": "storage弱引用/共享子图回收",
+      "preconditions": "两组：丢弃根但保留共享child；丢弃根且I/O最终完成；测试不得保留根于日志/数组",
+      "steps": "循环创建不同key的root、丢弃引用；完成I/O；诊断环境允许时触发GC、抓堆",
+      "expected": "不以单次未GC判失败；若控制器经长期强引用不可回收则报泄漏，保留链可复现；不得依赖FinalizationRegistry触发保证正确性",
+      "mapping": "M: Node --expose-gc诊断或浏览器堆；仅测试弱引用生命周期",
+      "status": "通过",
+      "actual": "两组各 1000 个 storage 根：共享 child 保留/异步 I/O 完成后，多轮 GC 均 0 根存活；仅作诊断证据，不承诺 GC 时限。",
+      "logs": [
+        "memory.json",
+        "heap-canaries.json"
+      ],
+      "defects": []
+    },
+    {
+      "id": "QUAL-012",
+      "mod": "quality",
+      "priority": "P1",
+      "title": "固定种子属性/批次模型测试",
+      "preconditions": "种子1～100，每种子1,000步；操作set/delete/nested batch；数据限纯标量/简单数组",
+      "steps": "普通JS模型与proxy执行同操作；每外层批次保存前后自有描述符；读固定字段的effect记录",
+      "expected": "终态与JS模型一致；按Object.is/存在性预测通知；同批回退零通知；失败保存seed/序列，缩减最小复现；不让预测模型调用库内部函数",
+      "mapping": "M: 新增独立模型脚本后执行；目前未实现此随机套件",
+      "status": "通过",
+      "actual": "种子 1～100 × 1000 外层批次，实际 300040 个 set/delete 操作，嵌套 batch、NaN、±0、属性存在性及简单数组全部与独立 JS 模型一致。",
+      "logs": [
+        "supplement-core.log",
+        "derived-model.json"
+      ],
+      "defects": []
+    },
+    {
+      "id": "QUAL-013",
+      "mod": "quality",
+      "priority": "P0",
+      "title": "数据污染/异常后可恢复的组合",
+      "preconditions": "初值含合法数据；缓存根/嵌套/数组元素注入三危险键；日志收集器可抛",
+      "steps": "对编码/解码矩阵执行，再换合法数据和正常logger；执行其他store与effect",
+      "expected": "原型不变、好记录未被坏快照覆盖、无半恢复；修复后保存/通知；一个store失败不影响另一个；诊断不主动附完整状态",
+      "mapping": "P: S19、S20、S21、S23；补充完整三键方向组合及多store对照",
+      "status": "通过",
+      "actual": "18 组危险键编码/解码与继承 setter、会抛错的 logger，修复后正常保存；多 store 错误隔离对照通过。",
+      "logs": [
+        "supplement-core.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "QUAL-014",
+      "mod": "quality",
+      "priority": "P0",
+      "title": "用户完整编辑/加载/持久化链路",
+      "preconditions": "外部storage{name:'A',count:1}；RC显示computed double；Model编辑name；useWatch派生mirror；useLoading加载数据",
+      "steps": "改name为中文；batch count2→3；两load乱序成功/失败；等adapter落盘后重载；卸载后改外部store",
+      "expected": "名称/3/6及mirror、回调旧值正确；加载数归零；最终JSON等内存投影；重载恢复；卸载只停UI；不自动套用“最后请求胜出”业务规则",
+      "mapping": "P: F01、F02、F13；补充多模块完整链路与重载",
+      "status": "通过",
+      "actual": "Model 中文编辑、watch mirror、count 2→3 / computed 6、两任务乱序成功/失败、落盘重载和卸载后继续持久化通过。",
+      "logs": [
+        "supplement-react.log",
+        "supplement-react18.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "QUAL-015",
+      "mod": "quality",
+      "priority": "P1",
+      "title": "失败隔离与后续连续运行",
+      "preconditions": "多store、多RC、多个watch；故障仅作用于一个adapter/一个callback",
+      "steps": "连续50轮注入错误→捕获→修复；其他实例每轮持续写入",
+      "expected": "原错误/聚合顺序可定位，无未处理拒绝；正常实例没有漏更新；失败实例修复后可恢复；无跨实例状态污染",
+      "mapping": "P: N12、S20、L08；补充反复故障及并行消费者组合",
+      "status": "通过",
+      "actual": "50 轮 adapter/watch 错误与恢复，以及 React 18/19 多 RC 与多 watch 并行对照；正常实例无漏更新，原 callback 错误保真。",
+      "logs": [
+        "supplement-core.log",
+        "supplement-react.log",
+        "supplement-react18.log"
+      ],
+      "defects": []
+    },
+    {
+      "id": "QUAL-016",
+      "mod": "quality",
+      "priority": "P2",
+      "title": "文档与交付可复现",
+      "preconditions": "一名未参与开发的测试人员，干净Node24环境，仅本交付包",
+      "steps": "按计划装依赖、跑自动化、定位一个失败和一个P/M用例、填报告；运行validate-docs",
+      "expected": "无需口头补充即可定位源测试/预期/命令；链接有效、ID唯一、181项均映射；缺信息登记文档缺陷；不把P/M当自动通过",
+      "mapping": "M: 独立交付演练及文档校验日志",
+      "status": "未执行",
+      "actual": "validate-docs 通过；Linux 隔离 npm ci 和 tarball 消费通过。计划要求未参与开发的测试人员进行独立交付演练，该人工验收未执行。",
+      "logs": [
+        "docs.log",
+        "linux-ci.log"
+      ],
+      "defects": []
+    }
+  ],
+  "defects": [
+    {
+      "id": "D04",
+      "severity": "S1",
+      "status": "confirmed-open",
+      "title": "Failed partial array truncation drops real change notifications",
+      "source": "src/reactive.ts",
+      "line": 157
+    }
+  ],
+  "benchmarkFlagged": [],
+  "derivedFlagged": [
+    "single",
+    "shared-100",
+    "shared-1000"
+  ],
+  "browser": [
+    {
+      "engine": "chromium",
+      "browserVersion": "151.0.7922.34",
+      "major": 18,
+      "mode": "development",
+      "status": "passed",
+      "checks": [
+        "native-form-input-checkbox-select-multiple-number",
+        "chip-isolation",
+        "loading-out-of-order-success-failure",
+        "storage-reload-cross-tab-session-isolation-no-auto-sync",
+        "controlled-browser-security-quota-recovery",
+        "forced-IndexedDB-read-local-conflict-write-failure-recovery",
+        "SSR-two-request-fixtures-matching-hydrate-and-negative-control",
+        "cross-realm-proxy-nested-class-builtins-storage-asserted",
+        "native-browser-ESM-core",
+        "closed-session-new-tab"
+      ],
+      "console": [
+        {
+          "type": "warning",
+          "text": "@canlooks/reactive storage failed {name: data, phase: set, error: Error: qa-set-failure\n    at Object.setItem (http://127.0.0.1:58598/bundle.js?variant=18-developmen…}",
+          "phase": "input"
+        },
+        {
+          "type": "error",
+          "text": "Warning: Text content did not match. Server: \"%s\" Client: \"%s\"%s 请求A 不同快照 \n    at p\n    at ObserverComponent (http://127.0.0.1:58598/bundle.js?variant=18-development:27395:51)",
+          "phase": "hydration-negative"
+        },
+        {
+          "type": "error",
+          "text": "Warning: An error occurred during hydration. The server HTML was replaced with client content in <%s>. div",
+          "phase": "hydration-negative"
+        }
+      ],
+      "errors": [],
+      "phase": "after-hydration",
+      "ssrResponses": [
+        "<p>请求A</p>",
+        "<p>请求B</p>"
+      ],
+      "reactVersion": "18.3.1",
+      "afterFill": {
+        "model": "中文😀",
+        "dom": "中文😀"
+      },
+      "indexedDB": {
+        "driver": "asyncStorage",
+        "disk": "{\"n\":14}",
+        "state": 14,
+        "maxActive": 1,
+        "io": [
+          {
+            "kind": "get",
+            "status": "ok"
+          },
+          {
+            "kind": "set",
+            "status": "ok"
+          },
+          {
+            "kind": "set",
+            "status": "failed"
+          },
+          {
+            "kind": "set",
+            "status": "ok"
+          }
+        ]
+      },
+      "hydrationNegativeErrors": [
+        "Error: Text content does not match server-rendered HTML.",
+        "Error: There was an error while hydrating. Because the error happened outside of a Suspense boundary, the entire root will switch to client rendering."
+      ],
+      "crossRealm": {
+        "isRaw": false,
+        "seen": [
+          0,
+          1
+        ],
+        "nested": [
+          [
+            0,
+            0,
+            1
+          ],
+          [
+            1,
+            1,
+            2
+          ]
+        ],
+        "classValues": [
+          2,
+          4
+        ],
+        "builtins": 9,
+        "storageWrites": [
+          "{\"child\":{\"n\":2},\"n\":3}"
+        ],
+        "accessorCalls": 0,
+        "rejected": 10
+      },
+      "nativeESM": {
+        "keys": [
+          "batch",
+          "computed",
+          "effect",
+          "reactive",
+          "storage",
+          "watch"
+        ],
+        "seen": [
+          0,
+          1
+        ]
+      },
+      "events": []
+    },
+    {
+      "engine": "chromium",
+      "browserVersion": "151.0.7922.34",
+      "major": 18,
+      "mode": "production",
+      "status": "passed",
+      "checks": [
+        "native-form-input-checkbox-select-multiple-number",
+        "chip-isolation",
+        "loading-out-of-order-success-failure",
+        "storage-reload-cross-tab-session-isolation-no-auto-sync",
+        "controlled-browser-security-quota-recovery",
+        "forced-IndexedDB-read-local-conflict-write-failure-recovery",
+        "SSR-two-request-fixtures-matching-hydrate-and-negative-control",
+        "cross-realm-proxy-nested-class-builtins-storage-asserted",
+        "native-browser-ESM-core",
+        "closed-session-new-tab"
+      ],
+      "console": [
+        {
+          "type": "warning",
+          "text": "@canlooks/reactive storage failed {name: data, phase: set, error: Error: qa-set-failure\n    at Object.setItem (http://127.0.0.1:58598/bundle.js?variant=18-production…}",
+          "phase": "input"
+        }
+      ],
+      "errors": [],
+      "phase": "after-hydration",
+      "ssrResponses": [
+        "<p>请求A</p>",
+        "<p>请求B</p>"
+      ],
+      "reactVersion": "18.3.1",
+      "afterFill": {
+        "model": "中文😀",
+        "dom": "中文😀"
+      },
+      "indexedDB": {
+        "driver": "asyncStorage",
+        "disk": "{\"n\":14}",
+        "state": 14,
+        "maxActive": 1,
+        "io": [
+          {
+            "kind": "get",
+            "status": "ok"
+          },
+          {
+            "kind": "set",
+            "status": "ok"
+          },
+          {
+            "kind": "set",
+            "status": "failed"
+          },
+          {
+            "kind": "set",
+            "status": "ok"
+          }
+        ]
+      },
+      "hydrationNegativeErrors": [
+        "Error: Minified React error #425; visit https://reactjs.org/docs/error-decoder.html?invariant=425 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.",
+        "Error: Minified React error #423; visit https://reactjs.org/docs/error-decoder.html?invariant=423 for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      ],
+      "crossRealm": {
+        "isRaw": false,
+        "seen": [
+          0,
+          1
+        ],
+        "nested": [
+          [
+            0,
+            0,
+            1
+          ],
+          [
+            1,
+            1,
+            2
+          ]
+        ],
+        "classValues": [
+          2,
+          4
+        ],
+        "builtins": 9,
+        "storageWrites": [
+          "{\"child\":{\"n\":2},\"n\":3}"
+        ],
+        "accessorCalls": 0,
+        "rejected": 10
+      },
+      "nativeESM": {
+        "keys": [
+          "batch",
+          "computed",
+          "effect",
+          "reactive",
+          "storage",
+          "watch"
+        ],
+        "seen": [
+          0,
+          1
+        ]
+      },
+      "events": []
+    },
+    {
+      "engine": "chromium",
+      "browserVersion": "151.0.7922.34",
+      "major": 19,
+      "mode": "development",
+      "status": "passed",
+      "checks": [
+        "native-form-input-checkbox-select-multiple-number",
+        "chip-isolation",
+        "loading-out-of-order-success-failure",
+        "storage-reload-cross-tab-session-isolation-no-auto-sync",
+        "controlled-browser-security-quota-recovery",
+        "forced-IndexedDB-read-local-conflict-write-failure-recovery",
+        "SSR-two-request-fixtures-matching-hydrate-and-negative-control",
+        "cross-realm-proxy-nested-class-builtins-storage-asserted",
+        "native-browser-ESM-core",
+        "closed-session-new-tab"
+      ],
+      "console": [
+        {
+          "type": "warning",
+          "text": "@canlooks/reactive storage failed {name: data, phase: set, error: Error: qa-set-failure\n    at Object.setItem (http://127.0.0.1:58598/bundle.js?variant=19-developmen…}",
+          "phase": "input"
+        }
+      ],
+      "errors": [],
+      "phase": "after-hydration",
+      "ssrResponses": [
+        "<p>请求A</p>",
+        "<p>请求B</p>"
+      ],
+      "reactVersion": "19.3.0",
+      "afterFill": {
+        "model": "中文😀",
+        "dom": "中文😀"
+      },
+      "indexedDB": {
+        "driver": "asyncStorage",
+        "disk": "{\"n\":14}",
+        "state": 14,
+        "maxActive": 1,
+        "io": [
+          {
+            "kind": "get",
+            "status": "ok"
+          },
+          {
+            "kind": "set",
+            "status": "ok"
+          },
+          {
+            "kind": "set",
+            "status": "failed"
+          },
+          {
+            "kind": "set",
+            "status": "ok"
+          }
+        ]
+      },
+      "hydrationNegativeErrors": [
+        "Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:\n\n- A server/client branch `if (typeof window !== 'undefined')`.\n- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.\n- Date formatting in a user's locale which doesn't match the server.\n- External changing data without sending a snapshot of it along with the HTML.\n- Invalid HTML tag nesting.\n\nIt can also happen if the client has a browser extension installed which messes with the HTML before React loaded.\n\nhttps://react.dev/link/hydration-mismatch\n\n  <Reactive(Component)>\n    <p>\n+     不同快照\n-     请求A\n"
+      ],
+      "crossRealm": {
+        "isRaw": false,
+        "seen": [
+          0,
+          1
+        ],
+        "nested": [
+          [
+            0,
+            0,
+            1
+          ],
+          [
+            1,
+            1,
+            2
+          ]
+        ],
+        "classValues": [
+          2,
+          4
+        ],
+        "builtins": 9,
+        "storageWrites": [
+          "{\"child\":{\"n\":2},\"n\":3}"
+        ],
+        "accessorCalls": 0,
+        "rejected": 10
+      },
+      "nativeESM": {
+        "keys": [
+          "batch",
+          "computed",
+          "effect",
+          "reactive",
+          "storage",
+          "watch"
+        ],
+        "seen": [
+          0,
+          1
+        ]
+      },
+      "events": []
+    },
+    {
+      "engine": "chromium",
+      "browserVersion": "151.0.7922.34",
+      "major": 19,
+      "mode": "production",
+      "status": "passed",
+      "checks": [
+        "native-form-input-checkbox-select-multiple-number",
+        "chip-isolation",
+        "loading-out-of-order-success-failure",
+        "storage-reload-cross-tab-session-isolation-no-auto-sync",
+        "controlled-browser-security-quota-recovery",
+        "forced-IndexedDB-read-local-conflict-write-failure-recovery",
+        "SSR-two-request-fixtures-matching-hydrate-and-negative-control",
+        "cross-realm-proxy-nested-class-builtins-storage-asserted",
+        "native-browser-ESM-core",
+        "closed-session-new-tab"
+      ],
+      "console": [
+        {
+          "type": "warning",
+          "text": "@canlooks/reactive storage failed {name: data, phase: set, error: Error: qa-set-failure\n    at Object.setItem (http://127.0.0.1:58598/bundle.js?variant=19-production…}",
+          "phase": "input"
+        }
+      ],
+      "errors": [],
+      "phase": "after-hydration",
+      "ssrResponses": [
+        "<p>请求A</p>",
+        "<p>请求B</p>"
+      ],
+      "reactVersion": "19.3.0",
+      "afterFill": {
+        "model": "中文😀",
+        "dom": "中文😀"
+      },
+      "indexedDB": {
+        "driver": "asyncStorage",
+        "disk": "{\"n\":14}",
+        "state": 14,
+        "maxActive": 1,
+        "io": [
+          {
+            "kind": "get",
+            "status": "ok"
+          },
+          {
+            "kind": "set",
+            "status": "ok"
+          },
+          {
+            "kind": "set",
+            "status": "failed"
+          },
+          {
+            "kind": "set",
+            "status": "ok"
+          }
+        ]
+      },
+      "hydrationNegativeErrors": [
+        "Error: Minified React error #418; visit https://react.dev/errors/418?args[]=text&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      ],
+      "crossRealm": {
+        "isRaw": false,
+        "seen": [
+          0,
+          1
+        ],
+        "nested": [
+          [
+            0,
+            0,
+            1
+          ],
+          [
+            1,
+            1,
+            2
+          ]
+        ],
+        "classValues": [
+          2,
+          4
+        ],
+        "builtins": 9,
+        "storageWrites": [
+          "{\"child\":{\"n\":2},\"n\":3}"
+        ],
+        "accessorCalls": 0,
+        "rejected": 10
+      },
+      "nativeESM": {
+        "keys": [
+          "batch",
+          "computed",
+          "effect",
+          "reactive",
+          "storage",
+          "watch"
+        ],
+        "seen": [
+          0,
+          1
+        ]
+      },
+      "events": []
+    },
+    {
+      "engine": "firefox",
+      "status": "blocked",
+      "error": "Error: browserType.launch: spawn UNKNOWN\nCall log:\n  - <launching> C:\\Users\\Administrator\\AppData\\Local\\ms-playwright\\firefox-1538\\firefox\\firefox.exe -no-remote -headless -profile C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\playwright_firefoxdev_profile-VP3sdu -juggler-pipe -silent\n"
+    },
+    {
+      "engine": "webkit",
+      "browserVersion": "26.5",
+      "major": 18,
+      "mode": "development",
+      "status": "passed",
+      "checks": [
+        "native-form-input-checkbox-select-multiple-number",
+        "chip-isolation",
+        "loading-out-of-order-success-failure",
+        "storage-reload-cross-tab-session-isolation-no-auto-sync",
+        "controlled-browser-security-quota-recovery",
+        "forced-IndexedDB-read-local-conflict-write-failure-recovery",
+        "SSR-two-request-fixtures-matching-hydrate-and-negative-control",
+        "cross-realm-proxy-nested-class-builtins-storage-asserted",
+        "native-browser-ESM-core",
+        "closed-session-new-tab"
+      ],
+      "console": [
+        {
+          "type": "warning",
+          "text": "@canlooks/reactive storage failed {name: data, phase: set, error: Error: qa-set-failure}",
+          "phase": "input"
+        },
+        {
+          "type": "error",
+          "text": "Warning: Text content did not match. Server: \"%s\" Client: \"%s\"%s 请求A 不同快照 \np\nReactive(Component)@http://127.0.0.1:58598/bundle.js:27395:51",
+          "phase": "hydration-negative"
+        },
+        {
+          "type": "error",
+          "text": "Warning: An error occurred during hydration. The server HTML was replaced with client content in <%s>. div",
+          "phase": "hydration-negative"
+        }
+      ],
+      "errors": [],
+      "phase": "after-hydration",
+      "ssrResponses": [
+        "<p>请求A</p>",
+        "<p>请求B</p>"
+      ],
+      "reactVersion": "18.3.1",
+      "afterFill": {
+        "model": "中文😀",
+        "dom": "中文😀"
+      },
+      "indexedDB": {
+        "driver": "asyncStorage",
+        "disk": "{\"n\":14}",
+        "state": 14,
+        "maxActive": 1,
+        "io": [
+          {
+            "kind": "get",
+            "status": "ok"
+          },
+          {
+            "kind": "set",
+            "status": "ok"
+          },
+          {
+            "kind": "set",
+            "status": "failed"
+          },
+          {
+            "kind": "set",
+            "status": "ok"
+          }
+        ]
+      },
+      "hydrationNegativeErrors": [
+        "Error: Text content does not match server-rendered HTML.",
+        "Error: There was an error while hydrating. Because the error happened outside of a Suspense boundary, the entire root will switch to client rendering."
+      ],
+      "crossRealm": {
+        "isRaw": false,
+        "seen": [
+          0,
+          1
+        ],
+        "nested": [
+          [
+            0,
+            0,
+            1
+          ],
+          [
+            1,
+            1,
+            2
+          ]
+        ],
+        "classValues": [
+          2,
+          4
+        ],
+        "builtins": 9,
+        "storageWrites": [
+          "{\"child\":{\"n\":2},\"n\":3}"
+        ],
+        "accessorCalls": 0,
+        "rejected": 10
+      },
+      "nativeESM": {
+        "keys": [
+          "batch",
+          "computed",
+          "effect",
+          "reactive",
+          "storage",
+          "watch"
+        ],
+        "seen": [
+          0,
+          1
+        ]
+      },
+      "events": []
+    },
+    {
+      "engine": "webkit",
+      "browserVersion": "26.5",
+      "major": 18,
+      "mode": "production",
+      "status": "passed",
+      "checks": [
+        "native-form-input-checkbox-select-multiple-number",
+        "chip-isolation",
+        "loading-out-of-order-success-failure",
+        "storage-reload-cross-tab-session-isolation-no-auto-sync",
+        "controlled-browser-security-quota-recovery",
+        "forced-IndexedDB-read-local-conflict-write-failure-recovery",
+        "SSR-two-request-fixtures-matching-hydrate-and-negative-control",
+        "cross-realm-proxy-nested-class-builtins-storage-asserted",
+        "native-browser-ESM-core",
+        "closed-session-new-tab"
+      ],
+      "console": [
+        {
+          "type": "warning",
+          "text": "@canlooks/reactive storage failed {name: data, phase: set, error: Error: qa-set-failure}",
+          "phase": "input"
+        }
+      ],
+      "errors": [],
+      "phase": "after-hydration",
+      "ssrResponses": [
+        "<p>请求A</p>",
+        "<p>请求B</p>"
+      ],
+      "reactVersion": "18.3.1",
+      "afterFill": {
+        "model": "中文😀",
+        "dom": "中文😀"
+      },
+      "indexedDB": {
+        "driver": "asyncStorage",
+        "disk": "{\"n\":14}",
+        "state": 14,
+        "maxActive": 1,
+        "io": [
+          {
+            "kind": "get",
+            "status": "ok"
+          },
+          {
+            "kind": "set",
+            "status": "ok"
+          },
+          {
+            "kind": "set",
+            "status": "failed"
+          },
+          {
+            "kind": "set",
+            "status": "ok"
+          }
+        ]
+      },
+      "hydrationNegativeErrors": [
+        "Error: Minified React error #425; visit https://reactjs.org/docs/error-decoder.html?invariant=425 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.",
+        "Error: Minified React error #423; visit https://reactjs.org/docs/error-decoder.html?invariant=423 for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      ],
+      "crossRealm": {
+        "isRaw": false,
+        "seen": [
+          0,
+          1
+        ],
+        "nested": [
+          [
+            0,
+            0,
+            1
+          ],
+          [
+            1,
+            1,
+            2
+          ]
+        ],
+        "classValues": [
+          2,
+          4
+        ],
+        "builtins": 9,
+        "storageWrites": [
+          "{\"child\":{\"n\":2},\"n\":3}"
+        ],
+        "accessorCalls": 0,
+        "rejected": 10
+      },
+      "nativeESM": {
+        "keys": [
+          "batch",
+          "computed",
+          "effect",
+          "reactive",
+          "storage",
+          "watch"
+        ],
+        "seen": [
+          0,
+          1
+        ]
+      },
+      "events": []
+    },
+    {
+      "engine": "webkit",
+      "browserVersion": "26.5",
+      "major": 19,
+      "mode": "development",
+      "status": "passed",
+      "checks": [
+        "native-form-input-checkbox-select-multiple-number",
+        "chip-isolation",
+        "loading-out-of-order-success-failure",
+        "storage-reload-cross-tab-session-isolation-no-auto-sync",
+        "controlled-browser-security-quota-recovery",
+        "forced-IndexedDB-read-local-conflict-write-failure-recovery",
+        "SSR-two-request-fixtures-matching-hydrate-and-negative-control",
+        "cross-realm-proxy-nested-class-builtins-storage-asserted",
+        "native-browser-ESM-core",
+        "closed-session-new-tab"
+      ],
+      "console": [
+        {
+          "type": "warning",
+          "text": "@canlooks/reactive storage failed {name: data, phase: set, error: Error: qa-set-failure}",
+          "phase": "input"
+        }
+      ],
+      "errors": [],
+      "phase": "after-hydration",
+      "ssrResponses": [
+        "<p>请求A</p>",
+        "<p>请求B</p>"
+      ],
+      "reactVersion": "19.3.0",
+      "afterFill": {
+        "model": "中文😀",
+        "dom": "中文😀"
+      },
+      "indexedDB": {
+        "driver": "asyncStorage",
+        "disk": "{\"n\":14}",
+        "state": 14,
+        "maxActive": 1,
+        "io": [
+          {
+            "kind": "get",
+            "status": "ok"
+          },
+          {
+            "kind": "set",
+            "status": "ok"
+          },
+          {
+            "kind": "set",
+            "status": "failed"
+          },
+          {
+            "kind": "set",
+            "status": "ok"
+          }
+        ]
+      },
+      "hydrationNegativeErrors": [
+        "Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:\n\n- A server/client branch `if (typeof window !== 'undefined')`.\n- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.\n- Date formatting in a user's locale which doesn't match the server.\n- External changing data without sending a snapshot of it along with the HTML.\n- Invalid HTML tag nesting.\n\nIt can also happen if the client has a browser extension installed which messes with the HTML before React loaded.\n\nhttps://react.dev/link/hydration-mismatch\n\n  <Reactive(Component)>\n    <p>\n+     不同快照\n-     请求A\n"
+      ],
+      "crossRealm": {
+        "isRaw": false,
+        "seen": [
+          0,
+          1
+        ],
+        "nested": [
+          [
+            0,
+            0,
+            1
+          ],
+          [
+            1,
+            1,
+            2
+          ]
+        ],
+        "classValues": [
+          2,
+          4
+        ],
+        "builtins": 9,
+        "storageWrites": [
+          "{\"child\":{\"n\":2},\"n\":3}"
+        ],
+        "accessorCalls": 0,
+        "rejected": 10
+      },
+      "nativeESM": {
+        "keys": [
+          "batch",
+          "computed",
+          "effect",
+          "reactive",
+          "storage",
+          "watch"
+        ],
+        "seen": [
+          0,
+          1
+        ]
+      },
+      "events": []
+    },
+    {
+      "engine": "webkit",
+      "browserVersion": "26.5",
+      "major": 19,
+      "mode": "production",
+      "status": "passed",
+      "checks": [
+        "native-form-input-checkbox-select-multiple-number",
+        "chip-isolation",
+        "loading-out-of-order-success-failure",
+        "storage-reload-cross-tab-session-isolation-no-auto-sync",
+        "controlled-browser-security-quota-recovery",
+        "forced-IndexedDB-read-local-conflict-write-failure-recovery",
+        "SSR-two-request-fixtures-matching-hydrate-and-negative-control",
+        "cross-realm-proxy-nested-class-builtins-storage-asserted",
+        "native-browser-ESM-core",
+        "closed-session-new-tab"
+      ],
+      "console": [
+        {
+          "type": "warning",
+          "text": "@canlooks/reactive storage failed {name: data, phase: set, error: Error: qa-set-failure}",
+          "phase": "input"
+        }
+      ],
+      "errors": [],
+      "phase": "after-hydration",
+      "ssrResponses": [
+        "<p>请求A</p>",
+        "<p>请求B</p>"
+      ],
+      "reactVersion": "19.3.0",
+      "afterFill": {
+        "model": "中文😀",
+        "dom": "中文😀"
+      },
+      "indexedDB": {
+        "driver": "asyncStorage",
+        "disk": "{\"n\":14}",
+        "state": 14,
+        "maxActive": 1,
+        "io": [
+          {
+            "kind": "get",
+            "status": "ok"
+          },
+          {
+            "kind": "set",
+            "status": "ok"
+          },
+          {
+            "kind": "set",
+            "status": "failed"
+          },
+          {
+            "kind": "set",
+            "status": "ok"
+          }
+        ]
+      },
+      "hydrationNegativeErrors": [
+        "Error: Minified React error #418; visit https://react.dev/errors/418?args[]=text&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      ],
+      "crossRealm": {
+        "isRaw": false,
+        "seen": [
+          0,
+          1
+        ],
+        "nested": [
+          [
+            0,
+            0,
+            1
+          ],
+          [
+            1,
+            1,
+            2
+          ]
+        ],
+        "classValues": [
+          2,
+          4
+        ],
+        "builtins": 9,
+        "storageWrites": [
+          "{\"child\":{\"n\":2},\"n\":3}"
+        ],
+        "accessorCalls": 0,
+        "rejected": 10
+      },
+      "nativeESM": {
+        "keys": [
+          "batch",
+          "computed",
+          "effect",
+          "reactive",
+          "storage",
+          "watch"
+        ],
+        "seen": [
+          0,
+          1
+        ]
+      },
+      "events": []
+    },
+    {
+      "engine": "firefox",
+      "browserVersion": "153.0",
+      "major": 18,
+      "mode": "development",
+      "status": "passed",
+      "checks": [
+        "native-form-input-checkbox-select-multiple-number",
+        "chip-isolation",
+        "loading-out-of-order-success-failure",
+        "storage-reload-cross-tab-session-isolation-no-auto-sync",
+        "controlled-browser-security-quota-recovery",
+        "forced-IndexedDB-read-local-conflict-write-failure-recovery",
+        "SSR-two-request-fixtures-matching-hydrate-and-negative-control",
+        "cross-realm-proxy-nested-class-builtins-storage-asserted",
+        "native-browser-ESM-core",
+        "closed-session-new-tab"
+      ],
+      "console": [
+        {
+          "type": "warning",
+          "text": "@canlooks/reactive storage failed JSHandle@object",
+          "phase": "input"
+        },
+        {
+          "type": "error",
+          "text": "Warning: Text content did not match. Server: \"请求A\" Client: \"不同快照\"\np\nObserverComponent@http://127.0.0.1:38221/bundle.js?variant=18-development:27395:51",
+          "phase": "hydration-negative"
+        },
+        {
+          "type": "error",
+          "text": "Warning: An error occurred during hydration. The server HTML was replaced with client content in <div>.",
+          "phase": "hydration-negative"
+        }
+      ],
+      "errors": [],
+      "phase": "after-hydration",
+      "ssrResponses": [
+        "<p>请求A</p>",
+        "<p>请求B</p>"
+      ],
+      "reactVersion": "18.3.1",
+      "afterFill": {
+        "model": "中文😀",
+        "dom": "中文😀"
+      },
+      "indexedDB": {
+        "driver": "asyncStorage",
+        "disk": "{\"n\":14}",
+        "state": 14,
+        "maxActive": 1,
+        "io": [
+          {
+            "kind": "get",
+            "status": "ok"
+          },
+          {
+            "kind": "set",
+            "status": "ok"
+          },
+          {
+            "kind": "set",
+            "status": "failed"
+          },
+          {
+            "kind": "set",
+            "status": "ok"
+          }
+        ]
+      },
+      "hydrationNegativeErrors": [
+        "Error: Text content does not match server-rendered HTML.",
+        "Error: There was an error while hydrating. Because the error happened outside of a Suspense boundary, the entire root will switch to client rendering."
+      ],
+      "crossRealm": {
+        "isRaw": false,
+        "seen": [
+          0,
+          1
+        ],
+        "nested": [
+          [
+            0,
+            0,
+            1
+          ],
+          [
+            1,
+            1,
+            2
+          ]
+        ],
+        "classValues": [
+          2,
+          4
+        ],
+        "builtins": 9,
+        "storageWrites": [
+          "{\"child\":{\"n\":2},\"n\":3}"
+        ],
+        "accessorCalls": 0,
+        "rejected": 10
+      },
+      "nativeESM": {
+        "keys": [
+          "batch",
+          "computed",
+          "effect",
+          "reactive",
+          "storage",
+          "watch"
+        ],
+        "seen": [
+          0,
+          1
+        ]
+      },
+      "events": []
+    },
+    {
+      "engine": "firefox",
+      "browserVersion": "153.0",
+      "major": 18,
+      "mode": "production",
+      "status": "passed",
+      "checks": [
+        "native-form-input-checkbox-select-multiple-number",
+        "chip-isolation",
+        "loading-out-of-order-success-failure",
+        "storage-reload-cross-tab-session-isolation-no-auto-sync",
+        "controlled-browser-security-quota-recovery",
+        "forced-IndexedDB-read-local-conflict-write-failure-recovery",
+        "SSR-two-request-fixtures-matching-hydrate-and-negative-control",
+        "cross-realm-proxy-nested-class-builtins-storage-asserted",
+        "native-browser-ESM-core",
+        "closed-session-new-tab"
+      ],
+      "console": [
+        {
+          "type": "warning",
+          "text": "@canlooks/reactive storage failed JSHandle@object",
+          "phase": "input"
+        }
+      ],
+      "errors": [],
+      "phase": "after-hydration",
+      "ssrResponses": [
+        "<p>请求A</p>",
+        "<p>请求B</p>"
+      ],
+      "reactVersion": "18.3.1",
+      "afterFill": {
+        "model": "中文😀",
+        "dom": "中文😀"
+      },
+      "indexedDB": {
+        "driver": "asyncStorage",
+        "disk": "{\"n\":14}",
+        "state": 14,
+        "maxActive": 1,
+        "io": [
+          {
+            "kind": "get",
+            "status": "ok"
+          },
+          {
+            "kind": "set",
+            "status": "ok"
+          },
+          {
+            "kind": "set",
+            "status": "failed"
+          },
+          {
+            "kind": "set",
+            "status": "ok"
+          }
+        ]
+      },
+      "hydrationNegativeErrors": [
+        "Error: Minified React error #425; visit https://reactjs.org/docs/error-decoder.html?invariant=425 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.",
+        "Error: Minified React error #423; visit https://reactjs.org/docs/error-decoder.html?invariant=423 for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      ],
+      "crossRealm": {
+        "isRaw": false,
+        "seen": [
+          0,
+          1
+        ],
+        "nested": [
+          [
+            0,
+            0,
+            1
+          ],
+          [
+            1,
+            1,
+            2
+          ]
+        ],
+        "classValues": [
+          2,
+          4
+        ],
+        "builtins": 9,
+        "storageWrites": [
+          "{\"child\":{\"n\":2},\"n\":3}"
+        ],
+        "accessorCalls": 0,
+        "rejected": 10
+      },
+      "nativeESM": {
+        "keys": [
+          "batch",
+          "computed",
+          "effect",
+          "reactive",
+          "storage",
+          "watch"
+        ],
+        "seen": [
+          0,
+          1
+        ]
+      },
+      "events": []
+    },
+    {
+      "engine": "firefox",
+      "browserVersion": "153.0",
+      "major": 19,
+      "mode": "development",
+      "status": "passed",
+      "checks": [
+        "native-form-input-checkbox-select-multiple-number",
+        "chip-isolation",
+        "loading-out-of-order-success-failure",
+        "storage-reload-cross-tab-session-isolation-no-auto-sync",
+        "controlled-browser-security-quota-recovery",
+        "forced-IndexedDB-read-local-conflict-write-failure-recovery",
+        "SSR-two-request-fixtures-matching-hydrate-and-negative-control",
+        "cross-realm-proxy-nested-class-builtins-storage-asserted",
+        "native-browser-ESM-core",
+        "closed-session-new-tab"
+      ],
+      "console": [
+        {
+          "type": "warning",
+          "text": "@canlooks/reactive storage failed JSHandle@object",
+          "phase": "input"
+        }
+      ],
+      "errors": [],
+      "phase": "after-hydration",
+      "ssrResponses": [
+        "<p>请求A</p>",
+        "<p>请求B</p>"
+      ],
+      "reactVersion": "19.3.0",
+      "afterFill": {
+        "model": "中文😀",
+        "dom": "中文😀"
+      },
+      "indexedDB": {
+        "driver": "asyncStorage",
+        "disk": "{\"n\":14}",
+        "state": 14,
+        "maxActive": 1,
+        "io": [
+          {
+            "kind": "get",
+            "status": "ok"
+          },
+          {
+            "kind": "set",
+            "status": "ok"
+          },
+          {
+            "kind": "set",
+            "status": "failed"
+          },
+          {
+            "kind": "set",
+            "status": "ok"
+          }
+        ]
+      },
+      "hydrationNegativeErrors": [
+        "Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:\n\n- A server/client branch `if (typeof window !== 'undefined')`.\n- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.\n- Date formatting in a user's locale which doesn't match the server.\n- External changing data without sending a snapshot of it along with the HTML.\n- Invalid HTML tag nesting.\n\nIt can also happen if the client has a browser extension installed which messes with the HTML before React loaded.\n\nhttps://react.dev/link/hydration-mismatch\n\n  <Reactive(Component)>\n    <p>\n+     不同快照\n-     请求A\n"
+      ],
+      "crossRealm": {
+        "isRaw": false,
+        "seen": [
+          0,
+          1
+        ],
+        "nested": [
+          [
+            0,
+            0,
+            1
+          ],
+          [
+            1,
+            1,
+            2
+          ]
+        ],
+        "classValues": [
+          2,
+          4
+        ],
+        "builtins": 9,
+        "storageWrites": [
+          "{\"child\":{\"n\":2},\"n\":3}"
+        ],
+        "accessorCalls": 0,
+        "rejected": 10
+      },
+      "nativeESM": {
+        "keys": [
+          "batch",
+          "computed",
+          "effect",
+          "reactive",
+          "storage",
+          "watch"
+        ],
+        "seen": [
+          0,
+          1
+        ]
+      },
+      "events": []
+    },
+    {
+      "engine": "firefox",
+      "browserVersion": "153.0",
+      "major": 19,
+      "mode": "production",
+      "status": "passed",
+      "checks": [
+        "native-form-input-checkbox-select-multiple-number",
+        "chip-isolation",
+        "loading-out-of-order-success-failure",
+        "storage-reload-cross-tab-session-isolation-no-auto-sync",
+        "controlled-browser-security-quota-recovery",
+        "forced-IndexedDB-read-local-conflict-write-failure-recovery",
+        "SSR-two-request-fixtures-matching-hydrate-and-negative-control",
+        "cross-realm-proxy-nested-class-builtins-storage-asserted",
+        "native-browser-ESM-core",
+        "closed-session-new-tab"
+      ],
+      "console": [
+        {
+          "type": "warning",
+          "text": "@canlooks/reactive storage failed JSHandle@object",
+          "phase": "input"
+        }
+      ],
+      "errors": [],
+      "phase": "after-hydration",
+      "ssrResponses": [
+        "<p>请求A</p>",
+        "<p>请求B</p>"
+      ],
+      "reactVersion": "19.3.0",
+      "afterFill": {
+        "model": "中文😀",
+        "dom": "中文😀"
+      },
+      "indexedDB": {
+        "driver": "asyncStorage",
+        "disk": "{\"n\":14}",
+        "state": 14,
+        "maxActive": 1,
+        "io": [
+          {
+            "kind": "get",
+            "status": "ok"
+          },
+          {
+            "kind": "set",
+            "status": "ok"
+          },
+          {
+            "kind": "set",
+            "status": "failed"
+          },
+          {
+            "kind": "set",
+            "status": "ok"
+          }
+        ]
+      },
+      "hydrationNegativeErrors": [
+        "Error: Minified React error #418; visit https://react.dev/errors/418?args[]=text&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      ],
+      "crossRealm": {
+        "isRaw": false,
+        "seen": [
+          0,
+          1
+        ],
+        "nested": [
+          [
+            0,
+            0,
+            1
+          ],
+          [
+            1,
+            1,
+            2
+          ]
+        ],
+        "classValues": [
+          2,
+          4
+        ],
+        "builtins": 9,
+        "storageWrites": [
+          "{\"child\":{\"n\":2},\"n\":3}"
+        ],
+        "accessorCalls": 0,
+        "rejected": 10
+      },
+      "nativeESM": {
+        "keys": [
+          "batch",
+          "computed",
+          "effect",
+          "reactive",
+          "storage",
+          "watch"
+        ],
+        "seen": [
+          0,
+          1
+        ]
+      },
+      "events": []
+    }
+  ],
+  "browserDefects": [
+    {
+      "engine": "chromium",
+      "browserVersion": "151.0.7922.34",
+      "major": 18,
+      "actual": {
+        "success": false,
+        "actualLength": 2,
+        "tailPresent": false,
+        "computed": 4,
+        "seen": [
+          4
+        ],
+        "disk": "[10,20,30,40]",
+        "dom": "4:40:4"
+      },
+      "expected": {
+        "success": false,
+        "actualLength": 2,
+        "tailPresent": false,
+        "computed": 2,
+        "seen": [
+          4,
+          2
+        ],
+        "disk": "[10,20]",
+        "dom": "2:undefined:2"
+      },
+      "status": "failed",
+      "assertion": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  {\n    actualLength: 2,\n+   computed: 4,\n+   disk: '[10,20,30,40]',\n+   dom: '4:40:4',\n-   computed: 2,\n-   disk: '[10,20]',\n-   dom: '2:undefined:2',\n    seen: [\n      4,\n-     2\n    ],\n    success: false,\n    tailPresent: false\n  }\n"
+    },
+    {
+      "engine": "chromium",
+      "browserVersion": "151.0.7922.34",
+      "major": 19,
+      "actual": {
+        "success": false,
+        "actualLength": 2,
+        "tailPresent": false,
+        "computed": 4,
+        "seen": [
+          4
+        ],
+        "disk": "[10,20,30,40]",
+        "dom": "4:40:4"
+      },
+      "expected": {
+        "success": false,
+        "actualLength": 2,
+        "tailPresent": false,
+        "computed": 2,
+        "seen": [
+          4,
+          2
+        ],
+        "disk": "[10,20]",
+        "dom": "2:undefined:2"
+      },
+      "status": "failed",
+      "assertion": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  {\n    actualLength: 2,\n+   computed: 4,\n+   disk: '[10,20,30,40]',\n+   dom: '4:40:4',\n-   computed: 2,\n-   disk: '[10,20]',\n-   dom: '2:undefined:2',\n    seen: [\n      4,\n-     2\n    ],\n    success: false,\n    tailPresent: false\n  }\n"
+    },
+    {
+      "engine": "webkit",
+      "browserVersion": "26.5",
+      "major": 18,
+      "actual": {
+        "success": false,
+        "actualLength": 2,
+        "tailPresent": false,
+        "computed": 4,
+        "seen": [
+          4
+        ],
+        "disk": "[10,20,30,40]",
+        "dom": "4:40:4"
+      },
+      "expected": {
+        "success": false,
+        "actualLength": 2,
+        "tailPresent": false,
+        "computed": 2,
+        "seen": [
+          4,
+          2
+        ],
+        "disk": "[10,20]",
+        "dom": "2:undefined:2"
+      },
+      "status": "failed",
+      "assertion": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  {\n    actualLength: 2,\n+   computed: 4,\n+   disk: '[10,20,30,40]',\n+   dom: '4:40:4',\n-   computed: 2,\n-   disk: '[10,20]',\n-   dom: '2:undefined:2',\n    seen: [\n      4,\n-     2\n    ],\n    success: false,\n    tailPresent: false\n  }\n"
+    },
+    {
+      "engine": "webkit",
+      "browserVersion": "26.5",
+      "major": 19,
+      "actual": {
+        "success": false,
+        "actualLength": 2,
+        "tailPresent": false,
+        "computed": 4,
+        "seen": [
+          4
+        ],
+        "disk": "[10,20,30,40]",
+        "dom": "4:40:4"
+      },
+      "expected": {
+        "success": false,
+        "actualLength": 2,
+        "tailPresent": false,
+        "computed": 2,
+        "seen": [
+          4,
+          2
+        ],
+        "disk": "[10,20]",
+        "dom": "2:undefined:2"
+      },
+      "status": "failed",
+      "assertion": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  {\n    actualLength: 2,\n+   computed: 4,\n+   disk: '[10,20,30,40]',\n+   dom: '4:40:4',\n-   computed: 2,\n-   disk: '[10,20]',\n-   dom: '2:undefined:2',\n    seen: [\n      4,\n-     2\n    ],\n    success: false,\n    tailPresent: false\n  }\n"
+    },
+    {
+      "engine": "firefox",
+      "browserVersion": "153.0",
+      "major": 18,
+      "actual": {
+        "success": false,
+        "actualLength": 2,
+        "tailPresent": false,
+        "computed": 4,
+        "seen": [
+          4
+        ],
+        "disk": "[10,20,30,40]",
+        "dom": "4:40:4"
+      },
+      "expected": {
+        "success": false,
+        "actualLength": 2,
+        "tailPresent": false,
+        "computed": 2,
+        "seen": [
+          4,
+          2
+        ],
+        "disk": "[10,20]",
+        "dom": "2:undefined:2"
+      },
+      "status": "failed",
+      "assertion": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  {\n    actualLength: 2,\n+   computed: 4,\n+   disk: '[10,20,30,40]',\n+   dom: '4:40:4',\n-   computed: 2,\n-   disk: '[10,20]',\n-   dom: '2:undefined:2',\n    seen: [\n      4,\n-     2\n    ],\n    success: false,\n    tailPresent: false\n  }\n"
+    },
+    {
+      "engine": "firefox",
+      "browserVersion": "153.0",
+      "major": 19,
+      "actual": {
+        "success": false,
+        "actualLength": 2,
+        "tailPresent": false,
+        "computed": 4,
+        "seen": [
+          4
+        ],
+        "disk": "[10,20,30,40]",
+        "dom": "4:40:4"
+      },
+      "expected": {
+        "success": false,
+        "actualLength": 2,
+        "tailPresent": false,
+        "computed": 2,
+        "seen": [
+          4,
+          2
+        ],
+        "disk": "[10,20]",
+        "dom": "2:undefined:2"
+      },
+      "status": "failed",
+      "assertion": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  {\n    actualLength: 2,\n+   computed: 4,\n+   disk: '[10,20,30,40]',\n+   dom: '4:40:4',\n-   computed: 2,\n-   disk: '[10,20]',\n-   dom: '2:undefined:2',\n    seen: [\n      4,\n-     2\n    ],\n    success: false,\n    tailPresent: false\n  }\n"
+    }
+  ],
+  "commands": [
+    {
+      "name": "npm-test",
+      "command": "npm",
+      "args": [
+        "test"
+      ],
+      "cwd": "E:\\projects\\@canlooks\\reactive",
+      "started": "2026-10-19T09:11:42.442Z",
+      "ended": "2026-10-19T09:11:48.011Z",
+      "durationMs": 5569,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "name": "build",
+      "command": "npm",
+      "args": [
+        "run",
+        "build"
+      ],
+      "cwd": "E:\\projects\\@canlooks\\reactive",
+      "started": "2026-10-19T09:12:10.985Z",
+      "ended": "2026-10-19T09:12:11.593Z",
+      "durationMs": 608,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "name": "supplement-core",
+      "command": "node",
+      "args": [
+        "--test",
+        "test/reports/2026-10-19_171129/scripts/supplement-core.mjs"
+      ],
+      "cwd": "E:\\projects\\@canlooks\\reactive",
+      "started": "2026-10-19T09:12:19.119Z",
+      "ended": "2026-10-19T09:12:20.236Z",
+      "durationMs": 1117,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "name": "dist",
+      "command": "npm",
+      "args": [
+        "run",
+        "test:dist"
+      ],
+      "cwd": "E:\\projects\\@canlooks\\reactive",
+      "started": "2026-10-19T09:12:19.120Z",
+      "ended": "2026-10-19T09:12:20.665Z",
+      "durationMs": 1545,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "name": "gc-esm",
+      "command": "node",
+      "args": [
+        "--expose-gc",
+        "--test",
+        "test/derived-lifecycle.mjs"
+      ],
+      "cwd": "E:\\projects\\@canlooks\\reactive",
+      "started": "2026-10-19T09:12:19.127Z",
+      "ended": "2026-10-19T09:12:19.655Z",
+      "durationMs": 528,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "name": "gc-cjs",
+      "command": "node",
+      "args": [
+        "--expose-gc",
+        "test/derived-lifecycle.mjs",
+        "--cjs"
+      ],
+      "cwd": "E:\\projects\\@canlooks\\reactive",
+      "started": "2026-10-19T09:12:19.703Z",
+      "ended": "2026-10-19T09:12:20.167Z",
+      "durationMs": 464,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "name": "memory",
+      "command": "node",
+      "args": [
+        "--expose-gc",
+        "test/reports/2026-10-19_171129/scripts/memory.mjs"
+      ],
+      "cwd": "E:\\projects\\@canlooks\\reactive",
+      "started": "2026-10-19T09:12:20.214Z",
+      "ended": "2026-10-19T09:12:20.829Z",
+      "durationMs": 615,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "name": "supplement-react",
+      "command": "node",
+      "args": [
+        "node_modules/tsx/dist/cli.mjs",
+        "--tsconfig",
+        "test/reports/2026-10-19_171129/scripts/tsconfig.json",
+        "test/reports/2026-10-19_171129/scripts/supplement-react.tsx"
+      ],
+      "cwd": "E:\\projects\\@canlooks\\reactive",
+      "started": "2026-10-19T09:12:20.283Z",
+      "ended": "2026-10-19T09:12:25.351Z",
+      "durationMs": 5068,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "name": "docs",
+      "command": "node",
+      "args": [
+        "test/validate-docs.mjs"
+      ],
+      "cwd": "E:\\projects\\@canlooks\\reactive",
+      "started": "2026-10-19T09:12:20.711Z",
+      "ended": "2026-10-19T09:12:20.807Z",
+      "durationMs": 96,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "name": "package",
+      "command": "npm",
+      "args": [
+        "run",
+        "test:package"
+      ],
+      "cwd": "E:\\projects\\@canlooks\\reactive",
+      "started": "2026-10-19T09:12:31.324Z",
+      "ended": "2026-10-19T09:13:21.769Z",
+      "durationMs": 50445,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "name": "package-archived",
+      "command": "node",
+      "args": [
+        "test/reports/2026-10-19_171129/scripts/package-archived.mjs"
+      ],
+      "cwd": "E:\\projects\\@canlooks\\reactive",
+      "started": "2026-10-19T09:13:21.818Z",
+      "ended": "2026-10-19T09:13:43.715Z",
+      "durationMs": 21897,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "name": "resources",
+      "command": "node",
+      "args": [
+        "--expose-gc",
+        "test/reports/2026-10-19_171129/scripts/resources.mjs"
+      ],
+      "cwd": "E:\\projects\\@canlooks\\reactive",
+      "started": "2026-10-19T09:13:29.847Z",
+      "ended": "2026-10-19T09:23:33.142Z",
+      "durationMs": 603295,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "name": "browser-install",
+      "command": "node",
+      "args": [
+        "test/reports/2026-10-19_171129/scripts/setup-browser.mjs"
+      ],
+      "cwd": "E:\\projects\\@canlooks\\reactive",
+      "started": "2026-10-19T09:13:51.930Z",
+      "ended": "2026-10-19T09:13:56.807Z",
+      "durationMs": 4877,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "name": "browser",
+      "command": "node",
+      "args": [
+        "test/reports/2026-10-19_171129/scripts/browser.mjs"
+      ],
+      "cwd": "E:\\projects\\@canlooks\\reactive",
+      "started": "2026-10-19T09:13:56.854Z",
+      "ended": "2026-10-19T09:14:08.644Z",
+      "durationMs": 11790,
+      "exitCode": 1,
+      "signal": null
+    },
+    {
+      "name": "exploratory-arrays",
+      "command": "node",
+      "args": [
+        "--test",
+        "test/reports/2026-10-19_171129/scripts/exploratory-arrays.mjs"
+      ],
+      "cwd": "E:\\projects\\@canlooks\\reactive",
+      "started": "2026-10-19T09:14:47.320Z",
+      "ended": "2026-10-19T09:14:47.464Z",
+      "durationMs": 144,
+      "exitCode": 1,
+      "signal": null
+    },
+    {
+      "name": "exploratory-arrays-source",
+      "command": "node",
+      "args": [
+        "--import",
+        "tsx",
+        "--test",
+        "test/reports/2026-10-19_171129/scripts/exploratory-arrays.mjs"
+      ],
+      "cwd": "E:\\projects\\@canlooks\\reactive",
+      "started": "2026-10-19T09:14:47.513Z",
+      "ended": "2026-10-19T09:14:47.874Z",
+      "durationMs": 361,
+      "exitCode": 1,
+      "signal": null
+    },
+    {
+      "name": "linux",
+      "command": "wsl",
+      "args": [
+        "-d",
+        "Ubuntu",
+        "--",
+        "bash",
+        "/mnt/e/projects/@canlooks/reactive/test/reports/2026-10-19_171129/scripts/linux.sh"
+      ],
+      "cwd": "E:\\projects\\@canlooks\\reactive",
+      "started": "2026-10-19T09:14:48.354Z",
+      "ended": "2026-10-19T09:17:17.659Z",
+      "durationMs": 149305,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "name": "readme-extract",
+      "command": "node",
+      "args": [
+        "test/reports/2026-10-19_171129/scripts/readme-extract.mjs"
+      ],
+      "cwd": "E:\\projects\\@canlooks\\reactive",
+      "started": "2026-10-19T09:15:07.577Z",
+      "ended": "2026-10-19T09:15:07.642Z",
+      "durationMs": 65,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "name": "readme-types",
+      "command": "node",
+      "args": [
+        "node_modules/typescript/bin/tsc",
+        "-p",
+        "test/reports/2026-10-19_171129/scripts/readme-examples/tsconfig.json"
+      ],
+      "cwd": "E:\\projects\\@canlooks\\reactive",
+      "started": "2026-10-19T09:15:07.689Z",
+      "ended": "2026-10-19T09:15:07.970Z",
+      "durationMs": 281,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "name": "readme-runtime",
+      "command": "node",
+      "args": [
+        "node_modules/tsx/dist/cli.mjs",
+        "--tsconfig",
+        "test/reports/2026-10-19_171129/scripts/tsconfig.json",
+        "test/reports/2026-10-19_171129/scripts/readme-runtime.tsx"
+      ],
+      "cwd": "E:\\projects\\@canlooks\\reactive",
+      "started": "2026-10-19T09:15:08.020Z",
+      "ended": "2026-10-19T09:15:09.068Z",
+      "durationMs": 1048,
+      "exitCode": 1,
+      "signal": null
+    },
+    {
+      "name": "heap-check",
+      "command": "node",
+      "args": [
+        "test/reports/2026-10-19_171129/scripts/heap-check.mjs"
+      ],
+      "cwd": "E:\\projects\\@canlooks\\reactive",
+      "started": "2026-10-19T09:15:09.118Z",
+      "ended": "2026-10-19T09:15:09.213Z",
+      "durationMs": 95,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "name": "linux-browser",
+      "command": "wsl",
+      "args": [
+        "-d",
+        "Ubuntu",
+        "--",
+        "bash",
+        "/mnt/e/projects/@canlooks/reactive/test/reports/2026-10-19_171129/scripts/linux-browser.sh"
+      ],
+      "cwd": "E:\\projects\\@canlooks\\reactive",
+      "started": "2026-10-19T09:15:20.008Z",
+      "ended": "2026-10-19T09:15:29.604Z",
+      "durationMs": 9596,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "name": "readme-runtime-final",
+      "command": "node",
+      "args": [
+        "node_modules/tsx/dist/cli.mjs",
+        "--tsconfig",
+        "test/reports/2026-10-19_171129/scripts/readme-examples/tsconfig.json",
+        "test/reports/2026-10-19_171129/scripts/readme-runtime.tsx"
+      ],
+      "cwd": "E:\\projects\\@canlooks\\reactive",
+      "started": "2026-10-19T09:15:52.238Z",
+      "ended": "2026-10-19T09:15:53.307Z",
+      "durationMs": 1069,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "name": "browser-defect",
+      "command": "node",
+      "args": [
+        "test/reports/2026-10-19_171129/scripts/browser-defect.mjs"
+      ],
+      "cwd": "E:\\projects\\@canlooks\\reactive",
+      "started": "2026-10-19T09:16:25.243Z",
+      "ended": "2026-10-19T09:16:26.686Z",
+      "durationMs": 1443,
+      "exitCode": 1,
+      "signal": null
+    },
+    {
+      "name": "derived-model",
+      "command": "node",
+      "args": [
+        "--test",
+        "test/reports/2026-10-19_171129/scripts/derived-model.mjs"
+      ],
+      "cwd": "E:\\projects\\@canlooks\\reactive",
+      "started": "2026-10-19T09:17:04.884Z",
+      "ended": "2026-10-19T09:17:06.758Z",
+      "durationMs": 1874,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "name": "browser-defect-firefox",
+      "command": "node",
+      "args": [
+        "/mnt/e/projects/@canlooks/reactive/test/reports/2026-10-19_171129/scripts/browser-defect.mjs"
+      ],
+      "cwd": "/mnt/e/projects/@canlooks/reactive",
+      "started": "2026-10-19T09:17:04.956Z",
+      "ended": "2026-10-19T09:17:08.682Z",
+      "durationMs": 3726,
+      "exitCode": 1,
+      "signal": null
+    },
+    {
+      "name": "supplement-react18",
+      "command": "node",
+      "args": [
+        "--expose-gc",
+        "node_modules/tsx/dist/cli.mjs",
+        "--tsconfig",
+        "test/reports/2026-10-19_171129/.runtime/tsconfig.json",
+        "test/reports/2026-10-19_171129/.runtime/supplement-react.tsx"
+      ],
+      "cwd": "E:\\projects\\@canlooks\\reactive",
+      "started": "2026-10-19T09:18:34.574Z",
+      "ended": "2026-10-19T09:18:38.949Z",
+      "durationMs": 4375,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "name": "verify-artifacts",
+      "command": "node",
+      "args": [
+        "test/reports/2026-10-19_171129/scripts/verify-artifacts.mjs"
+      ],
+      "cwd": "E:\\projects\\@canlooks\\reactive",
+      "started": "2026-10-19T09:24:02.394Z",
+      "ended": "2026-10-19T09:24:02.556Z",
+      "durationMs": 162,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "name": "benchmark-before-1",
+      "command": "node",
+      "args": [
+        "test/reports/2026-10-19_171129/scripts/benchmark.mjs",
+        "benchmark-before-1"
+      ],
+      "cwd": "E:\\projects\\@canlooks\\reactive",
+      "started": "2026-10-19T09:24:11.244Z",
+      "ended": "2026-10-19T09:24:11.992Z",
+      "durationMs": 748,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "name": "benchmark-after-1",
+      "command": "node",
+      "args": [
+        "test/reports/2026-10-19_171129/scripts/benchmark.mjs",
+        "benchmark-after-1"
+      ],
+      "cwd": "E:\\projects\\@canlooks\\reactive",
+      "started": "2026-10-19T09:24:12.060Z",
+      "ended": "2026-10-19T09:24:12.843Z",
+      "durationMs": 783,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "name": "benchmark-before-2",
+      "command": "node",
+      "args": [
+        "test/reports/2026-10-19_171129/scripts/benchmark.mjs",
+        "benchmark-before-2"
+      ],
+      "cwd": "E:\\projects\\@canlooks\\reactive",
+      "started": "2026-10-19T09:24:12.892Z",
+      "ended": "2026-10-19T09:24:13.645Z",
+      "durationMs": 753,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "name": "benchmark-after-2",
+      "command": "node",
+      "args": [
+        "test/reports/2026-10-19_171129/scripts/benchmark.mjs",
+        "benchmark-after-2"
+      ],
+      "cwd": "E:\\projects\\@canlooks\\reactive",
+      "started": "2026-10-19T09:24:13.696Z",
+      "ended": "2026-10-19T09:24:14.461Z",
+      "durationMs": 765,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "name": "derived-isolated-1",
+      "command": "node",
+      "args": [
+        "--expose-gc",
+        "test/reports/2026-10-19_171129/scripts/derived-benchmark-isolated.mjs",
+        "derived-isolated-1"
+      ],
+      "cwd": "E:\\projects\\@canlooks\\reactive",
+      "started": "2026-10-19T09:24:14.509Z",
+      "ended": "2026-10-19T09:24:15.774Z",
+      "durationMs": 1265,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "name": "derived-isolated-2",
+      "command": "node",
+      "args": [
+        "--expose-gc",
+        "test/reports/2026-10-19_171129/scripts/derived-benchmark-isolated.mjs",
+        "derived-isolated-2"
+      ],
+      "cwd": "E:\\projects\\@canlooks\\reactive",
+      "started": "2026-10-19T09:24:15.819Z",
+      "ended": "2026-10-19T09:24:17.103Z",
+      "durationMs": 1284,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "name": "storage-liveness-check",
+      "command": "node",
+      "args": [
+        "--expose-gc",
+        "test/reports/2026-10-19_171129/scripts/storage-liveness-check.mjs"
+      ],
+      "cwd": "E:\\projects\\@canlooks\\reactive",
+      "started": "2026-10-19T09:24:37.975Z",
+      "ended": "2026-10-19T09:24:38.121Z",
+      "durationMs": 146,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "name": "verify-report",
+      "command": "node",
+      "args": [
+        "test/reports/2026-10-19_171129/scripts/verify-report.mjs"
+      ],
+      "cwd": "E:\\projects\\@canlooks\\reactive",
+      "started": "2026-10-19T09:25:09.485Z",
+      "ended": "2026-10-19T09:25:10.607Z",
+      "durationMs": 1122,
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}

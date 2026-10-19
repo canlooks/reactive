@@ -1,0 +1,47 @@
+START 2026-10-16T09:12:18.863Z
+CWD E:\projects\@canlooks\reactive
+COMMAND node test/reports/2026-10-16_170124/scripts/browser.mjs
+
+chromium 18 development FAILED AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+
++ [
++   {
++     text: 'Warning: Text content did not match. Server: "%s" Client: "%s"%s 请求A 不同快照 \n' +
++       '    at p\n' +
++       '    at ObserverComponent (http://127.0.0.1:65233/bundle.js?variant=18-development:27245:51)',
++     type: 'error'
++   },
++   {
++     text: 'Warning: An error occurred during hydration. The server HTML was replaced with client content in <%s>. div',
++     type: 'error'
++   }
++ ]
+- []
+
+chromium 151.0.7922.34 18 development failed 9
+chromium 151.0.7922.34 18 production passed 9
+chromium 151.0.7922.34 19 development passed 9
+chromium 151.0.7922.34 19 production passed 9
+webkit 18 development FAILED AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+2 !== 0
+
+webkit 26.5 18 development failed 6
+webkit 18 production FAILED AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+2 !== 0
+
+webkit 26.5 18 production failed 6
+webkit 19 development FAILED AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+'A粘贴' !== '中文😀粘贴'
+
+webkit 26.5 19 development failed 0
+webkit 19 production FAILED AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+1 !== 0
+
+webkit 26.5 19 production failed 6
+
+END 2026-10-16T09:12:28.753Z EXIT 1

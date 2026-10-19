@@ -1,0 +1,16 @@
+START 2026-10-16T10:28:19.969Z
+CWD E:\projects\@canlooks\reactive
+COMMAND npm run test:dist
+
+
+> @canlooks/reactive@5.0.0 test:dist
+> node test/smoke.mjs && node --no-experimental-require-module test/smoke.cjs && npm run typecheck:dist
+
+ESM, native ESM and both mixed Node entry directions share core/React state.
+CommonJS require: six core exports, storage, React subentry, SSR and decorators passed.
+
+> @canlooks/reactive@5.0.0 typecheck:dist
+> tsc -p test/types/tsconfig.json && tsc -p test/types/react/tsconfig.json
+
+
+END 2026-10-16T10:28:21.650Z EXIT 0

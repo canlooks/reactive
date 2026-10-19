@@ -1,0 +1,15 @@
+node:internal/fs/promises:640
+  return new FileHandle(await PromisePrototypeThen(
+                        ^
+
+Error: ENOENT: no such file or directory, open '/tmp/reactive-qa-20261016-181149-fix/project/test/evidence/source-sha256.json'
+    at async open (node:internal/fs/promises:640:25)
+    at async readFile (node:internal/fs/promises:1283:14)
+    at async file:///tmp/reactive-qa-20261016-181149-fix/project/test/validate-docs.mjs:69:9 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/tmp/reactive-qa-20261016-181149-fix/project/test/evidence/source-sha256.json'
+}
+
+Node.js v24.14.1

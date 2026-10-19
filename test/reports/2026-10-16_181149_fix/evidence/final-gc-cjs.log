@@ -1,0 +1,23 @@
+START 2026-10-16T10:27:28.590Z
+CWD E:\projects\@canlooks\reactive
+COMMAND node --expose-gc test/derived-lifecycle.mjs --cjs
+
+✔ unused computed payloads and getter receivers are collectible while their source stays alive (109.5489ms)
+✔ effects and watches depending only on computed remain active without retained disposers (38.8454ms)
+✔ retained computed and getter caches stay lazy after their last consumer stops (20.1873ms)
+✔ read snapshots keep ephemeral upstream computations alive until commit or release (39.1663ms)
+✔ consumer reruns release temporary computed payloads and stop releases the final one (37.9948ms)
+✔ switching away from a derived branch releases it while the ordinary consumer remains active (43.8729ms)
+✔ an entire active source and derived consumer graph can be collected (24.6477ms)
+✔ props slots count retained derivations and ignore collected ones (45.1797ms)
+✔ shared storage children and completed I/O do not retain discarded roots (104.2999ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 467.6454
+
+END 2026-10-16T10:27:29.146Z EXIT 0

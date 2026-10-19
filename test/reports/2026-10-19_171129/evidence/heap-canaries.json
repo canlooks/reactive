@@ -1,0 +1,20 @@
+{
+  "computedCanaryObjects": 1,
+  "getterCanaryObjects": 1,
+  "capturedComputedPayloads": 0,
+  "incoming": [
+    {
+      "to": 344166,
+      "from": "system / AllocationSite",
+      "type": "internal",
+      "name": "transition_info"
+    },
+    {
+      "to": 344814,
+      "from": "system / AllocationSite",
+      "type": "internal",
+      "name": "transition_info"
+    }
+  ],
+  "note": "Source remains reachable. The report originally showed 1000 captured computed payloads; the fixed snapshot contains none."
+}

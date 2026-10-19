@@ -54,6 +54,14 @@ text.onChange = () => {}
 
 const TextInput = defineModel(props => createElement('input', props))
 createElement(TextInput, { refer: () => state.name, placeholder: 'Name' })
+for (const valueProp of [undefined, 'value', 'checked'] as const) {
+    createElement(Model<string>, { source: () => state.name, valueProp, children: createElement('input') })
+    createElement(TextInput, { refer: () => state.name, valueProp })
+}
+// @ts-expect-error null is not an omitted valueProp.
+createElement(Model<string>, { source: () => state.name, valueProp: null, children: createElement('input') })
+// @ts-expect-error defineModel has the same strict valueProp contract.
+createElement(TextInput, { refer: () => state.name, valueProp: null })
 type ControlProps = { value: number; onChange: (value: number, unit: string) => void; label: string; optional?: boolean }
 const Control = (props: ControlProps) => createElement('span', null, props.label, props.value)
 const NumberInput = defineModel(Control, (value, unit) => { const suffix: string = unit; void suffix; return value * 2 })

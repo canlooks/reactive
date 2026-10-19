@@ -1,0 +1,9 @@
+
+> @canlooks/reactive@5.0.0 test:package
+> node scripts/test-package.mjs
+
+Tarball contains 90 expected files; both Node bridges are present.
+Core-only consumer: six APIs, sync/async storage, mixed entries and strict non-DOM declarations passed without React or localforage.
+React 19.3.0: full DOM/lifecycle/Suspense/SSR suite, both formats, mixed entries and declarations passed.
+React 18.3.1: full DOM/lifecycle/Suspense/SSR suite, both formats, mixed entries and declarations passed.
+All isolated package consumers passed.

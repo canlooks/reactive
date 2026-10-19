@@ -1,0 +1,42 @@
+START 2026-10-16T09:19:24.761Z
+CWD E:\projects\@canlooks\reactive
+COMMAND node --expose-gc test/reports/2026-10-16_170124/scripts/memory.mjs
+
+{
+  "gcRoundsPerPhase": 12,
+  "computedCreated": 1000,
+  "getterRootsCreated": 1000,
+  "retained": {
+    "computed": 1000,
+    "getters": 1000
+  },
+  "released": {
+    "computed": 0,
+    "getters": 0
+  },
+  "storageCreated": 1000,
+  "storageAlive": 0,
+  "asyncStorageCreated": 1000,
+  "asyncStorageAlive": 0,
+  "expected": "Unused derivations and their payloads should not be retained solely by a live source; storage is a weak-lifecycle control."
+}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Unused computed payloads retained by dependency graph
+
+1000 !== 0
+
+    at file:///E:/projects/@canlooks/reactive/test/reports/2026-10-16_170124/scripts/memory.mjs:22:143 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 1000,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.14.1
+
+END 2026-10-16T09:19:25.389Z EXIT 1

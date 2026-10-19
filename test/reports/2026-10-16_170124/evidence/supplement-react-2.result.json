@@ -1,0 +1,19 @@
+{
+  "name": "supplement-react-2",
+  "command": "node",
+  "args": [
+    "--expose-gc",
+    "node_modules/tsx/dist/cli.mjs",
+    "--tsconfig",
+    "test/reports/2026-10-16_170124/scripts/tsconfig.json",
+    "--test",
+    "--test-reporter=tap",
+    "test/reports/2026-10-16_170124/scripts/supplement-react.tsx"
+  ],
+  "cwd": "E:\\projects\\@canlooks\\reactive",
+  "started": "2026-10-16T09:09:58.717Z",
+  "ended": "2026-10-16T09:10:00.864Z",
+  "durationMs": 2147,
+  "exitCode": 1,
+  "signal": null
+}

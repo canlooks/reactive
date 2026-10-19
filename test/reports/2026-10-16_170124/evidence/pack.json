@@ -1,0 +1,466 @@
+[
+  {
+    "id": "@canlooks/reactive@5.0.0",
+    "name": "@canlooks/reactive",
+    "version": "5.0.0",
+    "size": 58300,
+    "unpackedSize": 271310,
+    "shasum": "4c8273a9baf7eecd681ba379ad3092d7a1597aa1",
+    "integrity": "sha512-ZXfydXBehZnKKCqjtGMy/TIqP/MCAeI12g5VSzm/Iz88dExRwF1ElFNdTZn6t514qq4MA7cA5N+RGlOW6pspPQ==",
+    "filename": "canlooks-reactive-5.0.0.tgz",
+    "files": [
+      {
+        "path": "LICENSE",
+        "size": 1088,
+        "mode": 420
+      },
+      {
+        "path": "README.md",
+        "size": 50332,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/batch.d.ts",
+        "size": 137,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/batch.js",
+        "size": 1116,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/computed.d.ts",
+        "size": 273,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/computed.js",
+        "size": 2934,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/effect.d.ts",
+        "size": 3701,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/effect.js",
+        "size": 13459,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/index.d.ts",
+        "size": 342,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/index.js",
+        "size": 1405,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/package.json",
+        "size": 20,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/react/chip.d.ts",
+        "size": 799,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/react/chip.js",
+        "size": 3040,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/react/classComponent.d.ts",
+        "size": 138,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/react/classComponent.js",
+        "size": 5141,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/react/classState.d.ts",
+        "size": 723,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/react/classState.js",
+        "size": 4354,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/react/commit.d.ts",
+        "size": 484,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/react/commit.js",
+        "size": 2029,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/react/functionComponent.d.ts",
+        "size": 412,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/react/functionComponent.js",
+        "size": 2732,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/react/hooks.d.ts",
+        "size": 425,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/react/hooks.js",
+        "size": 2563,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/react/index.d.ts",
+        "size": 1197,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/react/index.js",
+        "size": 2566,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/react/loading.d.ts",
+        "size": 657,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/react/loading.js",
+        "size": 3436,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/react/loadingDecorator.d.ts",
+        "size": 533,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/react/loadingDecorator.js",
+        "size": 6397,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/react/model.d.ts",
+        "size": 1641,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/react/model.js",
+        "size": 5186,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/react/observer.d.ts",
+        "size": 1303,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/react/observer.js",
+        "size": 4956,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/react/props.d.ts",
+        "size": 610,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/react/props.js",
+        "size": 4778,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/reactive.d.ts",
+        "size": 405,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/reactive.js",
+        "size": 8341,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/reference.d.ts",
+        "size": 444,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/reference.js",
+        "size": 2767,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/storage.d.ts",
+        "size": 689,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/storage.js",
+        "size": 10521,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/storageSnapshot.d.ts",
+        "size": 791,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/storageSnapshot.js",
+        "size": 7247,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/watch.d.ts",
+        "size": 886,
+        "mode": 420
+      },
+      {
+        "path": "dist/cjs/watch.js",
+        "size": 2811,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/batch.d.ts",
+        "size": 137,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/batch.js",
+        "size": 277,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/computed.d.ts",
+        "size": 273,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/computed.js",
+        "size": 2375,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/effect.d.ts",
+        "size": 3701,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/effect.js",
+        "size": 13641,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/index.d.ts",
+        "size": 342,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/index.js",
+        "size": 234,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/react/chip.d.ts",
+        "size": 799,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/react/chip.js",
+        "size": 1877,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/react/classComponent.d.ts",
+        "size": 138,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/react/classComponent.js",
+        "size": 4783,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/react/classState.d.ts",
+        "size": 723,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/react/classState.js",
+        "size": 3556,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/react/commit.d.ts",
+        "size": 484,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/react/commit.js",
+        "size": 1144,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/react/functionComponent.d.ts",
+        "size": 412,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/react/functionComponent.js",
+        "size": 1881,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/react/hooks.d.ts",
+        "size": 425,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/react/hooks.js",
+        "size": 1737,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/react/index.d.ts",
+        "size": 1197,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/react/index.js",
+        "size": 880,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/react/loading.d.ts",
+        "size": 657,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/react/loading.js",
+        "size": 2768,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/react/loadingDecorator.d.ts",
+        "size": 533,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/react/loadingDecorator.js",
+        "size": 6234,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/react/model.d.ts",
+        "size": 1641,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/react/model.js",
+        "size": 4306,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/react/observer.d.ts",
+        "size": 1303,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/react/observer.js",
+        "size": 5213,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/react/props.d.ts",
+        "size": 610,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/react/props.js",
+        "size": 4211,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/reactive.d.ts",
+        "size": 405,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/reactive.js",
+        "size": 8472,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/reference.d.ts",
+        "size": 444,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/reference.js",
+        "size": 1831,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/storage.d.ts",
+        "size": 689,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/storage.js",
+        "size": 11173,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/storageSnapshot.d.ts",
+        "size": 791,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/storageSnapshot.js",
+        "size": 7052,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/watch.d.ts",
+        "size": 886,
+        "mode": 420
+      },
+      {
+        "path": "dist/esm/watch.js",
+        "size": 2166,
+        "mode": 420
+      },
+      {
+        "path": "dist/node-react.js",
+        "size": 282,
+        "mode": 420
+      },
+      {
+        "path": "dist/node.js",
+        "size": 106,
+        "mode": 420
+      },
+      {
+        "path": "package.json",
+        "size": 2712,
+        "mode": 420
+      }
+    ],
+    "entryCount": 90,
+    "bundled": []
+  }
+]

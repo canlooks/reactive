@@ -1,0 +1,779 @@
+[
+  {
+    "format": "esm",
+    "mode": "reflect-number",
+    "returned": false,
+    "actual": {
+      "length": 2,
+      "hasTail": false,
+      "observed": [
+        [
+          4,
+          40
+        ]
+      ],
+      "watched": [],
+      "derived": "4:40",
+      "disk": "[10,20,30,40]",
+      "writes": [
+        "[10,20,30,40]"
+      ]
+    },
+    "expected": {
+      "length": 2,
+      "hasTail": false,
+      "observed": [
+        [
+          4,
+          40
+        ],
+        [
+          2,
+          null
+        ]
+      ],
+      "watched": [
+        [
+          2,
+          4
+        ]
+      ],
+      "derived": "2:undefined",
+      "disk": "[10,20]"
+    },
+    "recovery": {
+      "length": 3,
+      "observed": [
+        [
+          4,
+          40
+        ],
+        [
+          3,
+          null
+        ]
+      ],
+      "watched": [
+        [
+          3,
+          4
+        ]
+      ],
+      "derived": "3:undefined",
+      "disk": "[10,20,null]"
+    }
+  },
+  {
+    "format": "esm",
+    "mode": "reflect-string",
+    "returned": false,
+    "actual": {
+      "length": 2,
+      "hasTail": false,
+      "observed": [
+        [
+          4,
+          40
+        ]
+      ],
+      "watched": [],
+      "derived": "4:40",
+      "disk": "[10,20,30,40]",
+      "writes": [
+        "[10,20,30,40]"
+      ]
+    },
+    "expected": {
+      "length": 2,
+      "hasTail": false,
+      "observed": [
+        [
+          4,
+          40
+        ],
+        [
+          2,
+          null
+        ]
+      ],
+      "watched": [
+        [
+          2,
+          4
+        ]
+      ],
+      "derived": "2:undefined",
+      "disk": "[10,20]"
+    },
+    "recovery": {
+      "length": 3,
+      "observed": [
+        [
+          4,
+          40
+        ],
+        [
+          3,
+          null
+        ]
+      ],
+      "watched": [
+        [
+          3,
+          4
+        ]
+      ],
+      "derived": "3:undefined",
+      "disk": "[10,20,null]"
+    }
+  },
+  {
+    "format": "esm",
+    "mode": "strict-assignment",
+    "error": {
+      "name": "TypeError",
+      "message": "'set' on proxy: trap returned falsish for property 'length'"
+    },
+    "actual": {
+      "length": 2,
+      "hasTail": false,
+      "observed": [
+        [
+          4,
+          40
+        ]
+      ],
+      "watched": [],
+      "derived": "4:40",
+      "disk": "[10,20,30,40]",
+      "writes": [
+        "[10,20,30,40]"
+      ]
+    },
+    "expected": {
+      "length": 2,
+      "hasTail": false,
+      "observed": [
+        [
+          4,
+          40
+        ],
+        [
+          2,
+          null
+        ]
+      ],
+      "watched": [
+        [
+          2,
+          4
+        ]
+      ],
+      "derived": "2:undefined",
+      "disk": "[10,20]"
+    },
+    "recovery": {
+      "length": 3,
+      "observed": [
+        [
+          4,
+          40
+        ],
+        [
+          3,
+          null
+        ]
+      ],
+      "watched": [
+        [
+          3,
+          4
+        ]
+      ],
+      "derived": "3:undefined",
+      "disk": "[10,20,null]"
+    }
+  },
+  {
+    "format": "esm",
+    "mode": "outer-batch",
+    "returned": false,
+    "actual": {
+      "length": 2,
+      "hasTail": false,
+      "observed": [
+        [
+          4,
+          40
+        ]
+      ],
+      "watched": [],
+      "derived": "4:40",
+      "disk": "[10,20,30,40]",
+      "writes": [
+        "[10,20,30,40]"
+      ]
+    },
+    "expected": {
+      "length": 2,
+      "hasTail": false,
+      "observed": [
+        [
+          4,
+          40
+        ],
+        [
+          2,
+          null
+        ]
+      ],
+      "watched": [
+        [
+          2,
+          4
+        ]
+      ],
+      "derived": "2:undefined",
+      "disk": "[10,20]"
+    },
+    "recovery": {
+      "length": 3,
+      "observed": [
+        [
+          4,
+          40
+        ],
+        [
+          3,
+          null
+        ]
+      ],
+      "watched": [
+        [
+          3,
+          4
+        ]
+      ],
+      "derived": "3:undefined",
+      "disk": "[10,20,null]"
+    }
+  },
+  {
+    "format": "cjs",
+    "mode": "reflect-number",
+    "returned": false,
+    "actual": {
+      "length": 2,
+      "hasTail": false,
+      "observed": [
+        [
+          4,
+          40
+        ]
+      ],
+      "watched": [],
+      "derived": "4:40",
+      "disk": "[10,20,30,40]",
+      "writes": [
+        "[10,20,30,40]"
+      ]
+    },
+    "expected": {
+      "length": 2,
+      "hasTail": false,
+      "observed": [
+        [
+          4,
+          40
+        ],
+        [
+          2,
+          null
+        ]
+      ],
+      "watched": [
+        [
+          2,
+          4
+        ]
+      ],
+      "derived": "2:undefined",
+      "disk": "[10,20]"
+    },
+    "recovery": {
+      "length": 3,
+      "observed": [
+        [
+          4,
+          40
+        ],
+        [
+          3,
+          null
+        ]
+      ],
+      "watched": [
+        [
+          3,
+          4
+        ]
+      ],
+      "derived": "3:undefined",
+      "disk": "[10,20,null]"
+    }
+  },
+  {
+    "format": "cjs",
+    "mode": "reflect-string",
+    "returned": false,
+    "actual": {
+      "length": 2,
+      "hasTail": false,
+      "observed": [
+        [
+          4,
+          40
+        ]
+      ],
+      "watched": [],
+      "derived": "4:40",
+      "disk": "[10,20,30,40]",
+      "writes": [
+        "[10,20,30,40]"
+      ]
+    },
+    "expected": {
+      "length": 2,
+      "hasTail": false,
+      "observed": [
+        [
+          4,
+          40
+        ],
+        [
+          2,
+          null
+        ]
+      ],
+      "watched": [
+        [
+          2,
+          4
+        ]
+      ],
+      "derived": "2:undefined",
+      "disk": "[10,20]"
+    },
+    "recovery": {
+      "length": 3,
+      "observed": [
+        [
+          4,
+          40
+        ],
+        [
+          3,
+          null
+        ]
+      ],
+      "watched": [
+        [
+          3,
+          4
+        ]
+      ],
+      "derived": "3:undefined",
+      "disk": "[10,20,null]"
+    }
+  },
+  {
+    "format": "cjs",
+    "mode": "strict-assignment",
+    "error": {
+      "name": "TypeError",
+      "message": "'set' on proxy: trap returned falsish for property 'length'"
+    },
+    "actual": {
+      "length": 2,
+      "hasTail": false,
+      "observed": [
+        [
+          4,
+          40
+        ]
+      ],
+      "watched": [],
+      "derived": "4:40",
+      "disk": "[10,20,30,40]",
+      "writes": [
+        "[10,20,30,40]"
+      ]
+    },
+    "expected": {
+      "length": 2,
+      "hasTail": false,
+      "observed": [
+        [
+          4,
+          40
+        ],
+        [
+          2,
+          null
+        ]
+      ],
+      "watched": [
+        [
+          2,
+          4
+        ]
+      ],
+      "derived": "2:undefined",
+      "disk": "[10,20]"
+    },
+    "recovery": {
+      "length": 3,
+      "observed": [
+        [
+          4,
+          40
+        ],
+        [
+          3,
+          null
+        ]
+      ],
+      "watched": [
+        [
+          3,
+          4
+        ]
+      ],
+      "derived": "3:undefined",
+      "disk": "[10,20,null]"
+    }
+  },
+  {
+    "format": "cjs",
+    "mode": "outer-batch",
+    "returned": false,
+    "actual": {
+      "length": 2,
+      "hasTail": false,
+      "observed": [
+        [
+          4,
+          40
+        ]
+      ],
+      "watched": [],
+      "derived": "4:40",
+      "disk": "[10,20,30,40]",
+      "writes": [
+        "[10,20,30,40]"
+      ]
+    },
+    "expected": {
+      "length": 2,
+      "hasTail": false,
+      "observed": [
+        [
+          4,
+          40
+        ],
+        [
+          2,
+          null
+        ]
+      ],
+      "watched": [
+        [
+          2,
+          4
+        ]
+      ],
+      "derived": "2:undefined",
+      "disk": "[10,20]"
+    },
+    "recovery": {
+      "length": 3,
+      "observed": [
+        [
+          4,
+          40
+        ],
+        [
+          3,
+          null
+        ]
+      ],
+      "watched": [
+        [
+          3,
+          4
+        ]
+      ],
+      "derived": "3:undefined",
+      "disk": "[10,20,null]"
+    }
+  },
+  {
+    "format": "source",
+    "mode": "reflect-number",
+    "returned": false,
+    "actual": {
+      "length": 2,
+      "hasTail": false,
+      "observed": [
+        [
+          4,
+          40
+        ]
+      ],
+      "watched": [],
+      "derived": "4:40",
+      "disk": "[10,20,30,40]",
+      "writes": [
+        "[10,20,30,40]"
+      ]
+    },
+    "expected": {
+      "length": 2,
+      "hasTail": false,
+      "observed": [
+        [
+          4,
+          40
+        ],
+        [
+          2,
+          null
+        ]
+      ],
+      "watched": [
+        [
+          2,
+          4
+        ]
+      ],
+      "derived": "2:undefined",
+      "disk": "[10,20]"
+    },
+    "recovery": {
+      "length": 3,
+      "observed": [
+        [
+          4,
+          40
+        ],
+        [
+          3,
+          null
+        ]
+      ],
+      "watched": [
+        [
+          3,
+          4
+        ]
+      ],
+      "derived": "3:undefined",
+      "disk": "[10,20,null]"
+    }
+  },
+  {
+    "format": "source",
+    "mode": "reflect-string",
+    "returned": false,
+    "actual": {
+      "length": 2,
+      "hasTail": false,
+      "observed": [
+        [
+          4,
+          40
+        ]
+      ],
+      "watched": [],
+      "derived": "4:40",
+      "disk": "[10,20,30,40]",
+      "writes": [
+        "[10,20,30,40]"
+      ]
+    },
+    "expected": {
+      "length": 2,
+      "hasTail": false,
+      "observed": [
+        [
+          4,
+          40
+        ],
+        [
+          2,
+          null
+        ]
+      ],
+      "watched": [
+        [
+          2,
+          4
+        ]
+      ],
+      "derived": "2:undefined",
+      "disk": "[10,20]"
+    },
+    "recovery": {
+      "length": 3,
+      "observed": [
+        [
+          4,
+          40
+        ],
+        [
+          3,
+          null
+        ]
+      ],
+      "watched": [
+        [
+          3,
+          4
+        ]
+      ],
+      "derived": "3:undefined",
+      "disk": "[10,20,null]"
+    }
+  },
+  {
+    "format": "source",
+    "mode": "strict-assignment",
+    "error": {
+      "name": "TypeError",
+      "message": "'set' on proxy: trap returned falsish for property 'length'"
+    },
+    "actual": {
+      "length": 2,
+      "hasTail": false,
+      "observed": [
+        [
+          4,
+          40
+        ]
+      ],
+      "watched": [],
+      "derived": "4:40",
+      "disk": "[10,20,30,40]",
+      "writes": [
+        "[10,20,30,40]"
+      ]
+    },
+    "expected": {
+      "length": 2,
+      "hasTail": false,
+      "observed": [
+        [
+          4,
+          40
+        ],
+        [
+          2,
+          null
+        ]
+      ],
+      "watched": [
+        [
+          2,
+          4
+        ]
+      ],
+      "derived": "2:undefined",
+      "disk": "[10,20]"
+    },
+    "recovery": {
+      "length": 3,
+      "observed": [
+        [
+          4,
+          40
+        ],
+        [
+          3,
+          null
+        ]
+      ],
+      "watched": [
+        [
+          3,
+          4
+        ]
+      ],
+      "derived": "3:undefined",
+      "disk": "[10,20,null]"
+    }
+  },
+  {
+    "format": "source",
+    "mode": "outer-batch",
+    "returned": false,
+    "actual": {
+      "length": 2,
+      "hasTail": false,
+      "observed": [
+        [
+          4,
+          40
+        ]
+      ],
+      "watched": [],
+      "derived": "4:40",
+      "disk": "[10,20,30,40]",
+      "writes": [
+        "[10,20,30,40]"
+      ]
+    },
+    "expected": {
+      "length": 2,
+      "hasTail": false,
+      "observed": [
+        [
+          4,
+          40
+        ],
+        [
+          2,
+          null
+        ]
+      ],
+      "watched": [
+        [
+          2,
+          4
+        ]
+      ],
+      "derived": "2:undefined",
+      "disk": "[10,20]"
+    },
+    "recovery": {
+      "length": 3,
+      "observed": [
+        [
+          4,
+          40
+        ],
+        [
+          3,
+          null
+        ]
+      ],
+      "watched": [
+        [
+          3,
+          4
+        ]
+      ],
+      "derived": "3:undefined",
+      "disk": "[10,20,null]"
+    }
+  }
+]

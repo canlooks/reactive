@@ -1,0 +1,42 @@
+[
+  {
+    "cycle": 100,
+    "heapUsed": 63869816
+  },
+  {
+    "cycle": 200,
+    "heapUsed": 68321048
+  },
+  {
+    "cycle": 300,
+    "heapUsed": 84406288
+  },
+  {
+    "cycle": 400,
+    "heapUsed": 88779576
+  },
+  {
+    "cycle": 500,
+    "heapUsed": 81241488
+  },
+  {
+    "cycle": 600,
+    "heapUsed": 65297616
+  },
+  {
+    "cycle": 700,
+    "heapUsed": 65778248
+  },
+  {
+    "cycle": 800,
+    "heapUsed": 80498552
+  },
+  {
+    "cycle": 900,
+    "heapUsed": 56750656
+  },
+  {
+    "cycle": 1000,
+    "heapUsed": 76797544
+  }
+]

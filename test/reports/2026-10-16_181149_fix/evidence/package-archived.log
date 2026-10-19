@@ -1,0 +1,11 @@
+START 2026-10-16T10:27:28.607Z
+CWD E:\projects\@canlooks\reactive
+COMMAND node test/reports/2026-10-16_181149_fix/scripts/package-archived.mjs
+
+Tarball contains 90 expected files; both Node bridges are present.
+Core-only consumer: six APIs, sync/async storage, mixed entries and strict non-DOM declarations passed without React or localforage.
+React 19.3.0: full DOM/lifecycle/Suspense/SSR suite, both formats, mixed entries and declarations passed.
+React 18.3.1: full DOM/lifecycle/Suspense/SSR suite, both formats, mixed entries and declarations passed.
+All isolated package consumers passed.
+
+END 2026-10-16T10:28:02.228Z EXIT 0

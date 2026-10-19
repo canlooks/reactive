@@ -8,7 +8,8 @@ import {
 import { createRoot, hydrateRoot, type Root } from 'react-dom/client'
 import { flushSync } from 'react-dom'
 import { renderToString } from 'react-dom/server'
-import { batch, computed, effect, reactive, watch } from '../src/index.js'
+import { batch, computed, effect, reactive, storage, watch } from '../src/index.js'
+import { stopStorage } from '../src/storage.js'
 import {
     RC, Chip, AsyncChip, chip, strictChip, asyncChip, asyncStrictChip,
     Model, defineModel, useModel, useLoading, useReactive, useWatch,
@@ -43,6 +44,63 @@ function inputValue(input: HTMLInputElement | HTMLTextAreaElement, value: string
     Object.getOwnPropertyDescriptor(prototype, 'value')!.set!.call(input, value)
     input.dispatchEvent(new window.Event('input', { bubbles: true }))
 }
+
+test('external storage drives RC, Chip and Model in StrictMode and persists after unmount', async t => {
+    const writes: string[] = []
+    const state = storage({ count: 0, name: 'initial' }, { name: 'form', adapter: {
+        getItem() { return '{"count":2,"name":"cached"}' },
+        setItem(_key, value) { writes.push(value) },
+    } })
+    t.after(() => stopStorage(state))
+    const View = RC(() => <>
+        <span>{state.count}</span>
+        <Chip>{() => <label>{state.name}</label>}</Chip>
+        <Model source={() => state.name}><input /></Model>
+    </>)
+    await mounted(async (root, container) => {
+        await act(async () => root.render(<StrictMode><View /></StrictMode>))
+        const input = container.querySelector('input')!
+        assert.equal(container.textContent, '2cached')
+        assert.equal(input.value, 'cached')
+        assert.deepEqual(writes, [])
+        await act(async () => { inputValue(input, 'edited') })
+        assert.equal(state.name, 'edited')
+        assert.equal(container.querySelector('label')!.textContent, 'edited')
+        await act(async () => { state.count++ })
+        assert.equal(container.querySelector('span')!.textContent, '3')
+        assert.deepEqual(writes, ['{"count":2,"name":"edited"}', '{"count":3,"name":"edited"}'])
+    })
+    state.count++
+    assert.equal(writes.at(-1), '{"count":4,"name":"edited"}')
+})
+
+test('async storage hydrates React consumers as one batch and preserves subsequent model edits', async t => {
+    const read = deferred<string | null>()
+    const writes: string[] = []
+    const state = storage({ count: 0, name: 'initial' }, { name: 'async-form', adapter: {
+        getItem() { return read.promise },
+        setItem(_key, value) { writes.push(value) },
+    } })
+    t.after(() => stopStorage(state))
+    const observations: string[] = []
+    const View = RC(() => {
+        useWatch(() => `${state.count}:${state.name}`, value => { observations.push(value) })
+        return <><span>{state.count}:{state.name}</span><Model source={() => state.name}><input /></Model></>
+    })
+    await mounted(async (root, container) => {
+        await act(async () => root.render(<View />))
+        assert.equal(container.textContent, '0:initial')
+        assert.deepEqual(writes, [])
+        await act(async () => { read.resolve('{"count":7,"name":"restored"}') })
+        assert.equal(container.textContent, '7:restored')
+        assert.equal(container.querySelector('input')!.value, 'restored')
+        assert.deepEqual(observations, ['7:restored'])
+        assert.deepEqual(writes, [])
+        await act(async () => { inputValue(container.querySelector('input')!, 'after') })
+        assert.deepEqual(writes, ['{"count":7,"name":"after"}'])
+        assert.deepEqual(observations, ['7:restored', '7:after'])
+    })
+})
 
 test('useLoading counts concurrent tokens, settles out of order and preserves boolean/numeric baselines', async () => {
     for (const initial of [undefined, false, true, 0, 2]) {
@@ -807,5 +865,38 @@ test('Chip rejects non-synchronous callbacks and discarded renders never subscri
         const before = calls
         await act(async () => { state.count++ })
         assert.equal(calls, before)
+    })
+})
+
+test('Model and defineModel strictly validate valueProp while preserving nullable values and recovery', async () => {
+    const state = reactive({ text: 'A', checked: true, nullable: null as string | null })
+    let callbacks = 0
+    const Control = (props: { value?: string | null; checked?: boolean; onChange?: (value: string) => void }) => <input
+        value={props.value ?? undefined} checked={props.checked} onChange={() => props.onChange?.('B')} />
+    const Defined = defineModel(Control)
+    for (const valueProp of [null, '', 'foo', 1, false, {}]) {
+        const props = { valueProp: valueProp as never, postValue: () => { callbacks++; return 'wrong' } }
+        for (const child of [<input />, <input type="checkbox" />, <Control />]) {
+            assert.throws(() => serverRender(<Model source={() => state.text} {...props}>{child}</Model>), {
+                name: 'TypeError', message: 'Model valueProp must be value or checked',
+            })
+        }
+        assert.throws(() => serverRender(<Defined refer={() => state.text} valueProp={valueProp as never} onChange={() => { callbacks++ }} />), TypeError)
+    }
+    assert.equal(callbacks, 0)
+    assert.equal(state.text, 'A')
+    assert.match(serverRender(<Model source={() => state.checked} valueProp={undefined}><input type="checkbox" /></Model>), /checked=""/)
+    assert.match(serverRender(<Model source={() => state.text} valueProp="value"><input /></Model>), /value="A"/)
+    assert.match(serverRender(<Model source={() => state.checked} valueProp="checked"><input type="checkbox" /></Model>), /checked=""/)
+    let customValue: unknown = 'unread'
+    const Nullable = (props: { value?: string | null }) => { customValue = props.value; return null }
+    serverRender(<Model source={() => state.nullable}><Nullable /></Model>)
+    assert.equal(customValue, null)
+    assert.match(serverRender(<Model source={() => state.nullable}><input /></Model>), /value=""/)
+    assert.equal(state.nullable, null)
+    await mounted(async (root, container) => {
+        await act(async () => root.render(<Model source={() => state.text} valueProp={undefined}><input /></Model>))
+        await act(async () => inputValue(container.querySelector('input')!, 'recovered'))
+        assert.equal(state.text, 'recovered')
     })
 })

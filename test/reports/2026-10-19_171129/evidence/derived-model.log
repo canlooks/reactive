@@ -1,0 +1,16 @@
+START 2026-10-19T09:17:04.884Z
+CWD E:\projects\@canlooks\reactive
+COMMAND node --test test/reports/2026-10-19_171129/scripts/derived-model.mjs
+
+{"seeds":100,"outerBatches":100000,"computedNodesPerSeed":12,"operations":277936,"intermediateReads":277936,"status":"passed"}
+✔ EXP-DERIVED 100 seeds x 1000 nested batches with conditional computed DAGs (1732.9718ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1816.1819
+
+END 2026-10-19T09:17:06.758Z EXIT 0

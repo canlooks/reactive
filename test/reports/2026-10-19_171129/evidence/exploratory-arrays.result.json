@@ -1,0 +1,14 @@
+{
+  "name": "exploratory-arrays",
+  "command": "node",
+  "args": [
+    "--test",
+    "test/reports/2026-10-19_171129/scripts/exploratory-arrays.mjs"
+  ],
+  "cwd": "E:\\projects\\@canlooks\\reactive",
+  "started": "2026-10-19T09:14:47.320Z",
+  "ended": "2026-10-19T09:14:47.464Z",
+  "durationMs": 144,
+  "exitCode": 1,
+  "signal": null
+}

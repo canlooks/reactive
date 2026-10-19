@@ -1,0 +1,13 @@
+{
+  "name": "readme-extract",
+  "command": "node",
+  "args": [
+    "test/reports/2026-10-19_171129/scripts/readme-extract.mjs"
+  ],
+  "cwd": "E:\\projects\\@canlooks\\reactive",
+  "started": "2026-10-19T09:15:07.577Z",
+  "ended": "2026-10-19T09:15:07.642Z",
+  "durationMs": 65,
+  "exitCode": 0,
+  "signal": null
+}

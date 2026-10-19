@@ -1,0 +1,13 @@
+{
+  "name": "browser-windows",
+  "command": "node",
+  "args": [
+    "test/reports/2026-10-16_181149_fix/scripts/browser.mjs"
+  ],
+  "cwd": "E:\\projects\\@canlooks\\reactive",
+  "started": "2026-10-16T10:28:57.840Z",
+  "ended": "2026-10-16T10:29:07.791Z",
+  "durationMs": 9951,
+  "exitCode": 1,
+  "signal": null
+}

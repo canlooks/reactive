@@ -2,6 +2,16 @@ import { computed } from '@canlooks/reactive'
 import { Chip, AsyncChip, Model, defineModel, useLoading, useModel, useReactive, RC } from '@canlooks/reactive/react'
 
 const TextInput = defineModel(props => <input {...props} />)
+for (const valueProp of [undefined, 'value', 'checked'] as const) {
+    const valid = <Model source={() => 'A'} valueProp={valueProp}><input /></Model>
+    const defined = <TextInput refer={() => 'A'} valueProp={valueProp} />
+    void [valid, defined]
+}
+// @ts-expect-error null is not an omitted valueProp.
+const nullProp = <Model source={() => 'A'} valueProp={null}><input /></Model>
+// @ts-expect-error defineModel has the same strict valueProp contract.
+const nullDefinedProp = <TextInput refer={() => 'A'} valueProp={null} />
+void [nullProp, nullDefinedProp]
 const Amount = defineModel((props: { value: number; onChange: (n: number, unit: string) => void; label: string }) =>
     <input aria-label={props.label} value={props.value} onChange={event => props.onChange(event.currentTarget.valueAsNumber, 'kg')} />,
     (value, unit) => value + unit.length)

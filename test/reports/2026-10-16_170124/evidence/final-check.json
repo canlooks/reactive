@@ -1,0 +1,21 @@
+{
+  "completed": "2026-10-16T09:34:36.369Z",
+  "timezone": "Asia/Shanghai",
+  "sourceFiles": 78,
+  "sourceChanges": [],
+  "caseRows": 240,
+  "counts": {
+    "通过": 236,
+    "失败": 2,
+    "阻塞": 2
+  },
+  "reportSha256": {
+    "markdown": "6a0d0a7c501ff3df3769f5f4a11f29ac5b4676d83d687de75c97a1e0bd57328f",
+    "html": "81f63d30b732f30c315aa575ec06881dbd98fa95047b21174ab4081375f4f537"
+  },
+  "markdownBrokenLinks": [],
+  "cacheCleanup": {
+    "status": "retained",
+    "reason": "Automatic approval review rejected recursive cleanup of task-local Linux browser/Node caches: blocked by policy. No cleanup was performed; .runtime is ignored by the report-local .gitignore."
+  }
+}

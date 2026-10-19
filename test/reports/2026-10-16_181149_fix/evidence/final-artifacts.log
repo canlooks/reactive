@@ -1,0 +1,7 @@
+START 2026-10-16T10:37:47.226Z
+CWD E:\projects\@canlooks\reactive
+COMMAND node test/reports/2026-10-16_181149_fix/scripts/verify-artifacts.mjs
+
+Verified source hashes, exactly five production changes, unchanged public declarations, browser tarball bytes and all 12 browser variants.
+
+END 2026-10-16T10:37:47.328Z EXIT 0

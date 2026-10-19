@@ -1,0 +1,6 @@
+START 2026-10-19T09:15:07.689Z
+CWD E:\projects\@canlooks\reactive
+COMMAND node node_modules/typescript/bin/tsc -p test/reports/2026-10-19_171129/scripts/readme-examples/tsconfig.json
+
+
+END 2026-10-19T09:15:07.970Z EXIT 0

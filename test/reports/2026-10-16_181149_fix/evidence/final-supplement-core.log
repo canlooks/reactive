@@ -1,0 +1,30 @@
+START 2026-10-16T10:28:19.998Z
+CWD E:\projects\@canlooks\reactive
+COMMAND node --expose-gc test/reports/2026-10-16_181149_fix/scripts/supplement-core.mjs
+
+✔ CORE-069 computed object/function/undefined results and destructured snapshots (2.2819ms)
+✔ CORE-070 raw writes and enumeration negative controls (1.9386ms)
+✔ CORE-071 Unicode empty keys false zero shared identities and net rollback (0.8038ms)
+✔ CORE-072 all invalid watch argument positions and ignored cleanup returns (0.56ms)
+✔ STORE-037 JSON restore is not schema validation; adapter migration works (1.3029ms)
+reserved-key checks: 18
+{"seeds":100,"outerBatches":100000,"operations":300040}
+✔ STORE-038 invalid get/set results this binding and then access once (2.242ms)
+✔ STORE-039 QUAL-013 reserved keys 3x3 encode/decode and logger failures (2.0043ms)
+✔ STORE-039 inherited setter preflight never runs or partially restores (0.3592ms)
+✔ STORE-040 Unicode Infinity array named properties and deleted default reload (0.8027ms)
+✔ QUAL-012 100 seeds x 1000 operations independent descriptor model (1130.0829ms)
+✔ QUAL-015 50 repeated storage/watch failures isolate healthy instances (4.6842ms)
+✔ PKG-016 public entry and deep import rejection (8.2812ms)
+✔ QUAL-007 10000 unrelated subscriptions produce one changed-field notification (18.323ms)
+✔ EXPLORATORY cross-realm plain object gets reactive updates (0.7189ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1181.5951
+
+END 2026-10-16T10:28:21.273Z EXIT 0

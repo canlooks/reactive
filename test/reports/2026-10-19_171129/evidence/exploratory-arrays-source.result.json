@@ -1,0 +1,16 @@
+{
+  "name": "exploratory-arrays-source",
+  "command": "node",
+  "args": [
+    "--import",
+    "tsx",
+    "--test",
+    "test/reports/2026-10-19_171129/scripts/exploratory-arrays.mjs"
+  ],
+  "cwd": "E:\\projects\\@canlooks\\reactive",
+  "started": "2026-10-19T09:14:47.513Z",
+  "ended": "2026-10-19T09:14:47.874Z",
+  "durationMs": 361,
+  "exitCode": 1,
+  "signal": null
+}

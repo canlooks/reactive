@@ -1,0 +1,300 @@
+START 2026-10-16T09:09:41.209Z
+CWD E:\projects\@canlooks\reactive
+COMMAND node --expose-gc node_modules/tsx/dist/cli.mjs --tsconfig tsconfig.react-test.json --test --test-reporter=tap test/reports/2026-10-16_170124/scripts/supplement-react.tsx
+
+TAP version 13
+# Subtest: REACT-001 external wrappers and invalid categories matrix
+ok 1 - REACT-001 external wrappers and invalid categories matrix
+  ---
+  duration_ms: 0.9113
+  type: 'test'
+  ...
+# Subtest: REACT-002 memo object and function identity changes
+not ok 2 - REACT-002 memo object and function identity changes
+  ---
+  duration_ms: 20.7004
+  type: 'test'
+  location: 'E:\\projects\\@canlooks\\reactive\\test\\reports\\2026-10-16_170124\\scripts\\supplement-react.tsx:1:5191'
+  failureType: 'testCodeFailure'
+  error: 'React is not defined'
+  code: 'ERR_TEST_FAILURE'
+  name: 'ReferenceError'
+  stack: |-
+    <anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:25:71)
+    process.env.NODE_ENV.exports.act (E:\projects\@canlooks\reactive\node_modules\react\cjs\react.development.js:890:22)
+    <anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:25:46)
+    mounted (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:16:154)
+    TestContext.<anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:25:8)
+    Test.runInAsyncScope (node:async_hooks:228:14)
+    Test.run (node:internal/test_runner/test:1118:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+    Test.postRun (node:internal/test_runner/test:1247:19)
+    Test.run (node:internal/test_runner/test:1175:12)
+  ...
+# Subtest: REACT-035 ordinary class methods and getters do not batch or cache
+not ok 3 - REACT-035 ordinary class methods and getters do not batch or cache
+  ---
+  duration_ms: 3.5524
+  type: 'test'
+  location: 'E:\\projects\\@canlooks\\reactive\\test\\reports\\2026-10-16_170124\\scripts\\supplement-react.tsx:1:5869'
+  failureType: 'testCodeFailure'
+  error: 'React is not defined'
+  code: 'ERR_TEST_FAILURE'
+  name: 'ReferenceError'
+  stack: |-
+    <anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:29:65)
+    process.env.NODE_ENV.exports.act (E:\projects\@canlooks\reactive\node_modules\react\cjs\react.development.js:890:22)
+    <anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:29:40)
+    mounted (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:16:154)
+    TestContext.<anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:29:8)
+    Test.runInAsyncScope (node:async_hooks:228:14)
+    Test.run (node:internal/test_runner/test:1118:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+    Test.postRun (node:internal/test_runner/test:1247:19)
+    Test.run (node:internal/test_runner/test:1175:12)
+  ...
+# Subtest: UI-001 factory identities conditional list mounting and stable keys
+not ok 4 - UI-001 factory identities conditional list mounting and stable keys
+  ---
+  duration_ms: 2.3543
+  type: 'test'
+  location: 'E:\\projects\\@canlooks\\reactive\\test\\reports\\2026-10-16_170124\\scripts\\supplement-react.tsx:1:6542'
+  failureType: 'testCodeFailure'
+  error: 'React is not defined'
+  code: 'ERR_TEST_FAILURE'
+  name: 'ReferenceError'
+  stack: |-
+    <anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:35:162)
+    process.env.NODE_ENV.exports.act (E:\projects\@canlooks\reactive\node_modules\react\cjs\react.development.js:890:22)
+    <anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:35:137)
+    mounted (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:16:154)
+    TestContext.<anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:35:8)
+    Test.runInAsyncScope (node:async_hooks:228:14)
+    Test.run (node:internal/test_runner/test:1118:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+    Test.postRun (node:internal/test_runner/test:1247:19)
+    Test.run (node:internal/test_runner/test:1175:12)
+  ...
+# Subtest: UI-009 legal synchronous nodes and custom thenable rejection
+not ok 5 - UI-009 legal synchronous nodes and custom thenable rejection
+  ---
+  duration_ms: 0.112
+  type: 'test'
+  location: 'E:\\projects\\@canlooks\\reactive\\test\\reports\\2026-10-16_170124\\scripts\\supplement-react.tsx:1:7535'
+  failureType: 'testCodeFailure'
+  error: 'React is not defined'
+  code: 'ERR_TEST_FAILURE'
+  name: 'ReferenceError'
+  stack: |-
+    TestContext.<anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:38:35)
+    Test.runInAsyncScope (node:async_hooks:228:14)
+    Test.run (node:internal/test_runner/test:1118:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+    Test.postRun (node:internal/test_runner/test:1247:19)
+    Test.run (node:internal/test_runner/test:1175:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:787:7)
+  ...
+# Subtest: UI-019 UI-020 Model DOM events target every property and setter once
+not ok 6 - UI-019 UI-020 Model DOM events target every property and setter once
+  ---
+  duration_ms: 3.0362
+  type: 'test'
+  location: 'E:\\projects\\@canlooks\\reactive\\test\\reports\\2026-10-16_170124\\scripts\\supplement-react.tsx:1:7854'
+  failureType: 'testCodeFailure'
+  error: 'React is not defined'
+  code: 'ERR_TEST_FAILURE'
+  name: 'ReferenceError'
+  stack: |-
+    <anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:44:102)
+    process.env.NODE_ENV.exports.act (E:\projects\@canlooks\reactive\node_modules\react\cjs\react.development.js:890:22)
+    <anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:44:77)
+    mounted (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:16:154)
+    TestContext.<anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:44:39)
+    Test.runInAsyncScope (node:async_hooks:228:14)
+    Test.run (node:internal/test_runner/test:1118:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+    Test.postRun (node:internal/test_runner/test:1247:19)
+    Test.run (node:internal/test_runner/test:1175:12)
+  ...
+# Subtest: UI-022 all invalid element shapes portal file and valueProp
+not ok 7 - UI-022 all invalid element shapes portal file and valueProp
+  ---
+  duration_ms: 0.2816
+  type: 'test'
+  location: 'E:\\projects\\@canlooks\\reactive\\test\\reports\\2026-10-16_170124\\scripts\\supplement-react.tsx:1:8530'
+  failureType: 'testCodeFailure'
+  error: 'React is not defined'
+  code: 'ERR_TEST_FAILURE'
+  name: 'ReferenceError'
+  stack: |-
+    TestContext.<anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:48:107)
+    Test.runInAsyncScope (node:async_hooks:228:14)
+    Test.run (node:internal/test_runner/test:1118:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+    Test.postRun (node:internal/test_runner/test:1247:19)
+    Test.run (node:internal/test_runner/test:1175:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:787:7)
+  ...
+# Subtest: UI-024 Model server values side effects and hydrate input
+not ok 8 - UI-024 Model server values side effects and hydrate input
+  ---
+  duration_ms: 0.4128
+  type: 'test'
+  location: 'E:\\projects\\@canlooks\\reactive\\test\\reports\\2026-10-16_170124\\scripts\\supplement-react.tsx:1:9270'
+  failureType: 'testCodeFailure'
+  error: 'React is not defined'
+  code: 'ERR_TEST_FAILURE'
+  name: 'ReferenceError'
+  stack: |-
+    TestContext.<anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:55:17)
+    Test.runInAsyncScope (node:async_hooks:228:14)
+    Test.run (node:internal/test_runner/test:1118:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+    Test.postRun (node:internal/test_runner/test:1247:19)
+    Test.run (node:internal/test_runner/test:1175:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:787:7)
+  ...
+# Subtest: UI-025 genuine cross-document events currentTarget priority and target fallback
+not ok 9 - UI-025 genuine cross-document events currentTarget priority and target fallback
+  ---
+  duration_ms: 11.4521
+  type: 'test'
+  location: 'E:\\projects\\@canlooks\\reactive\\test\\reports\\2026-10-16_170124\\scripts\\supplement-react.tsx:1:10625'
+  failureType: 'testCodeFailure'
+  error: 'React is not defined'
+  code: 'ERR_TEST_FAILURE'
+  name: 'ReferenceError'
+  stack: |-
+    <anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:61:69)
+    process.env.NODE_ENV.exports.act (E:\projects\@canlooks\reactive\node_modules\react\cjs\react.development.js:890:22)
+    <anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:61:44)
+    mounted (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:16:154)
+    TestContext.<anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:61:12)
+    Test.runInAsyncScope (node:async_hooks:228:14)
+    Test.run (node:internal/test_runner/test:1118:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+    Test.postRun (node:internal/test_runner/test:1247:19)
+    Test.run (node:internal/test_runner/test:1175:12)
+  ...
+# Subtest: UI-026 defineModel class protocol children keys and stable mount
+not ok 10 - UI-026 defineModel class protocol children keys and stable mount
+  ---
+  duration_ms: 1.4103
+  type: 'test'
+  location: 'E:\\projects\\@canlooks\\reactive\\test\\reports\\2026-10-16_170124\\scripts\\supplement-react.tsx:1:11778'
+  failureType: 'testCodeFailure'
+  error: 'React is not defined'
+  code: 'ERR_TEST_FAILURE'
+  name: 'ReferenceError'
+  stack: |-
+    make (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:70:147)
+    <anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:70:268)
+    process.env.NODE_ENV.exports.act (E:\projects\@canlooks\reactive\node_modules\react\cjs\react.development.js:890:22)
+    <anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:70:243)
+    mounted (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:16:154)
+    TestContext.<anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:70:90)
+    Test.runInAsyncScope (node:async_hooks:228:14)
+    Test.run (node:internal/test_runner/test:1118:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+    Test.postRun (node:internal/test_runner/test:1247:19)
+  ...
+# Subtest: LOAD-014 invalid fn all numeric edges uncommitted handle and MAX_SAFE_INTEGER
+not ok 11 - LOAD-014 invalid fn all numeric edges uncommitted handle and MAX_SAFE_INTEGER
+  ---
+  duration_ms: 0.6796
+  type: 'test'
+  location: 'E:\\projects\\@canlooks\\reactive\\test\\reports\\2026-10-16_170124\\scripts\\supplement-react.tsx:1:12782'
+  failureType: 'testCodeFailure'
+  error: |-
+    The error is expected to be an instance of "TypeError". Received "ReferenceError"
+    
+    Error message:
+    
+    React is not defined
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  stack: |-
+    TestContext.<anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:73:128)
+    Test.runInAsyncScope (node:async_hooks:228:14)
+    Test.run (node:internal/test_runner/test:1118:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+    Test.postRun (node:internal/test_runner/test:1247:19)
+    Test.run (node:internal/test_runner/test:1175:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:787:7)
+  ...
+# Subtest: LOAD-032 same class instance rejects constructor/render then accepts committed event
+not ok 12 - LOAD-032 same class instance rejects constructor/render then accepts committed event
+  ---
+  duration_ms: 0.37
+  type: 'test'
+  location: 'E:\\projects\\@canlooks\\reactive\\test\\reports\\2026-10-16_170124\\scripts\\supplement-react.tsx:1:13756'
+  failureType: 'testCodeFailure'
+  error: 'loading decorates React class business instance methods only (legacy decorators)'
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    <anonymous> (E:\projects\@canlooks\reactive\src\react\loadingDecorator.ts:93:19)
+    __decorateElement (file:///E:/projects/@canlooks/reactive/test/reports/2026-10-16_170124/scripts/supplement-react.tsx:1:2161)
+    TestContext.<anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:79:211)
+    Test.runInAsyncScope (node:async_hooks:228:14)
+    Test.run (node:internal/test_runner/test:1118:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+    Test.postRun (node:internal/test_runner/test:1247:19)
+    Test.run (node:internal/test_runner/test:1175:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:787:7)
+  ...
+# Subtest: QUAL-014 integrated Model watch computed concurrent load persist reload unmount
+not ok 13 - QUAL-014 integrated Model watch computed concurrent load persist reload unmount
+  ---
+  duration_ms: 3.7207
+  type: 'test'
+  location: 'E:\\projects\\@canlooks\\reactive\\test\\reports\\2026-10-16_170124\\scripts\\supplement-react.tsx:1:14782'
+  failureType: 'testCodeFailure'
+  error: 'React is not defined'
+  code: 'ERR_TEST_FAILURE'
+  name: 'ReferenceError'
+  stack: |-
+    <anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:85:71)
+    process.env.NODE_ENV.exports.act (E:\projects\@canlooks\reactive\node_modules\react\cjs\react.development.js:890:22)
+    <anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:85:46)
+    mounted (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:16:154)
+    TestContext.<anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:85:8)
+    Test.runInAsyncScope (node:async_hooks:228:14)
+    Test.run (node:internal/test_runner/test:1118:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+    Test.postRun (node:internal/test_runner/test:1247:19)
+    Test.run (node:internal/test_runner/test:1175:12)
+  ...
+# Subtest: QUAL-010 1000 RC Chip Model loading mount/unmount cycles
+not ok 14 - QUAL-010 1000 RC Chip Model loading mount/unmount cycles
+  ---
+  duration_ms: 1.3752
+  type: 'test'
+  location: 'E:\\projects\\@canlooks\\reactive\\test\\reports\\2026-10-16_170124\\scripts\\supplement-react.tsx:1:16406'
+  failureType: 'testCodeFailure'
+  error: 'React is not defined'
+  code: 'ERR_TEST_FAILURE'
+  name: 'ReferenceError'
+  stack: |-
+    <anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:90:65)
+    process.env.NODE_ENV.exports.act (E:\projects\@canlooks\reactive\node_modules\react\cjs\react.development.js:890:22)
+    <anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:90:40)
+    mounted (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:16:154)
+    TestContext.<anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:90:8)
+    Test.runInAsyncScope (node:async_hooks:228:14)
+    Test.run (node:internal/test_runner/test:1118:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+    Test.postRun (node:internal/test_runner/test:1247:19)
+    Test.run (node:internal/test_runner/test:1175:12)
+  ...
+1..14
+# tests 14
+# suites 0
+# pass 1
+# fail 13
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 972.9596
+
+END 2026-10-16T09:09:42.327Z EXIT 1

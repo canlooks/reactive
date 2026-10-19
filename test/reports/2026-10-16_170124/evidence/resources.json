@@ -1,0 +1,847 @@
+{
+  "benchmarks": [
+    {
+      "name": "proxy/deep fields=1000",
+      "warmups": 3,
+      "samples": [
+        {
+          "ms": 2.3699000000000012,
+          "fields": 1000
+        },
+        {
+          "ms": 1.7268999999999934,
+          "fields": 1000
+        },
+        {
+          "ms": 2.8183000000000007,
+          "fields": 1000
+        },
+        {
+          "ms": 1.8064999999999998,
+          "fields": 1000
+        },
+        {
+          "ms": 2.1326000000000036,
+          "fields": 1000
+        },
+        {
+          "ms": 2.2897000000000034,
+          "fields": 1000
+        },
+        {
+          "ms": 1.828000000000003,
+          "fields": 1000
+        },
+        {
+          "ms": 3.755899999999997,
+          "fields": 1000
+        },
+        {
+          "ms": 2.079100000000011,
+          "fields": 1000
+        },
+        {
+          "ms": 1.6150999999999982,
+          "fields": 1000
+        }
+      ],
+      "medianMs": 2.1058500000000073,
+      "p95Ms": 3.755899999999997
+    },
+    {
+      "name": "proxy/deep fields=10000",
+      "warmups": 3,
+      "samples": [
+        {
+          "ms": 16.808499999999995,
+          "fields": 10000
+        },
+        {
+          "ms": 13.676299999999998,
+          "fields": 10000
+        },
+        {
+          "ms": 15.701900000000023,
+          "fields": 10000
+        },
+        {
+          "ms": 25.0291,
+          "fields": 10000
+        },
+        {
+          "ms": 18.3048,
+          "fields": 10000
+        },
+        {
+          "ms": 12.757499999999993,
+          "fields": 10000
+        },
+        {
+          "ms": 12.498099999999994,
+          "fields": 10000
+        },
+        {
+          "ms": 25.058099999999996,
+          "fields": 10000
+        },
+        {
+          "ms": 14.081299999999999,
+          "fields": 10000
+        },
+        {
+          "ms": 11.730700000000013,
+          "fields": 10000
+        }
+      ],
+      "medianMs": 14.891600000000011,
+      "p95Ms": 25.058099999999996
+    },
+    {
+      "name": "computed 100000 cached reads",
+      "warmups": 3,
+      "samples": [
+        {
+          "ms": 1.6643000000000256,
+          "getterCalls": 1
+        },
+        {
+          "ms": 1.5312000000000126,
+          "getterCalls": 1
+        },
+        {
+          "ms": 1.6812000000000467,
+          "getterCalls": 1
+        },
+        {
+          "ms": 1.5394000000000005,
+          "getterCalls": 1
+        },
+        {
+          "ms": 1.7337999999999738,
+          "getterCalls": 1
+        },
+        {
+          "ms": 1.7594000000000278,
+          "getterCalls": 1
+        },
+        {
+          "ms": 2.029399999999953,
+          "getterCalls": 1
+        },
+        {
+          "ms": 1.56899999999996,
+          "getterCalls": 1
+        },
+        {
+          "ms": 1.6666999999999916,
+          "getterCalls": 1
+        },
+        {
+          "ms": 1.5353999999999814,
+          "getterCalls": 1
+        }
+      ],
+      "medianMs": 1.6655000000000086,
+      "p95Ms": 2.029399999999953
+    },
+    {
+      "name": "10000 writes batch=false",
+      "warmups": 3,
+      "samples": [
+        {
+          "ms": 54.19890000000004,
+          "notifications": 10000
+        },
+        {
+          "ms": 17.48090000000002,
+          "notifications": 10000
+        },
+        {
+          "ms": 14.869400000000041,
+          "notifications": 10000
+        },
+        {
+          "ms": 14.309799999999996,
+          "notifications": 10000
+        },
+        {
+          "ms": 15.10069999999996,
+          "notifications": 10000
+        },
+        {
+          "ms": 13.733000000000004,
+          "notifications": 10000
+        },
+        {
+          "ms": 15.660999999999945,
+          "notifications": 10000
+        },
+        {
+          "ms": 15.574799999999982,
+          "notifications": 10000
+        },
+        {
+          "ms": 15.568599999999947,
+          "notifications": 10000
+        },
+        {
+          "ms": 14.82929999999999,
+          "notifications": 10000
+        }
+      ],
+      "medianMs": 15.334649999999954,
+      "p95Ms": 54.19890000000004
+    },
+    {
+      "name": "10000 writes batch=true",
+      "warmups": 3,
+      "samples": [
+        {
+          "ms": 4.185699999999997,
+          "notifications": 1
+        },
+        {
+          "ms": 4.016099999999938,
+          "notifications": 1
+        },
+        {
+          "ms": 3.6439000000000306,
+          "notifications": 1
+        },
+        {
+          "ms": 3.6952999999999747,
+          "notifications": 1
+        },
+        {
+          "ms": 3.6702000000000226,
+          "notifications": 1
+        },
+        {
+          "ms": 3.6809999999999263,
+          "notifications": 1
+        },
+        {
+          "ms": 3.698099999999954,
+          "notifications": 1
+        },
+        {
+          "ms": 3.988899999999944,
+          "notifications": 1
+        },
+        {
+          "ms": 4.088200000000029,
+          "notifications": 1
+        },
+        {
+          "ms": 4.101599999999962,
+          "notifications": 1
+        }
+      ],
+      "medianMs": 3.843499999999949,
+      "p95Ms": 4.185699999999997
+    },
+    {
+      "name": "QUAL-008 sparse length=1e9 own indices=3",
+      "warmups": 3,
+      "samples": [
+        {
+          "ms": 0.01059999999995398,
+          "indices": 3
+        },
+        {
+          "ms": 0.0141999999999598,
+          "indices": 3
+        },
+        {
+          "ms": 0.010099999999965803,
+          "indices": 3
+        },
+        {
+          "ms": 0.0181999999999789,
+          "indices": 3
+        },
+        {
+          "ms": 0.010300000000029286,
+          "indices": 3
+        },
+        {
+          "ms": 0.010099999999965803,
+          "indices": 3
+        },
+        {
+          "ms": 0.018299999999953798,
+          "indices": 3
+        },
+        {
+          "ms": 0.012600000000020373,
+          "indices": 3
+        },
+        {
+          "ms": 0.00980000000004111,
+          "indices": 3
+        },
+        {
+          "ms": 0.009299999999939246,
+          "indices": 3
+        }
+      ],
+      "medianMs": 0.010449999999991633,
+      "p95Ms": 0.018299999999953798
+    },
+    {
+      "name": "QUAL-008 depth=100",
+      "warmups": 3,
+      "samples": [
+        {
+          "ms": 0.48519999999996344,
+          "depth": 100,
+          "bytes": 1697
+        },
+        {
+          "ms": 0.7424000000000888,
+          "depth": 100,
+          "bytes": 1697
+        },
+        {
+          "ms": 0.5697000000000116,
+          "depth": 100,
+          "bytes": 1697
+        },
+        {
+          "ms": 0.4132999999999356,
+          "depth": 100,
+          "bytes": 1697
+        },
+        {
+          "ms": 0.6854999999999336,
+          "depth": 100,
+          "bytes": 1697
+        },
+        {
+          "ms": 0.35610000000008313,
+          "depth": 100,
+          "bytes": 1697
+        },
+        {
+          "ms": 0.36389999999994416,
+          "depth": 100,
+          "bytes": 1697
+        },
+        {
+          "ms": 0.3769999999999527,
+          "depth": 100,
+          "bytes": 1697
+        },
+        {
+          "ms": 0.3182000000000471,
+          "depth": 100,
+          "bytes": 1697
+        },
+        {
+          "ms": 0.32920000000001437,
+          "depth": 100,
+          "bytes": 1697
+        }
+      ],
+      "medianMs": 0.39514999999994416,
+      "p95Ms": 0.7424000000000888
+    },
+    {
+      "name": "QUAL-008 depth=1000",
+      "warmups": 3,
+      "samples": [
+        {
+          "ms": 7.115000000000009,
+          "depth": 1000,
+          "bytes": 17897
+        },
+        {
+          "ms": 5.019900000000007,
+          "depth": 1000,
+          "bytes": 17897
+        },
+        {
+          "ms": 5.094499999999925,
+          "depth": 1000,
+          "bytes": 17897
+        },
+        {
+          "ms": 5.119599999999991,
+          "depth": 1000,
+          "bytes": 17897
+        },
+        {
+          "ms": 5.102499999999964,
+          "depth": 1000,
+          "bytes": 17897
+        },
+        {
+          "ms": 4.109399999999937,
+          "depth": 1000,
+          "bytes": 17897
+        },
+        {
+          "ms": 5.885599999999954,
+          "depth": 1000,
+          "bytes": 17897
+        },
+        {
+          "ms": 5.123699999999985,
+          "depth": 1000,
+          "bytes": 17897
+        },
+        {
+          "ms": 2.999900000000025,
+          "depth": 1000,
+          "bytes": 17897
+        },
+        {
+          "ms": 3.5506000000000313,
+          "depth": 1000,
+          "bytes": 17897
+        }
+      ],
+      "medianMs": 5.0984999999999445,
+      "p95Ms": 7.115000000000009
+    },
+    {
+      "name": "JSON shared graph=false",
+      "warmups": 3,
+      "samples": [
+        {
+          "ms": 0.5031000000000176,
+          "uniqueChildren": 100,
+          "bytes": 11511
+        },
+        {
+          "ms": 1.7555999999999585,
+          "uniqueChildren": 100,
+          "bytes": 11511
+        },
+        {
+          "ms": 0.5881999999999152,
+          "uniqueChildren": 100,
+          "bytes": 11511
+        },
+        {
+          "ms": 0.4855000000000018,
+          "uniqueChildren": 100,
+          "bytes": 11511
+        },
+        {
+          "ms": 0.4817000000000462,
+          "uniqueChildren": 100,
+          "bytes": 11511
+        },
+        {
+          "ms": 0.4913999999999987,
+          "uniqueChildren": 100,
+          "bytes": 11511
+        },
+        {
+          "ms": 0.5117999999999938,
+          "uniqueChildren": 100,
+          "bytes": 11511
+        },
+        {
+          "ms": 0.6183999999999514,
+          "uniqueChildren": 100,
+          "bytes": 11511
+        },
+        {
+          "ms": 0.42660000000000764,
+          "uniqueChildren": 100,
+          "bytes": 11511
+        },
+        {
+          "ms": 0.405399999999986,
+          "uniqueChildren": 100,
+          "bytes": 11511
+        }
+      ],
+      "medianMs": 0.4972500000000082,
+      "p95Ms": 1.7555999999999585
+    },
+    {
+      "name": "JSON shared graph=true",
+      "warmups": 3,
+      "samples": [
+        {
+          "ms": 0.1631999999999607,
+          "uniqueChildren": 1,
+          "bytes": 11511
+        },
+        {
+          "ms": 0.17660000000000764,
+          "uniqueChildren": 1,
+          "bytes": 11511
+        },
+        {
+          "ms": 0.1572999999999638,
+          "uniqueChildren": 1,
+          "bytes": 11511
+        },
+        {
+          "ms": 0.15620000000001255,
+          "uniqueChildren": 1,
+          "bytes": 11511
+        },
+        {
+          "ms": 0.16049999999995634,
+          "uniqueChildren": 1,
+          "bytes": 11511
+        },
+        {
+          "ms": 0.15859999999997854,
+          "uniqueChildren": 1,
+          "bytes": 11511
+        },
+        {
+          "ms": 0.15779999999995198,
+          "uniqueChildren": 1,
+          "bytes": 11511
+        },
+        {
+          "ms": 0.15670000000000073,
+          "uniqueChildren": 1,
+          "bytes": 11511
+        },
+        {
+          "ms": 0.15449999999998454,
+          "uniqueChildren": 1,
+          "bytes": 11511
+        },
+        {
+          "ms": 0.15949999999998,
+          "uniqueChildren": 1,
+          "bytes": 11511
+        }
+      ],
+      "medianMs": 0.15819999999996526,
+      "p95Ms": 0.17660000000000764
+    }
+  ],
+  "stress": [
+    {
+      "fields": 1000,
+      "mode": "sync-batch",
+      "maxActive": 0,
+      "samples": [
+        {
+          "round": 0,
+          "ms": 7.266399999999976,
+          "writes": 1,
+          "during": 1,
+          "heapBefore": 69375632,
+          "heapAfter": 83114824,
+          "bytes": 8895
+        },
+        {
+          "round": 1,
+          "ms": 7.483400000000074,
+          "writes": 1,
+          "during": 1,
+          "heapBefore": 83115728,
+          "heapAfter": 65219792,
+          "bytes": 8895
+        },
+        {
+          "round": 2,
+          "ms": 6.307999999999993,
+          "writes": 1,
+          "during": 1,
+          "heapBefore": 65220120,
+          "heapAfter": 78368944,
+          "bytes": 8895
+        },
+        {
+          "round": 3,
+          "ms": 6.451999999999998,
+          "writes": 1,
+          "during": 1,
+          "heapBefore": 78369272,
+          "heapAfter": 58429480,
+          "bytes": 8895
+        },
+        {
+          "round": 4,
+          "ms": 6.321399999999926,
+          "writes": 1,
+          "during": 1,
+          "heapBefore": 58429856,
+          "heapAfter": 71252672,
+          "bytes": 8895
+        }
+      ]
+    },
+    {
+      "fields": 1000,
+      "mode": "sync-unbatched",
+      "maxActive": 0,
+      "samples": [
+        {
+          "round": 0,
+          "ms": 5078.864600000001,
+          "writes": 10000,
+          "during": 10000,
+          "heapBefore": 74919936,
+          "heapAfter": 74478432,
+          "bytes": 8895
+        },
+        {
+          "round": 1,
+          "ms": 5170.3833,
+          "writes": 10000,
+          "during": 10000,
+          "heapBefore": 74478928,
+          "heapAfter": 74383264,
+          "bytes": 8895
+        },
+        {
+          "round": 2,
+          "ms": 5138.918100000001,
+          "writes": 10000,
+          "during": 10000,
+          "heapBefore": 74383608,
+          "heapAfter": 74195144,
+          "bytes": 8895
+        },
+        {
+          "round": 3,
+          "ms": 5203.1446,
+          "writes": 10000,
+          "during": 10000,
+          "heapBefore": 74195488,
+          "heapAfter": 74033952,
+          "bytes": 8895
+        },
+        {
+          "round": 4,
+          "ms": 5179.402900000001,
+          "writes": 10000,
+          "during": 10000,
+          "heapBefore": 74034296,
+          "heapAfter": 73896584,
+          "bytes": 8895
+        }
+      ]
+    },
+    {
+      "fields": 1000,
+      "mode": "async-pending",
+      "maxActive": 1,
+      "samples": [
+        {
+          "round": 0,
+          "ms": 5130.519600000003,
+          "writes": 2,
+          "during": 1,
+          "heapBefore": 77638152,
+          "heapAfter": 28011504,
+          "bytes": 8895
+        },
+        {
+          "round": 1,
+          "ms": 5074.006999999998,
+          "writes": 2,
+          "during": 1,
+          "heapBefore": 28012000,
+          "heapAfter": 28589528,
+          "bytes": 8895
+        },
+        {
+          "round": 2,
+          "ms": 5065.465500000006,
+          "writes": 2,
+          "during": 1,
+          "heapBefore": 28589872,
+          "heapAfter": 29060576,
+          "bytes": 8895
+        },
+        {
+          "round": 3,
+          "ms": 5047.8004,
+          "writes": 2,
+          "during": 1,
+          "heapBefore": 29060920,
+          "heapAfter": 31518776,
+          "bytes": 8895
+        },
+        {
+          "round": 4,
+          "ms": 5024.2425,
+          "writes": 2,
+          "during": 1,
+          "heapBefore": 31519120,
+          "heapAfter": 28995632,
+          "bytes": 8895
+        }
+      ]
+    },
+    {
+      "fields": 10000,
+      "mode": "sync-batch",
+      "maxActive": 0,
+      "samples": [
+        {
+          "round": 0,
+          "ms": 10.402700000006007,
+          "writes": 1,
+          "during": 1,
+          "heapBefore": 51798432,
+          "heapAfter": 73488688,
+          "bytes": 98895
+        },
+        {
+          "round": 1,
+          "ms": 11.532500000001164,
+          "writes": 1,
+          "during": 1,
+          "heapBefore": 73489184,
+          "heapAfter": 26662296,
+          "bytes": 98895
+        },
+        {
+          "round": 2,
+          "ms": 11.08009999999922,
+          "writes": 1,
+          "during": 1,
+          "heapBefore": 26662640,
+          "heapAfter": 48354064,
+          "bytes": 98895
+        },
+        {
+          "round": 3,
+          "ms": 10.683699999994133,
+          "writes": 1,
+          "during": 1,
+          "heapBefore": 48354408,
+          "heapAfter": 70045832,
+          "bytes": 98895
+        },
+        {
+          "round": 4,
+          "ms": 10.53639999999723,
+          "writes": 1,
+          "during": 1,
+          "heapBefore": 70046176,
+          "heapAfter": 91737600,
+          "bytes": 98895
+        }
+      ]
+    },
+    {
+      "fields": 10000,
+      "mode": "sync-unbatched",
+      "maxActive": 0,
+      "samples": [
+        {
+          "round": 0,
+          "ms": 57155.9672,
+          "writes": 10000,
+          "during": 10000,
+          "heapBefore": 43534464,
+          "heapAfter": 89717048,
+          "bytes": 98895
+        },
+        {
+          "round": 1,
+          "ms": 55362.91989999999,
+          "writes": 10000,
+          "during": 10000,
+          "heapBefore": 89717544,
+          "heapAfter": 118034744,
+          "bytes": 98895
+        },
+        {
+          "round": 2,
+          "ms": 56293.90109999999,
+          "writes": 10000,
+          "during": 10000,
+          "heapBefore": 118035088,
+          "heapAfter": 32208944,
+          "bytes": 98895
+        },
+        {
+          "round": 3,
+          "ms": 56045.18029999998,
+          "writes": 10000,
+          "during": 10000,
+          "heapBefore": 32209288,
+          "heapAfter": 53804272,
+          "bytes": 98895
+        },
+        {
+          "round": 4,
+          "ms": 55757.05429999996,
+          "writes": 10000,
+          "during": 10000,
+          "heapBefore": 53804616,
+          "heapAfter": 130266576,
+          "bytes": 98895
+        }
+      ]
+    },
+    {
+      "fields": 10000,
+      "mode": "async-pending",
+      "maxActive": 1,
+      "samples": [
+        {
+          "round": 0,
+          "ms": 56665.557299999986,
+          "writes": 2,
+          "during": 1,
+          "heapBefore": 82658528,
+          "heapAfter": 93653584,
+          "bytes": 98895
+        },
+        {
+          "round": 1,
+          "ms": 56675.568499999994,
+          "writes": 2,
+          "during": 1,
+          "heapBefore": 93658296,
+          "heapAfter": 85214288,
+          "bytes": 98895
+        },
+        {
+          "round": 2,
+          "ms": 56244.60690000001,
+          "writes": 2,
+          "during": 1,
+          "heapBefore": 85214664,
+          "heapAfter": 15007320,
+          "bytes": 98895
+        },
+        {
+          "round": 3,
+          "ms": 56162.60670000006,
+          "writes": 2,
+          "during": 1,
+          "heapBefore": 15007664,
+          "heapAfter": 85900560,
+          "bytes": 98895
+        },
+        {
+          "round": 4,
+          "ms": 56273.78729999997,
+          "writes": 2,
+          "during": 1,
+          "heapBefore": 85900904,
+          "heapAfter": 86032368,
+          "bytes": 98895
+        }
+      ]
+    }
+  ],
+  "gc": {
+    "storageSharedChildAlive": 1,
+    "storageAfterIoAlive": 1,
+    "computedPayloadsAliveWithSource": 1000,
+    "computedPayloadsAliveAfterSourceDropped": 0
+  },
+  "notes": [
+    "Timing is a first baseline on this machine, not an SLA or version regression comparison."
+  ]
+}

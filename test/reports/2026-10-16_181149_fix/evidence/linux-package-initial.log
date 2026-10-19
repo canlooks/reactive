@@ -1,0 +1,109 @@
+
+> @canlooks/reactive@5.0.0 test:package
+> node scripts/test-package.mjs
+
+
+> @canlooks/reactive@5.0.0 build
+> node scripts/build.mjs
+
+node:internal/modules/package_json_reader:301
+  throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+        ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'esbuild' imported from /tmp/reactive-qa-20261016-181149-fix/project/scripts/build.mjs
+    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:301:9)
+    at packageResolve (node:internal/modules/esm/resolve:768:81)
+    at moduleResolve (node:internal/modules/esm/resolve:859:18)
+    at defaultResolve (node:internal/modules/esm/resolve:991:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:719:20)
+    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:736:38)
+    at ModuleLoader.resolveSync (node:internal/modules/esm/loader:765:52)
+    at #resolve (node:internal/modules/esm/loader:701:17)
+    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:621:35)
+    at ModuleJob.syncLink (node:internal/modules/esm/module_job:160:33) {
+  code: 'ERR_MODULE_NOT_FOUND'
+}
+
+Node.js v24.14.1
+Consumer artifacts retained for diagnosis: /tmp/reactive-package-rH0KuD
+node:internal/errors:985
+  const err = new Error(message);
+              ^
+
+Error: Command failed: /mnt/e/projects/@canlooks/reactive/test/reports/2026-10-16_170124/.runtime/linux-node/bin/node /mnt/e/projects/@canlooks/reactive/test/reports/2026-10-16_170124/.runtime/linux-node/lib/node_modules/npm/bin/npm-cli.js run build
+node:internal/modules/package_json_reader:301
+  throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+        ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'esbuild' imported from /tmp/reactive-qa-20261016-181149-fix/project/scripts/build.mjs
+    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:301:9)
+    at packageResolve (node:internal/modules/esm/resolve:768:81)
+    at moduleResolve (node:internal/modules/esm/resolve:859:18)
+    at defaultResolve (node:internal/modules/esm/resolve:991:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:719:20)
+    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:736:38)
+    at ModuleLoader.resolveSync (node:internal/modules/esm/loader:765:52)
+    at #resolve (node:internal/modules/esm/loader:701:17)
+    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:621:35)
+    at ModuleJob.syncLink (node:internal/modules/esm/module_job:160:33) {
+  code: 'ERR_MODULE_NOT_FOUND'
+}
+
+Node.js v24.14.1
+
+    at genericNodeError (node:internal/errors:985:15)
+    at wrappedFn (node:internal/errors:539:14)
+    at checkExecSyncError (node:child_process:925:11)
+    at execFileSync (node:child_process:961:15)
+    at run (file:///tmp/reactive-qa-20261016-181149-fix/project/scripts/test-package.mjs:18:16)
+    at npmRun (file:///tmp/reactive-qa-20261016-181149-fix/project/scripts/test-package.mjs:26:31)
+    at file:///tmp/reactive-qa-20261016-181149-fix/project/scripts/test-package.mjs:53:5 {
+  status: 1,
+  signal: null,
+  output: [
+    null,
+    '\n> @canlooks/reactive@5.0.0 build\n> node scripts/build.mjs\n\n',
+    'node:internal/modules/package_json_reader:301\n' +
+      '  throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);\n' +
+      '        ^\n' +
+      '\n' +
+      "Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'esbuild' imported from /tmp/reactive-qa-20261016-181149-fix/project/scripts/build.mjs\n" +
+      '    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:301:9)\n' +
+      '    at packageResolve (node:internal/modules/esm/resolve:768:81)\n' +
+      '    at moduleResolve (node:internal/modules/esm/resolve:859:18)\n' +
+      '    at defaultResolve (node:internal/modules/esm/resolve:991:11)\n' +
+      '    at #cachedDefaultResolve (node:internal/modules/esm/loader:719:20)\n' +
+      '    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:736:38)\n' +
+      '    at ModuleLoader.resolveSync (node:internal/modules/esm/loader:765:52)\n' +
+      '    at #resolve (node:internal/modules/esm/loader:701:17)\n' +
+      '    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:621:35)\n' +
+      '    at ModuleJob.syncLink (node:internal/modules/esm/module_job:160:33) {\n' +
+      "  code: 'ERR_MODULE_NOT_FOUND'\n" +
+      '}\n' +
+      '\n' +
+      'Node.js v24.14.1\n'
+  ],
+  pid: 936,
+  stdout: '\n> @canlooks/reactive@5.0.0 build\n> node scripts/build.mjs\n\n',
+  stderr: 'node:internal/modules/package_json_reader:301\n' +
+    '  throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);\n' +
+    '        ^\n' +
+    '\n' +
+    "Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'esbuild' imported from /tmp/reactive-qa-20261016-181149-fix/project/scripts/build.mjs\n" +
+    '    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:301:9)\n' +
+    '    at packageResolve (node:internal/modules/esm/resolve:768:81)\n' +
+    '    at moduleResolve (node:internal/modules/esm/resolve:859:18)\n' +
+    '    at defaultResolve (node:internal/modules/esm/resolve:991:11)\n' +
+    '    at #cachedDefaultResolve (node:internal/modules/esm/loader:719:20)\n' +
+    '    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:736:38)\n' +
+    '    at ModuleLoader.resolveSync (node:internal/modules/esm/loader:765:52)\n' +
+    '    at #resolve (node:internal/modules/esm/loader:701:17)\n' +
+    '    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:621:35)\n' +
+    '    at ModuleJob.syncLink (node:internal/modules/esm/module_job:160:33) {\n' +
+    "  code: 'ERR_MODULE_NOT_FOUND'\n" +
+    '}\n' +
+    '\n' +
+    'Node.js v24.14.1\n'
+}
+
+Node.js v24.14.1

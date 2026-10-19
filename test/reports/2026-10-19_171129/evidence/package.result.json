@@ -1,0 +1,14 @@
+{
+  "name": "package",
+  "command": "npm",
+  "args": [
+    "run",
+    "test:package"
+  ],
+  "cwd": "E:\\projects\\@canlooks\\reactive",
+  "started": "2026-10-19T09:12:31.324Z",
+  "ended": "2026-10-19T09:13:21.769Z",
+  "durationMs": 50445,
+  "exitCode": 0,
+  "signal": null
+}

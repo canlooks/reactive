@@ -1,0 +1,12 @@
+diff --git a/src/reactive.ts b/src/reactive.ts
+--- a/src/reactive.ts
++++ b/src/reactive.ts
+@@ -154,7 +154,7 @@
+                 }
+             }
+             const success = Reflect.set(target, key, normalized, receiver)
+-            if (success && target === toRaw(receiver)) {
++            if (target === toRaw(receiver)) {
+                 recordChange(target, key, before, () => propertyState(target, key))
+                 for (const [implicitKey, state] of implicit) {
+                     recordChange(target, implicitKey, state, () => propertyState(target, implicitKey))

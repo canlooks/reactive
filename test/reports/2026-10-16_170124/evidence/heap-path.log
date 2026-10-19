@@ -1,0 +1,247 @@
+{
+  "canaryObjects": 1001,
+  "capturedPayloads": 1000,
+  "target": {
+    "offset": 237864,
+    "type": "object",
+    "name": "Object",
+    "id": 132087
+  },
+  "strongRetainingPath": [
+    {
+      "from": {
+        "offset": 0,
+        "type": "synthetic",
+        "name": "",
+        "id": 1
+      },
+      "edge": {
+        "type": "element",
+        "name": "1"
+      },
+      "to": {
+        "offset": 6,
+        "type": "synthetic",
+        "name": "(GC roots)",
+        "id": 3
+      }
+    },
+    {
+      "from": {
+        "offset": 6,
+        "type": "synthetic",
+        "name": "(GC roots)",
+        "id": 3
+      },
+      "edge": {
+        "type": "element",
+        "name": "19"
+      },
+      "to": {
+        "offset": 120,
+        "type": "synthetic",
+        "name": "(Stack roots)",
+        "id": 41
+      }
+    },
+    {
+      "from": {
+        "offset": 120,
+        "type": "synthetic",
+        "name": "(Stack roots)",
+        "id": 41
+      },
+      "edge": {
+        "type": "internal",
+        "name": "34"
+      },
+      "to": {
+        "offset": 21576,
+        "type": "object",
+        "name": "system / Context",
+        "id": 7193
+      }
+    },
+    {
+      "from": {
+        "offset": 21576,
+        "type": "object",
+        "name": "system / Context",
+        "id": 7193
+      },
+      "edge": {
+        "type": "context",
+        "name": "source"
+      },
+      "to": {
+        "offset": 352272,
+        "type": "hidden",
+        "name": "system / JSProxy",
+        "id": 112315
+      }
+    },
+    {
+      "from": {
+        "offset": 352272,
+        "type": "hidden",
+        "name": "system / JSProxy",
+        "id": 112315
+      },
+      "edge": {
+        "type": "hidden",
+        "name": "0"
+      },
+      "to": {
+        "offset": 327024,
+        "type": "object",
+        "name": "Object",
+        "id": 115011
+      }
+    },
+    {
+      "from": {
+        "offset": 327024,
+        "type": "object",
+        "name": "Object",
+        "id": 115011
+      },
+      "edge": {
+        "type": "internal",
+        "name": "1 / part of key (Object @115011) -> value (Map @128817) pair in WeakMap (table @115079)"
+      },
+      "to": {
+        "offset": 175200,
+        "type": "object",
+        "name": "Map",
+        "id": 128817
+      }
+    },
+    {
+      "from": {
+        "offset": 175200,
+        "type": "object",
+        "name": "Map",
+        "id": 128817
+      },
+      "edge": {
+        "type": "internal",
+        "name": "table"
+      },
+      "to": {
+        "offset": 175206,
+        "type": "array",
+        "name": "",
+        "id": 128819
+      }
+    },
+    {
+      "from": {
+        "offset": 175206,
+        "type": "array",
+        "name": "",
+        "id": 128819
+      },
+      "edge": {
+        "type": "internal",
+        "name": "6"
+      },
+      "to": {
+        "offset": 309630,
+        "type": "object",
+        "name": "Set",
+        "id": 135111
+      }
+    },
+    {
+      "from": {
+        "offset": 309630,
+        "type": "object",
+        "name": "Set",
+        "id": 135111
+      },
+      "edge": {
+        "type": "internal",
+        "name": "table"
+      },
+      "to": {
+        "offset": 420840,
+        "type": "array",
+        "name": "",
+        "id": 159311
+      }
+    },
+    {
+      "from": {
+        "offset": 420840,
+        "type": "array",
+        "name": "",
+        "id": 159311
+      },
+      "edge": {
+        "type": "internal",
+        "name": "1599"
+      },
+      "to": {
+        "offset": 202668,
+        "type": "object",
+        "name": "Object",
+        "id": 130343
+      }
+    },
+    {
+      "from": {
+        "offset": 202668,
+        "type": "object",
+        "name": "Object",
+        "id": 130343
+      },
+      "edge": {
+        "type": "property",
+        "name": "fn"
+      },
+      "to": {
+        "offset": 202674,
+        "type": "closure",
+        "name": "",
+        "id": 130345
+      }
+    },
+    {
+      "from": {
+        "offset": 202674,
+        "type": "closure",
+        "name": "",
+        "id": 130345
+      },
+      "edge": {
+        "type": "internal",
+        "name": "context"
+      },
+      "to": {
+        "offset": 493146,
+        "type": "object",
+        "name": "system / Context",
+        "id": 176207
+      }
+    },
+    {
+      "from": {
+        "offset": 493146,
+        "type": "object",
+        "name": "system / Context",
+        "id": 176207
+      },
+      "edge": {
+        "type": "context",
+        "name": "payload"
+      },
+      "to": {
+        "offset": 237864,
+        "type": "object",
+        "name": "Object",
+        "id": 132087
+      }
+    }
+  ],
+  "note": "Weak edges excluded. WeakMap ephemeron table edges are displayed as V8 labels; liveness is independently verified by dropping the source and collecting again."
+}

@@ -1,0 +1,38 @@
+START 2026-10-19T09:24:02.394Z
+CWD E:\projects\@canlooks\reactive
+COMMAND node test/reports/2026-10-19_171129/scripts/verify-artifacts.mjs
+
+warning: in the working copy of '.agents/implementation.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'scripts/build.mjs', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'scripts/test-package.mjs', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/effect.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/index.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/react/classComponent.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/react/index.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/react/model.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/react/props.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/reactive.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'test/react-features.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'test/react-smoke.mjs', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'test/react.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'test/smoke-assertions.cjs', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'test/smoke.cjs', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'test/smoke.mjs', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'test/test.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'test/types/react/features.cts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'test/types/react/features.mts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'test/types/react/features.tsx', LF will be replaced by CRLF the next time Git touches it
+{
+  "sourceFiles": 79,
+  "sourceChanges": [],
+  "snapshotMatches": true,
+  "distFiles": 87,
+  "installedTarballMatchesDist": true,
+  "gitDiffCheck": true,
+  "suggestedPatchParses": true,
+  "suggestedPatchApplied": false,
+  "checkedAt": "2026-10-19T09:24:02.550Z"
+}
+
+END 2026-10-19T09:24:02.556Z EXIT 0

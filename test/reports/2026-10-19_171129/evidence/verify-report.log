@@ -1,0 +1,22 @@
+START 2026-10-19T09:25:34.490Z
+CWD E:\projects\@canlooks\reactive
+COMMAND node test/reports/2026-10-19_171129/scripts/verify-report.mjs
+
+{
+  "cases": 242,
+  "uniqueIds": 242,
+  "localLinks": 702,
+  "brokenLinks": [],
+  "failedFilter": 2,
+  "notExecutedFilter": 3,
+  "D04Search": 2,
+  "allRestored": 242,
+  "mobileWidth": {
+    "scroll": 390,
+    "client": 390
+  },
+  "pageErrors": [],
+  "validatedAt": "2026-10-19T09:25:35.433Z"
+}
+
+END 2026-10-19T09:25:35.478Z EXIT 0

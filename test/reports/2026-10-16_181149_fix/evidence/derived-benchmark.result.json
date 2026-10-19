@@ -1,0 +1,13 @@
+{
+  "name": "derived-benchmark",
+  "command": "node",
+  "args": [
+    "test/reports/2026-10-16_181149_fix/scripts/derived-benchmark.mjs"
+  ],
+  "cwd": "E:\\projects\\@canlooks\\reactive",
+  "started": "2026-10-16T10:20:21.906Z",
+  "ended": "2026-10-16T10:20:26.607Z",
+  "durationMs": 4701,
+  "exitCode": 0,
+  "signal": null
+}

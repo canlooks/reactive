@@ -1,0 +1,8 @@
+START 2026-10-19T09:17:04.956Z
+CWD /mnt/e/projects/@canlooks/reactive
+COMMAND node /mnt/e/projects/@canlooks/reactive/test/reports/2026-10-19_171129/scripts/browser-defect.mjs
+
+firefox 18 failed {"success":false,"actualLength":2,"tailPresent":false,"computed":4,"seen":[4],"disk":"[10,20,30,40]","dom":"4:40:4"}
+firefox 19 failed {"success":false,"actualLength":2,"tailPresent":false,"computed":4,"seen":[4],"disk":"[10,20,30,40]","dom":"4:40:4"}
+
+END 2026-10-19T09:17:08.682Z EXIT 1

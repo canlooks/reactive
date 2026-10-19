@@ -1,0 +1,13 @@
+{
+  "name": "browsers-3",
+  "command": "node",
+  "args": [
+    "test/reports/2026-10-16_170124/scripts/browser.mjs"
+  ],
+  "cwd": "E:\\projects\\@canlooks\\reactive",
+  "started": "2026-10-16T09:13:36.756Z",
+  "ended": "2026-10-16T09:13:44.910Z",
+  "durationMs": 8154,
+  "exitCode": 1,
+  "signal": null
+}

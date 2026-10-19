@@ -1,4 +1,9 @@
-export type Dep = Set<EffectNode>
+interface DerivedLink {
+    reference: WeakRef<EffectNode>
+    retained?: EffectNode
+}
+interface DerivedRegistration { dep: WeakRef<Dep>; link: WeakRef<DerivedLink> }
+export type Dep = Set<EffectNode | DerivedLink>
 
 export interface ChangeSource { owner: object; commit: number }
 export type ReadVersions = Map<Dep, number>
@@ -49,11 +54,23 @@ interface BatchContext {
 }
 
 const targetDeps = new WeakMap<object, Map<PropertyKey, Dep>>()
+const objectChanges = Symbol('object changes')
 const pendingEffects = new Set<EffectNode>()
 const pendingSources = new Map<EffectNode, Set<ChangeSource | undefined>>()
 const afterEffects = new Map<object, () => void>()
 const depVersions = new WeakMap<Dep, number>()
 const computedOwners = new WeakMap<Dep, EffectNode>()
+const derivedLinks = new WeakMap<EffectNode, DerivedLink>()
+// Only a live node owns these strong Dep keys, never its source-side weak link.
+const derivedRegistrations = new WeakMap<EffectNode, Map<Dep, DerivedRegistration>>()
+const retentionOwners = new Set<EffectNode>()
+let retentionDepth = 0
+// Neither endpoint may be held strongly here: a retained link can reach its target.
+const derivedFinalizer = new FinalizationRegistry<DerivedRegistration>(held => {
+    const dep = held.dep.deref()
+    const link = held.link.deref()
+    if (dep && link) dep.delete(link)
+})
 let activeEffect: EffectNode | undefined
 let activeCapture: ReadVersions | undefined
 let activeView: ReadView | undefined
@@ -124,6 +141,102 @@ export function outsideReadContext<T>(fn: () => T): T {
 
 export function registerComputed(dep: Dep, node: EffectNode): void { computedOwners.set(dep, node) }
 
+function subscriptionEntry(node: EffectNode): EffectNode | DerivedLink {
+    if (!node.computed) return node
+    let link = derivedLinks.get(node)
+    if (!link) derivedLinks.set(node, link = { reference: new WeakRef(node) })
+    return link
+}
+
+/** Preserve subscription order and hold live nodes throughout synchronous traversal. */
+function depNodes(dep: Dep): EffectNode[] {
+    const nodes: EffectNode[] = []
+    for (const entry of dep) {
+        const node = 'reference' in entry ? entry.retained ?? entry.reference.deref() : entry
+        if (node) nodes.push(node)
+        else dep.delete(entry)
+    }
+    return nodes
+}
+
+export function hasDepSubscribers(dep: Dep): boolean { return depNodes(dep).some(node => node.active) }
+
+function hasActiveConsumer(node: EffectNode, live: Set<EffectNode>, seen = new Set<EffectNode>()): boolean {
+    if (live.has(node)) return true
+    if (seen.has(node)) return false
+    seen.add(node)
+    // This walk invokes no user code, so it can stop at the first real consumer
+    // without copying a potentially large subscriber set on every edge change.
+    const dep = node.computed!.consumers
+    for (const entry of dep) {
+        const consumer = 'reference' in entry ? entry.retained ?? entry.reference.deref() : entry
+        if (!consumer) { dep.delete(entry); continue }
+        if (consumer.active && (!consumer.computed || hasActiveConsumer(consumer, live, seen))) {
+            live.add(node)
+            return true
+        }
+    }
+    return false
+}
+
+/** Only real consumers pin derivations; a cycle of derived nodes cannot pin itself. */
+function refreshComputedRetention(deps: Iterable<Dep>): void {
+    for (const dep of deps) {
+        const owner = computedOwners.get(dep)
+        if (owner) retentionOwners.add(owner)
+    }
+    // Recollection temporarily removes edges. Assess the final synchronous graph
+    // once, not every intermediate shape in a computed chain or notification wave.
+    if (retentionDepth || !retentionOwners.size) return
+    const pending = [...retentionOwners]
+    retentionOwners.clear()
+    const seen = new Set<EffectNode>()
+    const live = new Set<EffectNode>()
+    while (pending.length) {
+        const node = pending.pop()!
+        if (seen.has(node)) continue
+        seen.add(node)
+        const link = subscriptionEntry(node) as DerivedLink
+        const retained = node.active && hasActiveConsumer(node, live) ? node : undefined
+        if (link.retained === retained) continue
+        link.retained = retained
+        for (const dep of node.deps) {
+            const owner = computedOwners.get(dep)
+            if (owner) pending.push(owner)
+        }
+    }
+}
+
+function addSubscription(node: EffectNode, dep: Dep): boolean {
+    const entry = subscriptionEntry(node)
+    if (dep.has(entry)) return false
+    dep.add(entry)
+    if ('reference' in entry) {
+        let registrations = derivedRegistrations.get(node)
+        if (!registrations) derivedRegistrations.set(node, registrations = new Map())
+        if (!registrations.has(dep)) {
+            const registration = { dep: new WeakRef(dep), link: new WeakRef(entry) }
+            registrations.set(dep, registration)
+            derivedFinalizer.register(node, registration, registration)
+        }
+    }
+    return true
+}
+
+/** Reuse unchanged registrations across recollection; discard only detached edges. */
+function pruneRegistrations(node: EffectNode): void {
+    if (!node.computed) return
+    const registrations = derivedRegistrations.get(node)
+    if (!registrations || (registrations.size === node.deps.length && node.deps.every(dep => registrations.has(dep)))) return
+    const current = new Set(node.deps)
+    for (const [dep, registration] of registrations) {
+        if (current.has(dep)) continue
+        derivedFinalizer.unregister(registration)
+        registrations.delete(dep)
+    }
+    if (!registrations.size) derivedRegistrations.delete(node)
+}
+
 export function hasViewChanges(node: EffectNode, view: ReadView, seen = new Set<EffectNode>()): boolean {
     if (seen.has(node)) return false
     seen.add(node)
@@ -135,15 +248,34 @@ export function hasViewChanges(node: EffectNode, view: ReadView, seen = new Set<
 }
 
 export function replaceDeps(node: EffectNode, deps: Iterable<Dep>): void {
-    cleanup(node)
-    if (!node.active) return
-    node.deps = [...deps]
-    for (const dep of node.deps) dep.add(node)
+    const previous = cleanup(node, true)
+    if (node.active) {
+        node.deps = [...deps]
+        for (const dep of node.deps) addSubscription(node, dep)
+    }
+    finishRecollection(node, previous)
 }
 
-function cleanup(node: EffectNode): void {
-    for (const dep of node.deps) dep.delete(node)
+/** Reordering the same subscriptions changes no ownership; inspect only changed edges. */
+function finishRecollection(node: EffectNode, previous: Dep[]): void {
+    const current = node.deps
+    if (previous.length === current.length && previous.every((dep, i) => dep === current[i])) return
+    pruneRegistrations(node)
+    const before = new Set(previous)
+    const after = new Set(current)
+    refreshComputedRetention([...previous.filter(dep => !after.has(dep)), ...current.filter(dep => !before.has(dep))])
+}
+
+function cleanup(node: EffectNode, recollecting = false): Dep[] {
+    const previous = node.deps
+    const entry = subscriptionEntry(node)
+    for (const dep of previous) dep.delete(entry)
     node.deps = []
+    if (!recollecting) {
+        pruneRegistrations(node)
+        refreshComputedRetention(previous)
+    }
+    return previous
 }
 
 export function runEffect<T>(node: EffectNode<T>): T {
@@ -152,7 +284,8 @@ export function runEffect<T>(node: EffectNode<T>): T {
         context.computedDeps.set(node, node.deps.slice())
     }
 
-    cleanup(node)
+    retentionDepth++
+    const previousDeps = cleanup(node, true)
     const previous = activeEffect
     const previousCapture = activeCapture
     const previousView = activeView
@@ -181,6 +314,9 @@ export function runEffect<T>(node: EffectNode<T>): T {
         if (node.computed && context && !context.computedDeps.has(node)) {
             context.computedDeps.set(node, node.deps.slice())
         }
+        finishRecollection(node, previousDeps)
+        retentionDepth--
+        refreshComputedRetention([])
     }
     try { node.afterRun?.() } catch (error) {
         if (failed) throw new AggregateError([failure, error], 'Multiple errors in reactive effect')
@@ -195,8 +331,7 @@ export function trackDep(dep: Dep): void {
         if (!activeCapture.has(dep)) activeCapture.set(dep, depVersion(dep))
         return
     }
-    if (!activeEffect?.active || dep.has(activeEffect)) return
-    dep.add(activeEffect)
+    if (!activeEffect?.active || !addSubscription(activeEffect, dep)) return
     activeEffect.deps.push(dep)
 }
 
@@ -204,6 +339,9 @@ export function track(target: object, key: PropertyKey): void {
     if (!activeEffect?.active && !activeCapture) return
     trackDep(getDep(target, key))
 }
+
+/** Internal deep observers subscribe without changing public enumeration semantics. */
+export function trackObjectChanges(target: object): void { track(target, objectChanges) }
 
 export function stopEffect(node: EffectNode): void {
     node.active = false
@@ -238,6 +376,13 @@ export function onBatchSettled(owner: object, before: () => void, after: () => v
     if (!currentBatch) throw new Error('Commit coordination requires a batch')
     currentBatch.beforeFlush.set(owner, before)
     currentBatch.afterFlush.set(owner, after)
+}
+
+/** Deduplicate passive work after ordinary notifications, including an enclosing batch. */
+export function afterEffectsSettled(owner: object, callback: () => void): void {
+    if (currentBatch) currentBatch.afterFlush.set(owner, callback)
+    else if (flushing) afterEffects.set(owner, callback)
+    else runInBatch(() => { currentBatch!.afterFlush.set(owner, callback) })
 }
 
 export function acknowledgeNotification(node: EffectNode, owner: object, commit: number): void {
@@ -280,7 +425,7 @@ function invalidateComputeds(dep: Dep | undefined, visited = new Set<EffectNode>
         const previous = receipt.get(dep)
         receipt.set(dep, { before: previous?.before ?? before, after: before + 1 })
     }
-    for (const node of [...dep]) {
+    for (const node of depNodes(dep)) {
         if (!node.active || !node.computed || visited.has(node)) continue
         visited.add(node)
         node.computed.invalidate()
@@ -308,20 +453,23 @@ export function recordChange(
 
 function restoreComputedDeps(context: BatchContext): void {
     const restored: EffectNode[] = []
+    const affected = new Set<Dep>()
     for (const [node, deps] of context.computedDeps) {
-        if (!node.active || (node.deps.length === deps.length && deps.every(dep => dep.has(node)))) continue
-        cleanup(node)
+        if (!node.active || (node.deps.length === deps.length && deps.every(dep => dep.has(subscriptionEntry(node))))) continue
+        for (const dep of cleanup(node, true)) affected.add(dep)
         node.deps = deps
-        for (const dep of deps) dep.add(node)
+        for (const dep of deps) { addSubscription(node, dep); affected.add(dep) }
+        pruneRegistrations(node)
         restored.push(node)
     }
+    refreshComputedRetention(affected)
     // Restore the whole graph before propagating invalidation through it.
     invalidateComputeds(new Set(restored))
 }
 
 function collectEffects(dep: Dep | undefined, visited: Set<EffectNode>, source: ChangeSource | undefined): void {
     if (!dep) return
-    for (const node of [...dep]) {
+    for (const node of depNodes(dep)) {
         if (!node.active || visited.has(node)) continue
         visited.add(node)
         if (node.computed) {
@@ -337,12 +485,19 @@ function settleBatch(context: BatchContext): void {
     restoreComputedDeps(context)
     const visitedBySource = new Map<ChangeSource | undefined, Set<EffectNode>>()
     for (const [target, keys] of context.changes) {
+        const objectDep = targetDeps.get(target)?.get(objectChanges)
+        let objectChanged = false
         for (const [key, entry] of keys) {
             if (!samePropertyState(entry.before, entry.readCurrent())) {
+                if (objectDep && !objectChanged) {
+                    objectChanged = true
+                    depVersions.set(objectDep, depVersion(objectDep) + 1)
+                }
                 for (const source of entry.sources) {
                     let visited = visitedBySource.get(source)
                     if (!visited) visitedBySource.set(source, visited = new Set())
                     collectEffects(targetDeps.get(target)?.get(key), visited, source)
+                    collectEffects(objectDep, visited, source)
                 }
             }
         }
@@ -383,6 +538,7 @@ function flushEffects(): unknown[] {
 }
 
 export function runInBatch<T>(fn: () => T): T {
+    retentionDepth++
     if (batchDepth++ === 0) {
         currentBatch = { changes: new Map(), computedDeps: new Map(), beforeFlush: new Map(), afterFlush: new Map() }
     }
@@ -404,6 +560,8 @@ export function runInBatch<T>(fn: () => T): T {
             for (const [owner, finish] of context.afterFlush) afterEffects.set(owner, finish)
             errors.push(...flushEffects())
         }
+        retentionDepth--
+        refreshComputedRetention([])
     }
     if (errors.length === 1) throw errors[0]
     if (errors.length > 1) throw new AggregateError(errors, 'Multiple errors in reactive batch')

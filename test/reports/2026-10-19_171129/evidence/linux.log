@@ -1,0 +1,17 @@
+START 2026-10-19T09:14:48.354Z
+CWD E:\projects\@canlooks\reactive
+COMMAND wsl -d Ubuntu -- bash /mnt/e/projects/@canlooks/reactive/test/reports/2026-10-19_171129/scripts/linux.sh
+
+ci exit=0
+test exit=0
+build exit=0
+dist exit=0
+gc-esm exit=0
+gc-cjs exit=0
+docs exit=0
+package exit=0
+tarball-install exit=0
+tarball-core exit=0
+partial-truncation exit=0
+
+END 2026-10-19T09:17:17.659Z EXIT 0

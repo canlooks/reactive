@@ -1,0 +1,11 @@
+{
+  "sourceFiles": 79,
+  "sourceChanges": [],
+  "snapshotMatches": true,
+  "distFiles": 87,
+  "installedTarballMatchesDist": true,
+  "gitDiffCheck": true,
+  "suggestedPatchParses": true,
+  "suggestedPatchApplied": false,
+  "checkedAt": "2026-10-19T09:25:35.633Z"
+}

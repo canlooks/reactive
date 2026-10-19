@@ -1,0 +1,15 @@
+{
+  "name": "readme-types",
+  "command": "node",
+  "args": [
+    "node_modules/typescript/bin/tsc",
+    "-p",
+    "test/reports/2026-10-16_170124/scripts/readme-examples/tsconfig.json"
+  ],
+  "cwd": "E:\\projects\\@canlooks\\reactive",
+  "started": "2026-10-16T09:16:44.208Z",
+  "ended": "2026-10-16T09:16:44.279Z",
+  "durationMs": 71,
+  "exitCode": 1,
+  "signal": null
+}

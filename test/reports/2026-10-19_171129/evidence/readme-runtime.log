@@ -1,0 +1,160 @@
+START 2026-10-19T09:15:08.020Z
+CWD E:\projects\@canlooks\reactive
+COMMAND node node_modules/tsx/dist/cli.mjs --tsconfig test/reports/2026-10-19_171129/scripts/tsconfig.json test/reports/2026-10-19_171129/scripts/readme-runtime.tsx
+
+README 1 line 13: passed
+README 2 line 18: passed
+1 2
+2 4
+4 8
+README 3 line 29: passed
+Alice
+Bob
+Carol
+README 5 line 83: passed
+1
+10
+20
+README 6 line 104: passed
+README 7 line 124: passed
+2
+8
+README 8 line 149: passed
+4
+README 9 line 170: passed
+undefined 1
+1 3
+README 10 line 199: passed
+1 2
+2 4
+README 11 line 220: passed
+README 12 line 252: passed
+README 13 line 265: passed
+README 14 ReferenceError: React is not defined
+    at <anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-19_171129\scripts\readme-examples\example-14.tsx:6:27)
+    at E:\projects\@canlooks\reactive\dist\cjs\react\functionComponent.js:40:43
+    at captureDependencies (E:\projects\@canlooks\reactive\dist\cjs\effect.js:109:21)
+    at E:\projects\@canlooks\reactive\dist\cjs\react\observer.js:60:115
+    at withReadView (E:\projects\@canlooks\reactive\dist\cjs\effect.js:120:12)
+    at Observer.render (E:\projects\@canlooks\reactive\dist\cjs\react\observer.js:60:56)
+    at ObserverComponent (E:\projects\@canlooks\reactive\dist\cjs\react\functionComponent.js:40:21)
+    at Object.react_stack_bottom_frame (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:28571:20)
+    at renderWithHooks (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:8030:22)
+    at updateFunctionComponent (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:10569:19)
+README 16 ReferenceError: React is not defined
+    at <anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-19_171129\scripts\readme-examples\example-16.tsx:11:5)
+    at E:\projects\@canlooks\reactive\dist\cjs\react\functionComponent.js:40:43
+    at captureDependencies (E:\projects\@canlooks\reactive\dist\cjs\effect.js:109:21)
+    at E:\projects\@canlooks\reactive\dist\cjs\react\observer.js:60:115
+    at withReadView (E:\projects\@canlooks\reactive\dist\cjs\effect.js:120:12)
+    at Observer.render (E:\projects\@canlooks\reactive\dist\cjs\react\observer.js:60:56)
+    at ObserverComponent (E:\projects\@canlooks\reactive\dist\cjs\react\functionComponent.js:40:21)
+    at Object.react_stack_bottom_frame (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:28571:20)
+    at renderWithHooks (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:8030:22)
+    at updateFunctionComponent (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:10569:19)
+README 17 ReferenceError: React is not defined
+    at ReactiveClass.render (E:\projects\@canlooks\reactive\test\reports\2026-10-19_171129\scripts\readme-examples\example-17.tsx:10:9)
+    at E:\projects\@canlooks\reactive\dist\cjs\react\classComponent.js:71:64
+    at captureDependencies (E:\projects\@canlooks\reactive\dist\cjs\effect.js:109:21)
+    at E:\projects\@canlooks\reactive\dist\cjs\react\observer.js:60:115
+    at withReadView (E:\projects\@canlooks\reactive\dist\cjs\effect.js:120:12)
+    at Observer.render (E:\projects\@canlooks\reactive\dist\cjs\react\observer.js:60:56)
+    at ReactiveClass.<anonymous> (E:\projects\@canlooks\reactive\dist\cjs\react\classComponent.js:71:33)
+    at Object.react_stack_bottom_frame (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:28584:29)
+    at updateClassComponent (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:11122:25)
+    at beginWork (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:12219:13)
+README 18 ReferenceError: React is not defined
+    at <anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-19_171129\scripts\readme-examples\example-18.tsx:8:1)
+    at E:\projects\@canlooks\reactive\dist\cjs\react\functionComponent.js:40:43
+    at captureDependencies (E:\projects\@canlooks\reactive\dist\cjs\effect.js:109:21)
+    at E:\projects\@canlooks\reactive\dist\cjs\react\observer.js:60:115
+    at withReadView (E:\projects\@canlooks\reactive\dist\cjs\effect.js:120:12)
+    at Observer.render (E:\projects\@canlooks\reactive\dist\cjs\react\observer.js:60:56)
+    at ObserverComponent (E:\projects\@canlooks\reactive\dist\cjs\react\functionComponent.js:40:21)
+    at Object.react_stack_bottom_frame (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:28571:20)
+    at renderWithHooks (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:8030:22)
+    at updateFunctionComponent (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:10569:19)
+README 19 ReferenceError: React is not defined
+    at <anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-19_171129\scripts\readme-examples\example-19.tsx:4:5)
+    at E:\projects\@canlooks\reactive\dist\cjs\react\functionComponent.js:40:43
+    at captureDependencies (E:\projects\@canlooks\reactive\dist\cjs\effect.js:109:21)
+    at E:\projects\@canlooks\reactive\dist\cjs\react\observer.js:60:115
+    at withReadView (E:\projects\@canlooks\reactive\dist\cjs\effect.js:120:12)
+    at Observer.render (E:\projects\@canlooks\reactive\dist\cjs\react\observer.js:60:56)
+    at ObserverComponent (E:\projects\@canlooks\reactive\dist\cjs\react\functionComponent.js:40:21)
+    at Object.react_stack_bottom_frame (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:28571:20)
+    at renderWithHooks (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:8030:22)
+    at updateFunctionComponent (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:10569:19)
+README 20 ReferenceError: React is not defined
+    at <anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-19_171129\scripts\readme-examples\example-20.tsx:5:5)
+    at E:\projects\@canlooks\reactive\dist\cjs\react\functionComponent.js:40:43
+    at captureDependencies (E:\projects\@canlooks\reactive\dist\cjs\effect.js:109:21)
+    at E:\projects\@canlooks\reactive\dist\cjs\react\observer.js:60:115
+    at withReadView (E:\projects\@canlooks\reactive\dist\cjs\effect.js:120:12)
+    at Observer.render (E:\projects\@canlooks\reactive\dist\cjs\react\observer.js:60:56)
+    at ObserverComponent (E:\projects\@canlooks\reactive\dist\cjs\react\functionComponent.js:40:21)
+    at Object.react_stack_bottom_frame (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:28571:20)
+    at renderWithHooks (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:8030:22)
+    at updateFunctionComponent (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:10569:19)
+README 21 ReferenceError: React is not defined
+    at Delayed (E:\projects\@canlooks\reactive\test\reports\2026-10-19_171129\scripts\readme-examples\example-21.tsx:7:5)
+    at Object.react_stack_bottom_frame (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:28571:20)
+    at renderWithHooks (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:8030:22)
+    at updateFunctionComponent (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:10569:19)
+    at beginWork (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:12205:18)
+    at runWithFiberInDEV (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:1045:30)
+    at performUnitOfWork (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:19176:22)
+    at workLoopSync (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:19004:41)
+    at renderRootSync (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:18985:11)
+    at performWorkOnRoot (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:18094:35)
+README 22 ReferenceError: React is not defined
+    at <anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-19_171129\scripts\readme-examples\example-22.tsx:9:5)
+    at E:\projects\@canlooks\reactive\dist\cjs\react\functionComponent.js:40:43
+    at captureDependencies (E:\projects\@canlooks\reactive\dist\cjs\effect.js:109:21)
+    at E:\projects\@canlooks\reactive\dist\cjs\react\observer.js:60:115
+    at withReadView (E:\projects\@canlooks\reactive\dist\cjs\effect.js:120:12)
+    at Observer.render (E:\projects\@canlooks\reactive\dist\cjs\react\observer.js:60:56)
+    at ObserverComponent (E:\projects\@canlooks\reactive\dist\cjs\react\functionComponent.js:40:21)
+    at Object.react_stack_bottom_frame (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:28571:20)
+    at renderWithHooks (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:8030:22)
+    at updateFunctionComponent (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:10569:19)
+README 23 ReferenceError: React is not defined
+    at Quantity (E:\projects\@canlooks\reactive\test\reports\2026-10-19_171129\scripts\readme-examples\example-23.tsx:6:5)
+    at Object.react_stack_bottom_frame (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:28571:20)
+    at renderWithHooks (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:8030:22)
+    at updateFunctionComponent (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:10569:19)
+    at beginWork (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:12205:18)
+    at runWithFiberInDEV (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:1045:30)
+    at performUnitOfWork (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:19176:22)
+    at workLoopSync (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:19004:41)
+    at renderRootSync (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:18985:11)
+    at performWorkOnRoot (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:18094:35)
+README 24 ReferenceError: React is not defined
+    at <anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-19_171129\scripts\readme-examples\example-24.tsx:11:5)
+    at E:\projects\@canlooks\reactive\dist\cjs\react\functionComponent.js:40:43
+    at captureDependencies (E:\projects\@canlooks\reactive\dist\cjs\effect.js:109:21)
+    at E:\projects\@canlooks\reactive\dist\cjs\react\observer.js:60:115
+    at withReadView (E:\projects\@canlooks\reactive\dist\cjs\effect.js:120:12)
+    at Observer.render (E:\projects\@canlooks\reactive\dist\cjs\react\observer.js:60:56)
+    at ObserverComponent (E:\projects\@canlooks\reactive\dist\cjs\react\functionComponent.js:40:21)
+    at Object.react_stack_bottom_frame (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:28571:20)
+    at renderWithHooks (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:8030:22)
+    at updateFunctionComponent (E:\projects\@canlooks\reactive\node_modules\react-dom\cjs\react-dom-client.development.js:10569:19)
+README 25 TypeError: loading decorates React class business instance methods only (legacy decorators)
+    at E:\projects\@canlooks\reactive\dist\cjs\react\loadingDecorator.js:116:13
+    at __decorateElement (file:///E:/projects/@canlooks/reactive/test/reports/2026-10-19_171129/scripts/readme-examples/example-25.tsx:1:2161)
+    at <anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-19_171129\scripts\readme-examples\example-25.tsx:12:5)
+    at ModuleJob.run (node:internal/modules/esm/module_job:430:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:661:26)
+    at async <anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-19_171129\scripts\readme-runtime.tsx:15:14)
+1 2
+3 6
+1
+3
+README 27 line 665: passed
+README 28 line 714: passed
+3 3
+3 undefined
+README 29 line 744: passed
+
+END 2026-10-19T09:15:09.068Z EXIT 1

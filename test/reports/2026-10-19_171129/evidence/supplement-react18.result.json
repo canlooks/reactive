@@ -1,0 +1,17 @@
+{
+  "name": "supplement-react18",
+  "command": "node",
+  "args": [
+    "--expose-gc",
+    "node_modules/tsx/dist/cli.mjs",
+    "--tsconfig",
+    "test/reports/2026-10-19_171129/.runtime/tsconfig.json",
+    "test/reports/2026-10-19_171129/.runtime/supplement-react.tsx"
+  ],
+  "cwd": "E:\\projects\\@canlooks\\reactive",
+  "started": "2026-10-19T09:18:34.574Z",
+  "ended": "2026-10-19T09:18:38.949Z",
+  "durationMs": 4375,
+  "exitCode": 0,
+  "signal": null
+}

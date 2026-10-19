@@ -1,0 +1,14 @@
+{
+  "name": "resources",
+  "command": "node",
+  "args": [
+    "--expose-gc",
+    "test/reports/2026-10-16_170124/scripts/resources.mjs"
+  ],
+  "cwd": "E:\\projects\\@canlooks\\reactive",
+  "started": "2026-10-16T09:06:46.748Z",
+  "ended": "2026-10-16T09:17:02.122Z",
+  "durationMs": 615374,
+  "exitCode": 0,
+  "signal": null
+}

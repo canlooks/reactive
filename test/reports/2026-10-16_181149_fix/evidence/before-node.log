@@ -1,0 +1,197 @@
+START 2026-10-16T10:14:25.616Z
+CWD E:\projects\@canlooks\reactive
+COMMAND npm run test:node
+
+
+> @canlooks/reactive@5.0.0 test:node
+> tsx --tsconfig tsconfig.test.json test/test.ts
+
+✔ computed shells are lazy, readonly, non-callable and retain identity in reactive containers (2.5915ms)
+✔ property references support nested paths, arrays, symbols, empty and missing keys (0.5396ms)
+✔ writable getter references isolate backing reads and invoke their setter once (0.3083ms)
+✔ reference validation rejects readonly, derived and ambiguous selectors and restores contexts (0.3546ms)
+✔ storage is available from the core entry (0.0689ms)
+✔ object properties named length retain the same accessor and hidden-field protections (1.6635ms)
+✔ storage restores synchronously, keeps root identity and preserves local methods and getters (0.4827ms)
+✔ storage creates a missing record once, preserves the name, and batches its initial write (0.2781ms)
+✔ storage observes unseen additions, deletions, replacements and only the current graph (0.4195ms)
+✔ storage preserves net batch semantics, settles throwing batches and skips equal JSON (0.5063ms)
+✔ storage persists arrays, holes and implicit length changes without wrapping native methods (0.448ms)
+✔ storage writes after business effects settle and leaves enumeration and getter contracts intact (0.3983ms)
+✔ storage isolates adapter reads and reference captures from all observers (0.3248ms)
+✔ storage shares graph notifications without sharing controllers or retaining detached branches (0.2771ms)
+✔ storage returns immediately for async reads and never writes before they finish (8.2278ms)
+✔ storage gives the entire local state priority over a late read, including deletions and arrays (3.5735ms)
+✔ async restore distinguishes net batch rollback from earlier edits and equivalent replacements (1.3976ms)
+✔ storage hydrates in one batch and persists subsequent watch edits without echoing the read (0.623ms)
+✔ storage serializes async writes and retains a return to the previously confirmed snapshot (0.7098ms)
+✔ storage resumes after failed writes, coalesces newer pending values and never spins on rejection (0.9587ms)
+✔ encoding failures discard stale pending writes and recovery can retry the last observed value (0.5541ms)
+✔ storage handles read rejection without overwriting records until a later local change (0.6402ms)
+✔ storage rejects malformed records without a partial restore or immediate rewrite (0.9951ms)
+✔ storage reports synchronous get/set failures and a broken diagnostic sink does not break reactivity (0.5129ms)
+✔ storage uses data-only canonical JSON, leaves getters and toJSON idle and repairs invalid graphs (1.1001ms)
+✔ storage supports null prototypes and shared acyclic data without persisting alias identity (0.2054ms)
+✔ restore preflight is atomic for readonly fields, non-extensible roots and locked arrays (0.5107ms)
+✔ storage preserves business errors and releases synchronous failed initialization bindings (0.6618ms)
+✔ storage validates options and binding identities before extra I/O (0.3956ms)
+✔ storage stop is idempotent and ignores late reads and writes without reopening subscriptions (0.6106ms)
+✔ storage accepts non-Promise thenables, settles once and handles throwing then accessors (0.7014ms)
+✔ storage handles mixed sync/async setters independently from the getter (0.4141ms)
+✖ storage restores and observes cross-realm plain data without changing identity or late-read policy (0.6225ms)
+✖ cross-realm storage keeps class, descriptor and reserved-key protections (1.0723ms)
+✔ native storage restores before returning, defaults to localStorage and isolates sessionStorage (57.3115ms)
+✔ native storage creates a missing array snapshot and replaces cached array contents in place (5.9086ms)
+✔ an explicit adapter takes precedence without touching either browser storage getter (4.6373ms)
+✔ a blocked browser getter falls back to memory and can be bound once access is restored (4.4089ms)
+✔ native quota failures preserve notifications and retry on a later state change (4.4297ms)
+✔ SSR ignores Node global storage and does not reserve a backend binding (0.1016ms)
+✔ effects run immediately and track only the properties they read (0.0982ms)
+✔ effects replace conditional dependencies and restore nested collection (0.1229ms)
+✔ stopping is idempotent and can remove queued or currently running effects (0.0864ms)
+✔ Object.is and raw/proxy normalization determine changes (0.0696ms)
+✔ missing properties, additions, deletions and failed writes retain JS semantics (0.0849ms)
+✔ deep proxies are stable, support cycles and discard replaced dependencies (0.1405ms)
+✔ nested batches use one baseline, deduplicate effects and return their result (0.1041ms)
+✔ net property state includes existence and treats restored values as unchanged (0.086ms)
+✔ batch keeps active tracking and initial effects run immediately inside it (0.0658ms)
+✔ empty batches and invalid arguments (0.1373ms)
+✔ failed initial effects leave no subscriptions and restore tracking (0.0826ms)
+✔ batch and notification errors preserve every cause and the queue recovers (0.1601ms)
+✔ effects can start new batches while flushing and can run again later in the queue (0.093ms)
+✔ setters batch backing fields, preserve errors and never evaluate getters for comparison (0.1225ms)
+✔ computed is lazy, cached and only reevaluates when read (0.0919ms)
+✔ computed tracks its own branches without leaking source dependencies to consumers (0.0791ms)
+✔ source, chain and diamond consumers observe one fresh result per batch (0.1105ms)
+✔ intermediate computed reads are current and a reverted batch does not notify (0.1118ms)
+✔ settlement preserves an already computed final cache with the same dependencies (0.0858ms)
+✔ restoring computed branches does not miss a net change on the original branch (0.1063ms)
+✔ changes on temporary computed branches do not notify and original dependencies recover (0.1065ms)
+✔ a pure branch round trip restores original dependencies even without a post-batch read (0.0905ms)
+✔ computed-to-computed branch restoration restores both sides of every subscription (0.1408ms)
+✔ new computed nodes use their first evaluation as the batch dependency baseline (0.0934ms)
+✔ computed restoration does not revive stopped consumers (0.0903ms)
+✔ source net changes notify even when a computed result is equal (0.0646ms)
+✔ computed errors are retried, contexts recover and circular reads fail clearly (0.1767ms)
+✔ computed dependencies restore on a throwing batch and future updates still work (0.1075ms)
+✔ object getters are lazy computed values and setters invalidate their backing fields (0.1341ms)
+✔ prototype getters are cached by receiver and work across a proxied prototype (0.1161ms)
+✔ deleting and replacing an own getter notifies its property consumers (0.146ms)
+✔ fixed references and getter-less accessors respect proxy invariants (0.0706ms)
+✔ writes through a proxy in the prototype chain do not notify the parent object (0.0735ms)
+✔ built-ins are returned unchanged while replacing their containing property notifies (0.4347ms)
+✔ proxy eligibility does not evaluate custom tags or reject own class tag fields (0.1485ms)
+✔ symbol properties and null-prototype objects are reactive (0.0763ms)
+✔ array indices, implicit length growth and truncation notify the affected readers (0.1404ms)
+✔ array batch round trips compare indices and length independently (0.2283ms)
+✔ array length computed values stay fresh inside a batch (0.1466ms)
+✔ sparse truncation visits real indices and ignores noncanonical array index properties (0.1304ms)
+✔ batched splice merges its writes without replacing native array methods (0.1048ms)
+✔ @reactive preserves construction and batches instance and static methods (0.3503ms)
+✔ @reactive() preserves constructor types, getter caches and automatic method batches (0.3858ms)
+✔ reactive(Class) and reactive()(Class) share proxy identity and preserve signatures (0.2073ms)
+✔ inherited methods, super calls and explicit batches share the outermost boundary (0.3308ms)
+✔ inherited instance methods and static getters keep separate receiver caches (0.1899ms)
+✔ method wrappers have stable identity, refresh after replacement and preserve dynamic this (0.2156ms)
+✔ plain object methods and directly proxied instances do not acquire automatic batches (0.1346ms)
+✔ class function fields and functions returned by getters are not method wrappers (0.1774ms)
+✔ fixed static methods respect invariants and TypeScript private fields remain trackable (0.111ms)
+✔ throwing class methods settle successful writes, aggregate failures and remain reusable (0.1571ms)
+✔ reads inside automatic methods stay tracked and method array writes share the batch (0.1541ms)
+✔ batch returns the original Promise and only batches its synchronous portion (0.1192ms)
+✔ async class methods, generator iteration, microtasks and timers do not extend a batch (1.215ms)
+✔ effect dependencies stop at asynchronous boundaries (1.9202ms)
+✔ batch net comparisons cover normalized references, signed zero and independent nested fields (0.2006ms)
+✔ caught inner batch errors keep the outer baseline and single update errors retain identity (0.1546ms)
+✔ failed additions and invalid array lengths produce no changes or leaked batch context (0.1303ms)
+✔ a failed computed update can retry and does not block other consumers (0.1658ms)
+✔ automatic getter branches recover and static method round trips do not notify (0.2342ms)
+✔ public API preserves generic results and ignores effect callback return values (0.1427ms)
+✔ watch defaults, immediate, undefined values and options are initialized once (0.3558ms)
+✔ watch callback and option reads are isolated from both source and enclosing effect (0.1359ms)
+✔ watch follows dependency changes without result equality filtering or deep snapshots (0.1774ms)
+✔ immediate watches inside batches initialize synchronously and suppress direct recursion (0.1068ms)
+✔ watch failures clean initial subscriptions and preserve the last successful value (0.2483ms)
+✔ watch queue cancellation, self-stop and aggregated failures remain usable (0.4932ms)
+✖ cross-realm objects and user classes retain deep identity and reactive getters (3.2608ms)
+✔ realm detection does not invoke constructor or tag accessors or narrow custom prototypes (0.094ms)
+✔ stopping the final consumer preserves lazy computed and getter invalidation (0.1276ms)
+ℹ tests 110
+ℹ suites 0
+ℹ pass 107
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 779.3026
+
+✖ failing tests:
+
+test at test\storage.ts:1:20588
+✖ storage restores and observes cross-realm plain data without changing identity or late-read policy (0.6225ms)
+  TypeError: storage expects a plain object or array
+      at <anonymous> (E:\projects\@canlooks\reactive\src\storage.ts:244:49)
+      at withoutReferenceCapture (E:\projects\@canlooks\reactive\src\reference.ts:22:18)
+      at <anonymous> (E:\projects\@canlooks\reactive\src\storage.ts:24:37)
+      at untracked (E:\projects\@canlooks\reactive\src\effect.ts:237:18)
+      at outsideReadContext (E:\projects\@canlooks\reactive\src\effect.ts:120:18)
+      at isolated (E:\projects\@canlooks\reactive\src\storage.ts:24:12)
+      at storage (E:\projects\@canlooks\reactive\src\storage.ts:243:12)
+      at persisted (E:\projects\@canlooks\reactive\test\storage.ts:20:19)
+      at TestContext.<anonymous> (E:\projects\@canlooks\reactive\test\storage.ts:585:19)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+
+test at test\storage.ts:1:21741
+✖ cross-realm storage keeps class, descriptor and reserved-key protections (1.0723ms)
+  TypeError: storage expects a plain object or array
+      at <anonymous> (E:\projects\@canlooks\reactive\src\storage.ts:244:49)
+      at withoutReferenceCapture (E:\projects\@canlooks\reactive\src\reference.ts:22:18)
+      at <anonymous> (E:\projects\@canlooks\reactive\src\storage.ts:24:37)
+      at untracked (E:\projects\@canlooks\reactive\src\effect.ts:237:18)
+      at outsideReadContext (E:\projects\@canlooks\reactive\src\effect.ts:120:18)
+      at isolated (E:\projects\@canlooks\reactive\src\storage.ts:24:12)
+      at storage (E:\projects\@canlooks\reactive\src\storage.ts:243:12)
+      at persisted (E:\projects\@canlooks\reactive\test\storage.ts:20:19)
+      at TestContext.<anonymous> (E:\projects\@canlooks\reactive\test\storage.ts:623:5)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+
+test at test\test.ts:1:39602
+✖ cross-realm objects and user classes retain deep identity and reactive getters (3.2608ms)
+  AssertionError [ERR_ASSERTION]: Expected "actual" not to be reference-equal to "expected":
+  
+  {
+    alias: {
+      n: 0
+    },
+    child: {
+      n: 0
+    },
+    list: [
+      {
+        n: 0
+      }
+    ],
+    nil: [Object: null prototype] {
+      n: 0
+    },
+    user: User {
+      n: 1
+    }
+  }
+  
+      at TestContext.<anonymous> (E:\projects\@canlooks\reactive\test\test.ts:1299:12)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [Object],
+    expected: [Object],
+    operator: 'notStrictEqual',
+    diff: 'simple'
+  }
+
+END 2026-10-16T10:14:26.798Z EXIT 1

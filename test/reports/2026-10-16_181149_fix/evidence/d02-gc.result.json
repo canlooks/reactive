@@ -1,0 +1,14 @@
+{
+  "name": "d02-gc",
+  "command": "node",
+  "args": [
+    "--expose-gc",
+    "test/derived-lifecycle.mjs"
+  ],
+  "cwd": "E:\\projects\\@canlooks\\reactive",
+  "started": "2026-10-16T10:15:49.538Z",
+  "ended": "2026-10-16T10:15:49.997Z",
+  "durationMs": 459,
+  "exitCode": 0,
+  "signal": null
+}

@@ -1,0 +1,80 @@
+START 2026-10-16T10:23:15.205Z
+CWD E:\projects\@canlooks\reactive
+COMMAND node test/reports/2026-10-16_181149_fix/scripts/derived-benchmark.mjs
+
+[
+  {
+    "name": "single",
+    "variant": "before",
+    "width": 1,
+    "depth": 1,
+    "writes": 10000,
+    "medianMs": 16.24284999999999,
+    "p95Ms": 16.986699999999985
+  },
+  {
+    "name": "single",
+    "variant": "after",
+    "width": 1,
+    "depth": 1,
+    "writes": 10000,
+    "medianMs": 22.21154999999999,
+    "p95Ms": 23.604600000000005
+  },
+  {
+    "name": "shared-100",
+    "variant": "before",
+    "width": 100,
+    "depth": 1,
+    "writes": 100,
+    "medianMs": 2.9895500000000084,
+    "p95Ms": 4.616700000000037
+  },
+  {
+    "name": "shared-100",
+    "variant": "after",
+    "width": 100,
+    "depth": 1,
+    "writes": 100,
+    "medianMs": 3.6007999999999925,
+    "p95Ms": 6.020500000000084
+  },
+  {
+    "name": "shared-1000",
+    "variant": "before",
+    "width": 1000,
+    "depth": 1,
+    "writes": 10,
+    "medianMs": 3.003750000000025,
+    "p95Ms": 5.7549000000000206
+  },
+  {
+    "name": "shared-1000",
+    "variant": "after",
+    "width": 1000,
+    "depth": 1,
+    "writes": 10,
+    "medianMs": 5.240250000000003,
+    "p95Ms": 9.004099999999994
+  },
+  {
+    "name": "chain-16",
+    "variant": "before",
+    "width": 1,
+    "depth": 16,
+    "writes": 1000,
+    "medianMs": 4.847649999999987,
+    "p95Ms": 6.236499999999978
+  },
+  {
+    "name": "chain-16",
+    "variant": "after",
+    "width": 1,
+    "depth": 16,
+    "writes": 1000,
+    "medianMs": 9.911399999999958,
+    "p95Ms": 11.225299999999947
+  }
+]
+
+END 2026-10-16T10:23:16.241Z EXIT 0

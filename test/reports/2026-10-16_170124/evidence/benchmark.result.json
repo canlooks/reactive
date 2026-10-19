@@ -1,0 +1,14 @@
+{
+  "name": "benchmark",
+  "command": "node",
+  "args": [
+    "--expose-gc",
+    "test/reports/2026-10-16_170124/scripts/benchmark.mjs"
+  ],
+  "cwd": "E:\\projects\\@canlooks\\reactive",
+  "started": "2026-10-16T09:19:53.731Z",
+  "ended": "2026-10-16T09:19:54.482Z",
+  "durationMs": 751,
+  "exitCode": 0,
+  "signal": null
+}

@@ -1,0 +1,18 @@
+{
+  "name": "browser-install",
+  "command": "npm",
+  "args": [
+    "--prefix",
+    "test/reports/2026-10-16_181149_fix/.runtime",
+    "install",
+    "--ignore-scripts",
+    "--no-audit",
+    "--no-fund"
+  ],
+  "cwd": "E:\\projects\\@canlooks\\reactive",
+  "started": "2026-10-16T10:28:45.590Z",
+  "ended": "2026-10-16T10:28:49.167Z",
+  "durationMs": 3577,
+  "exitCode": 0,
+  "signal": null
+}

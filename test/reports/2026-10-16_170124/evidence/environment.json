@@ -1,0 +1,288 @@
+{
+  "started": "2026-10-16T09:01:59.894Z",
+  "timezone": "Asia/Shanghai",
+  "root": "E:\\projects\\@canlooks\\reactive",
+  "head": "d0f7e04faa353b8572481067573f20e9d3f466ed",
+  "platform": "win32",
+  "release": "10.0.26300",
+  "arch": "x64",
+  "cpus": [
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 376390,
+        "nice": 0,
+        "sys": 458328,
+        "idle": 28872718,
+        "irq": 131937
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 135453,
+        "nice": 0,
+        "sys": 275640,
+        "idle": 29296140,
+        "irq": 96937
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 382609,
+        "nice": 0,
+        "sys": 315703,
+        "idle": 29008953,
+        "irq": 55500
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 145031,
+        "nice": 0,
+        "sys": 125812,
+        "idle": 29436390,
+        "irq": 23296
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 387750,
+        "nice": 0,
+        "sys": 299625,
+        "idle": 29019890,
+        "irq": 47312
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 136000,
+        "nice": 0,
+        "sys": 122609,
+        "idle": 29448625,
+        "irq": 23093
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 371609,
+        "nice": 0,
+        "sys": 289015,
+        "idle": 29046640,
+        "irq": 49312
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 132968,
+        "nice": 0,
+        "sys": 113062,
+        "idle": 29461203,
+        "irq": 20187
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 2484562,
+        "nice": 0,
+        "sys": 2368734,
+        "idle": 24853968,
+        "irq": 298546
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 859796,
+        "nice": 0,
+        "sys": 893109,
+        "idle": 27954343,
+        "irq": 118046
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 2416671,
+        "nice": 0,
+        "sys": 2269156,
+        "idle": 25021437,
+        "irq": 265921
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 816125,
+        "nice": 0,
+        "sys": 708562,
+        "idle": 28182562,
+        "irq": 60875
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 358468,
+        "nice": 0,
+        "sys": 237171,
+        "idle": 29111625,
+        "irq": 28687
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 109859,
+        "nice": 0,
+        "sys": 71328,
+        "idle": 29526046,
+        "irq": 8140
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 357375,
+        "nice": 0,
+        "sys": 234921,
+        "idle": 29114968,
+        "irq": 29265
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 117031,
+        "nice": 0,
+        "sys": 70171,
+        "idle": 29520031,
+        "irq": 7671
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 488750,
+        "nice": 0,
+        "sys": 295171,
+        "idle": 28923343,
+        "irq": 18406
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 331312,
+        "nice": 0,
+        "sys": 182093,
+        "idle": 29193859,
+        "irq": 10015
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 326156,
+        "nice": 0,
+        "sys": 167031,
+        "idle": 29214078,
+        "irq": 9593
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 363171,
+        "nice": 0,
+        "sys": 168187,
+        "idle": 29175890,
+        "irq": 9437
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 810703,
+        "nice": 0,
+        "sys": 350015,
+        "idle": 28546531,
+        "irq": 20593
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 493687,
+        "nice": 0,
+        "sys": 207765,
+        "idle": 29005796,
+        "irq": 11687
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 482468,
+        "nice": 0,
+        "sys": 192359,
+        "idle": 29032437,
+        "irq": 11062
+      }
+    },
+    {
+      "model": "Intel(R) Core(TM) i7-14650HX",
+      "speed": 2419,
+      "times": {
+        "user": 735171,
+        "nice": 0,
+        "sys": 645390,
+        "idle": 28326703,
+        "irq": 18000
+      }
+    }
+  ],
+  "ramBytes": 33974046720,
+  "node": "v24.14.1",
+  "versions": {
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "tsx": "4.23.13",
+    "typescript": "7.0.2",
+    "jsdom": "29.1.1",
+    "localforage": "1.10.0",
+    "esbuild": "0.28.2"
+  }
+}

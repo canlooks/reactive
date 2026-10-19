@@ -1,0 +1,21 @@
+START 2026-10-19T09:24:37.975Z
+CWD E:\projects\@canlooks\reactive
+COMMAND node --expose-gc test/reports/2026-10-19_171129/scripts/storage-liveness-check.mjs
+
+{
+  "duringCreator": {
+    "sharedAlive": [
+      999
+    ],
+    "asyncAlive": [
+      999
+    ]
+  },
+  "afterCreatorReturned": {
+    "sharedAlive": [],
+    "asyncAlive": []
+  },
+  "note": "A creator stack/frame or same-job WeakRef keepalive can retain a final loop local. After returning the creator, only weak root references remain; the shared child is still held."
+}
+
+END 2026-10-19T09:24:38.121Z EXIT 0

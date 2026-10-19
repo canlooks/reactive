@@ -1,0 +1,278 @@
+START 2026-10-19T09:14:47.320Z
+CWD E:\projects\@canlooks\reactive
+COMMAND node --test test/reports/2026-10-19_171129/scripts/exploratory-arrays.mjs
+
+✖ D04 esm reflect-number: failed array truncation must notify actual partial changes (3.6318ms)
+✔ CONTROL esm reflect-number: nonwritable length with no mutations must not notify (0.2569ms)
+✖ D04 esm reflect-string: failed array truncation must notify actual partial changes (0.6778ms)
+✔ CONTROL esm reflect-string: nonwritable length with no mutations must not notify (0.1241ms)
+✖ D04 esm strict-assignment: failed array truncation must notify actual partial changes (0.7519ms)
+✔ CONTROL esm strict-assignment: nonwritable length with no mutations must not notify (0.1022ms)
+✖ D04 esm outer-batch: failed array truncation must notify actual partial changes (0.6783ms)
+✔ CONTROL esm outer-batch: nonwritable length with no mutations must not notify (0.085ms)
+✖ D04 cjs reflect-number: failed array truncation must notify actual partial changes (2.3064ms)
+✔ CONTROL cjs reflect-number: nonwritable length with no mutations must not notify (0.1718ms)
+✖ D04 cjs reflect-string: failed array truncation must notify actual partial changes (0.6082ms)
+✔ CONTROL cjs reflect-string: nonwritable length with no mutations must not notify (0.0992ms)
+✖ D04 cjs strict-assignment: failed array truncation must notify actual partial changes (0.5527ms)
+✔ CONTROL cjs strict-assignment: nonwritable length with no mutations must not notify (0.0821ms)
+✖ D04 cjs outer-batch: failed array truncation must notify actual partial changes (0.532ms)
+✔ CONTROL cjs outer-batch: nonwritable length with no mutations must not notify (0.0687ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 8
+ℹ fail 8
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 87.1287
+
+✖ failing tests:
+
+test at test\reports\2026-10-19_171129\scripts\exploratory-arrays.mjs:12:2
+✖ D04 esm reflect-number: failed array truncation must notify actual partial changes (3.6318ms)
+  AssertionError [ERR_ASSERTION]: Actual length and deleted indices changed even though Reflect.set returned false
+  + actual - expected
+  
+    [
+      [
+        4,
+        40
+      ],
+  -   [
+  -     2,
+  -     null
+  -   ]
+    ]
+  
+      at TestContext.<anonymous> (file:///E:/projects/@canlooks/reactive/test/reports/2026-10-19_171129/scripts/exploratory-arrays.mjs:29:10)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.start (node:internal/test_runner/test:1015:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ [ 4, 40 ] ],
+    expected: [ [ 4, 40 ], [ 2, null ] ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at test\reports\2026-10-19_171129\scripts\exploratory-arrays.mjs:12:2
+✖ D04 esm reflect-string: failed array truncation must notify actual partial changes (0.6778ms)
+  AssertionError [ERR_ASSERTION]: Actual length and deleted indices changed even though Reflect.set returned false
+  + actual - expected
+  
+    [
+      [
+        4,
+        40
+      ],
+  -   [
+  -     2,
+  -     null
+  -   ]
+    ]
+  
+      at TestContext.<anonymous> (file:///E:/projects/@canlooks/reactive/test/reports/2026-10-19_171129/scripts/exploratory-arrays.mjs:29:10)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ [ 4, 40 ] ],
+    expected: [ [ 4, 40 ], [ 2, null ] ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at test\reports\2026-10-19_171129\scripts\exploratory-arrays.mjs:12:2
+✖ D04 esm strict-assignment: failed array truncation must notify actual partial changes (0.7519ms)
+  AssertionError [ERR_ASSERTION]: Actual length and deleted indices changed even though Reflect.set returned false
+  + actual - expected
+  
+    [
+      [
+        4,
+        40
+      ],
+  -   [
+  -     2,
+  -     null
+  -   ]
+    ]
+  
+      at TestContext.<anonymous> (file:///E:/projects/@canlooks/reactive/test/reports/2026-10-19_171129/scripts/exploratory-arrays.mjs:29:10)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ [ 4, 40 ] ],
+    expected: [ [ 4, 40 ], [ 2, null ] ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at test\reports\2026-10-19_171129\scripts\exploratory-arrays.mjs:12:2
+✖ D04 esm outer-batch: failed array truncation must notify actual partial changes (0.6783ms)
+  AssertionError [ERR_ASSERTION]: Actual length and deleted indices changed even though Reflect.set returned false
+  + actual - expected
+  
+    [
+      [
+        4,
+        40
+      ],
+  -   [
+  -     2,
+  -     null
+  -   ]
+    ]
+  
+      at TestContext.<anonymous> (file:///E:/projects/@canlooks/reactive/test/reports/2026-10-19_171129/scripts/exploratory-arrays.mjs:29:10)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ [ 4, 40 ] ],
+    expected: [ [ 4, 40 ], [ 2, null ] ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at test\reports\2026-10-19_171129\scripts\exploratory-arrays.mjs:12:2
+✖ D04 cjs reflect-number: failed array truncation must notify actual partial changes (2.3064ms)
+  AssertionError [ERR_ASSERTION]: Actual length and deleted indices changed even though Reflect.set returned false
+  + actual - expected
+  
+    [
+      [
+        4,
+        40
+      ],
+  -   [
+  -     2,
+  -     null
+  -   ]
+    ]
+  
+      at TestContext.<anonymous> (file:///E:/projects/@canlooks/reactive/test/reports/2026-10-19_171129/scripts/exploratory-arrays.mjs:29:10)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ [ 4, 40 ] ],
+    expected: [ [ 4, 40 ], [ 2, null ] ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at test\reports\2026-10-19_171129\scripts\exploratory-arrays.mjs:12:2
+✖ D04 cjs reflect-string: failed array truncation must notify actual partial changes (0.6082ms)
+  AssertionError [ERR_ASSERTION]: Actual length and deleted indices changed even though Reflect.set returned false
+  + actual - expected
+  
+    [
+      [
+        4,
+        40
+      ],
+  -   [
+  -     2,
+  -     null
+  -   ]
+    ]
+  
+      at TestContext.<anonymous> (file:///E:/projects/@canlooks/reactive/test/reports/2026-10-19_171129/scripts/exploratory-arrays.mjs:29:10)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ [ 4, 40 ] ],
+    expected: [ [ 4, 40 ], [ 2, null ] ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at test\reports\2026-10-19_171129\scripts\exploratory-arrays.mjs:12:2
+✖ D04 cjs strict-assignment: failed array truncation must notify actual partial changes (0.5527ms)
+  AssertionError [ERR_ASSERTION]: Actual length and deleted indices changed even though Reflect.set returned false
+  + actual - expected
+  
+    [
+      [
+        4,
+        40
+      ],
+  -   [
+  -     2,
+  -     null
+  -   ]
+    ]
+  
+      at TestContext.<anonymous> (file:///E:/projects/@canlooks/reactive/test/reports/2026-10-19_171129/scripts/exploratory-arrays.mjs:29:10)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ [ 4, 40 ] ],
+    expected: [ [ 4, 40 ], [ 2, null ] ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at test\reports\2026-10-19_171129\scripts\exploratory-arrays.mjs:12:2
+✖ D04 cjs outer-batch: failed array truncation must notify actual partial changes (0.532ms)
+  AssertionError [ERR_ASSERTION]: Actual length and deleted indices changed even though Reflect.set returned false
+  + actual - expected
+  
+    [
+      [
+        4,
+        40
+      ],
+  -   [
+  -     2,
+  -     null
+  -   ]
+    ]
+  
+      at TestContext.<anonymous> (file:///E:/projects/@canlooks/reactive/test/reports/2026-10-19_171129/scripts/exploratory-arrays.mjs:29:10)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ [ 4, 40 ] ],
+    expected: [ [ 4, 40 ], [ 2, null ] ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+END 2026-10-19T09:14:47.464Z EXIT 1

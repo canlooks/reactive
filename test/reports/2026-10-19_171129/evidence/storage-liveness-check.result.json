@@ -1,0 +1,14 @@
+{
+  "name": "storage-liveness-check",
+  "command": "node",
+  "args": [
+    "--expose-gc",
+    "test/reports/2026-10-19_171129/scripts/storage-liveness-check.mjs"
+  ],
+  "cwd": "E:\\projects\\@canlooks\\reactive",
+  "started": "2026-10-19T09:24:37.975Z",
+  "ended": "2026-10-19T09:24:38.121Z",
+  "durationMs": 146,
+  "exitCode": 0,
+  "signal": null
+}

@@ -1,6 +1,7 @@
 import type { Computed } from '../src/index.js'
 import './dom.js'
 import './react-features.js'
+import './react-loading.js'
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import {

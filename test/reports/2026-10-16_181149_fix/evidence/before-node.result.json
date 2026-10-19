@@ -1,0 +1,14 @@
+{
+  "name": "before-node",
+  "command": "npm",
+  "args": [
+    "run",
+    "test:node"
+  ],
+  "cwd": "E:\\projects\\@canlooks\\reactive",
+  "started": "2026-10-16T10:14:25.616Z",
+  "ended": "2026-10-16T10:14:26.798Z",
+  "durationMs": 1182,
+  "exitCode": 1,
+  "signal": null
+}

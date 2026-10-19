@@ -1,0 +1,7 @@
+START 2026-10-16T09:16:44.208Z
+CWD E:\projects\@canlooks\reactive
+COMMAND node node_modules/typescript/bin/tsc -p test/reports/2026-10-16_170124/scripts/readme-examples/tsconfig.json
+
+error TS5058: The specified path does not exist: 'E:/projects/@canlooks/reactive/test/reports/2026-10-16_170124/scripts/readme-examples/tsconfig.json'.
+
+END 2026-10-16T09:16:44.279Z EXIT 1

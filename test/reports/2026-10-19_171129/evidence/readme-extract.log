@@ -1,0 +1,7 @@
+START 2026-10-19T09:15:07.577Z
+CWD E:\projects\@canlooks\reactive
+COMMAND node test/reports/2026-10-19_171129/scripts/readme-extract.mjs
+
+Extracted 26 executable blocks from README
+
+END 2026-10-19T09:15:07.642Z EXIT 0

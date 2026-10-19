@@ -1,0 +1,14 @@
+{
+  "name": "memory",
+  "command": "node",
+  "args": [
+    "--expose-gc",
+    "test/reports/2026-10-16_170124/scripts/memory.mjs"
+  ],
+  "cwd": "E:\\projects\\@canlooks\\reactive",
+  "started": "2026-10-16T09:18:21.848Z",
+  "ended": "2026-10-16T09:18:22.412Z",
+  "durationMs": 564,
+  "exitCode": 1,
+  "signal": null
+}

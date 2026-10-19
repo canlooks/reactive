@@ -1,0 +1,18 @@
+{
+  "gcRoundsPerPhase": 12,
+  "computedCreated": 1000,
+  "getterRootsCreated": 1000,
+  "retained": {
+    "computed": 1000,
+    "getters": 1000
+  },
+  "released": {
+    "computed": 0,
+    "getters": 0
+  },
+  "storageCreated": 1000,
+  "storageAlive": 0,
+  "asyncStorageCreated": 1000,
+  "asyncStorageAlive": 0,
+  "expected": "Unused derivations and their payloads should not be retained solely by a live source; storage is a weak-lifecycle control."
+}

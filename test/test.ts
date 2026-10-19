@@ -1,7 +1,10 @@
 import type { Computed } from '../src/index.js'
 import './reference.js'
+import './storage.js'
+import './storage-browser.js'
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
+import { runInNewContext } from 'node:vm'
 import { batch, computed, effect, reactive, watch, type WatchOptions } from '../src/index.js'
 
 test('effects run immediately and track only the properties they read', () => {
@@ -1283,4 +1286,57 @@ test('watch queue cancellation, self-stop and aggregated failures remain usable'
     assert.throws(() => { state.count++ }, error => error instanceof AggregateError && errors.every((e, i) => e === error.errors[i]))
     stops.forEach(stop => stop())
     state.count++
+})
+
+test('cross-realm objects and user classes retain deep identity and reactive getters', t => {
+    const raw = runInNewContext(`(() => {
+        const child = { n: 0 }
+        class Base { n = 1; get doubled() { return this.n * 2 } }
+        class User extends Base {}
+        return { child, alias: child, list: [child], nil: Object.assign(Object.create(null), { n: 0 }), user: new User() }
+    })()`)
+    const state = reactive(raw)
+    assert.notEqual(state, raw)
+    assert.equal(reactive(raw), state)
+    assert.equal(reactive(state), state)
+    assert.equal(state.child, state.alias)
+    assert.equal(state.child, state.list[0])
+    const seen: number[][] = []
+    t.after(effect(() => { seen.push([state.child.n, state.nil.n, state.user.doubled]) }))
+    batch(() => { state.child.n++; state.nil.n++; state.user.n++ })
+    assert.deepEqual(seen, [[0, 0, 2], [1, 1, 4]])
+    const builtins: object[] = runInNewContext('[new Map(), new Set(), new Date(), Promise.resolve(), /x/, new Uint8Array(2), new (class extends Date {})()]')
+    for (const value of builtins) {
+        assert.equal(reactive(value), value)
+        assert.equal(reactive({ value }).value, value)
+    }
+})
+
+test('realm detection does not invoke constructor or tag accessors or narrow custom prototypes', () => {
+    let calls = 0
+    const prototype = Object.defineProperties(Object.create(null), {
+        constructor: { get() { calls++; throw new Error('constructor') } },
+        [Symbol.toStringTag]: { get() { calls++; throw new Error('tag') } },
+    })
+    const raw = Object.assign(Object.create(prototype), { n: 1 })
+    assert.notEqual(reactive(raw), raw)
+    const alias = Object.assign(Object.create({ constructor: Object }), { n: 2 })
+    assert.notEqual(reactive(alias), alias)
+    assert.equal(calls, 0)
+})
+
+test('stopping the final consumer preserves lazy computed and getter invalidation', () => {
+    const source = reactive({ n: 1 })
+    let calls = 0
+    const derived = computed(() => { calls++; return source.n * 2 })
+    const receiver = reactive({ get value() { return derived.value + 1 } })
+    const seen: number[] = []
+    const stop = effect(() => { seen.push(receiver.value) })
+    stop()
+    source.n = 2
+    assert.equal(calls, 1)
+    assert.deepEqual(seen, [3])
+    assert.equal(receiver.value, 5)
+    assert.equal(receiver.value, 5)
+    assert.equal(calls, 2)
 })

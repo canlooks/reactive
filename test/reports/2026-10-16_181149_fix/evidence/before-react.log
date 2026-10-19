@@ -1,0 +1,115 @@
+START 2026-10-16T10:14:25.615Z
+CWD E:\projects\@canlooks\reactive
+COMMAND npm run test:react
+
+
+> @canlooks/reactive@5.0.0 test:react
+> tsx --tsconfig tsconfig.react-test.json test/react.tsx
+
+✔ external storage drives RC, Chip and Model in StrictMode and persists after unmount (34.0703ms)
+✔ async storage hydrates React consumers as one batch and preserves subsequent model edits (5.4356ms)
+✔ useLoading counts concurrent tokens, settles out of order and preserves boolean/numeric baselines (13.9608ms)
+✔ load wraps values and thenables, preserves synchronous/asynchronous failures and can retry (4.5022ms)
+✔ loading releases tokens and preserves every error when both business code and state subscribers fail (0.9164ms)
+✔ immediate and props watches see active model/load handles and the latest committed function (2.1065ms)
+✔ load never adopts a suspended candidate and running requests retain their original closure (2.8334ms)
+✔ load settles internally after unmount, rejects retained invocations and isolates new mounts (1.4202ms)
+✔ StrictMode loading reconnects its tokens, SSR does not invoke functions and instances stay separate (3.4824ms)
+✔ calling load from an effect does not subscribe it to token bookkeeping or function reads (1.0668ms)
+✔ loading resumes from real tokens after a hidden Suspense tree completes its requests (6.2343ms)
+✔ failed commit setup disconnects all model and loading handles before their own layout cleanup (5.7627ms)
+✔ props watch, Strict Chip, Model and load share commit ordering without suppressing child updates (2.6665ms)
+✔ useModel preserves identities and treats function initial values and object inputs as data (5.1092ms)
+✔ Model and defineModel bind real inputs, preserve refs and merge callbacks after one batched write (3.42ms)
+✔ Model handles checkbox/radio, text areas, selects, explicit numbers and nullable display values (7.906ms)
+✔ Model resolves the current nested target at event time and retains committed event configuration during Suspense (2.6506ms)
+✔ custom Model values, valueProp and defineModel preserve complete argument tuples and business props (1.7462ms)
+✔ Model conversion/write/callback failures preserve ordering, errors and net-change batching (2.3261ms)
+✔ Model validates selectors and child shape, with readonly props and computed cache hits rejected (1.5188ms)
+✔ Model reconnects after StrictMode cleanup and ignores retained handlers after unmount (1.6265ms)
+✔ PureComponent state fields named key/ref remain part of shallow comparison (1.8096ms)
+✔ Chip factories are inert, stable and independently update a/b without rendering their parent (1.417ms)
+✔ normal Chip adopts new closures once; Strict skips parent props, accepts context and resets by key (2.8852ms)
+✔ Strict Chip receives parent reactive props and computed updates across owner acknowledgments (1.212ms)
+✔ Chip branch subscriptions, nested children and StrictMode cleanup remain independent (1.6723ms)
+✔ Async gates render fallback through SSR and layout, then activate with current values (5.0819ms)
+✔ Async gates replay safely in StrictMode and never activate an uncommitted tree (3.3722ms)
+✔ Chip rejects non-synchronous callbacks and discarded renders never subscribe (1.0769ms)
+✖ Model and defineModel strictly validate valueProp while preserving nullable values and recovery (0.9396ms)
+✔ all class component entries observe ordinary instance fields without loading (3.1131ms)
+✔ React entry exports the loading method decorator (0.063ms)
+✔ class fields retain deep identity, per-instance subscriptions and batch net changes (2.2017ms)
+✔ class descriptors, symbols, empty keys and private methods preserve the original instance (1.49ms)
+✔ bridged fields participate in effect, watch, computed, Chip and Model without parent renders (1.5451ms)
+✔ loading shares boolean/numeric tokens across methods and preserves results and this (5.1462ms)
+✔ loading fixes each selected field until settlement and separates inherited instances and hooks (2.2786ms)
+✔ loading awaits JS values and thenables, releases rejected calls and aggregates notification failures (1.9995ms)
+✔ loading rejects invalid selectors before work and restores tracking and reference capture (1.9444ms)
+✔ loading validates numeric capacity and mode, guards active writes including Model and permits idle baselines (4.4389ms)
+✔ loading registers tokens before reentrant watchers and protects other requests on rejection (1.3558ms)
+✔ React state/context/refs, PureComponent and props deduplication coexist with loading field updates (3.3388ms)
+✔ class mount windows and loading in componentDidMount recover through StrictMode (1.6267ms)
+✔ loading stops publication while hidden, settles internally and restores real tokens and idle writes (4.9321ms)
+✔ unmount and a new instance cannot receive old loading completion or retained calls (1.7085ms)
+✔ loading rejects construction, render and uncommitted/SSR calls without starting work (2.6012ms)
+✔ failed mount and throwing unmount release observation and loading connectivity synchronously (2.4481ms)
+✔ loading validates legacy method descriptors and rejects unsupported decorator targets (0.3134ms)
+✔ symbol and empty loading fields work from committed props watches without duplicate props notifications (2.0627ms)
+✔ aliases, memo identity, repeated wrapping and invalid categories (0.2049ms)
+✔ function memo skips unchanged props while store, React state and context still update (2.0598ms)
+✔ reactive props watch fires without JSX reads and never adds a second own render (2.3688ms)
+✔ props derived computed chains use candidate caches and commit once (1.6666ms)
+✔ props proxy is stable, shallow, readonly and handles existence and Object.is (2.3507ms)
+✔ props-selected watch updates closures and branches without swallowing oldValue (1.2771ms)
+✔ local state identity, immediate commit timing, refresh and StrictMode cleanup (1.6096ms)
+✔ layout changes in the render/subscribe window and a new branch are detected (2.0752ms)
+✔ suspended renders retain committed props, watch closures and computed caches (1.7099ms)
+✔ props changes inside an enclosing batch preserve watcher baselines and net rollback (1.5228ms)
+✔ props callback writes remain separate updates, including notify-time synchronous commits (1.2081ms)
+✔ class refs, PureComponent, lifecycle args, props watchers and independent instances (1.3466ms)
+✔ class SCU is honored except active props consumers and external forceUpdate (1.2268ms)
+✔ SSR does not initialize watchers and hydration establishes the initial baseline (2.1414ms)
+✔ ordinary useWatch refreshes captured props silently and uses latest callback (0.8639ms)
+✔ queued useWatch keeps oldValue when an earlier consumer synchronously renders (0.671ms)
+✔ candidate collection never subscribes, but notices invalidations before subscription (0.1634ms)
+✔ observer props acknowledgments keep other owners and ordinary store causes (0.2921ms)
+✔ notify nodes retain dependencies and can be queued again during notification (0.1265ms)
+✔ render dependencies switch branches and ignore event-only and child-only reads (2.2464ms)
+✔ initial suspended and throwing renders never initialize their watchers (0.8092ms)
+✔ multiple watch setups clean every initialized handle when a later immediate callback fails (1.9632ms)
+✔ class field lifecycles, context, StrictMode reconnection and mount-window writes (1.2008ms)
+✔ class props notify the whole slot without duplicate forceUpdate and preserve historical refs (0.9687ms)
+✔ inline local states are independent while explicit shared raw state stays shared (1.7284ms)
+✔ source reads after destructuring stay plain values; props fields retain reference semantics (1.2822ms)
+✔ immediate watches created inside an outer batch initialize during setup (0.6183ms)
+✔ props commits inside an outer batch do not invalidate their own snapshot before settlement (1.4424ms)
+ℹ tests 77
+ℹ suites 0
+ℹ pass 76
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 220.3995
+
+✖ failing tests:
+
+test at test\react-features.tsx:1:32341
+✖ Model and defineModel strictly validate valueProp while preserving nullable values and recovery (0.9396ms)
+  AssertionError [ERR_ASSERTION]: Missing expected exception (TypeError).
+      at TestContext.<anonymous> (E:\projects\@canlooks\reactive\test\react-features.tsx:880:20)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: [Object],
+    operator: 'throws',
+    diff: 'simple'
+  }
+
+END 2026-10-16T10:14:26.985Z EXIT 1

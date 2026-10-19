@@ -1,0 +1,571 @@
+# @canlooks/reactive 完整测试报告
+
+运行：2026-10-16_170124 · Asia/Shanghai · 当前工作区
+
+## 1. 测试结论
+
+**当前工作区存在可复现 BUG，不满足 TEST_PLAN.md 的全范围发布退出条件。** 已确认 2 项缺陷：派生节点资源保留（S1）和跨 realm 普通对象漏更新（S2）；另登记 1 项 Model 参数契约差异（S3，待确认）。本轮只测试、分析并给出建议，没有修改生产实现或原有测试断言。
+
+240 条计划用例按本轮范围判定：**236 通过、2 失败、2 阻塞**。执行率 99.17%，执行项通过率 99.16%。阻塞项没有计入通过；没有擅自将任何条目设为“不适用”。D01 是额外跨 realm 探索缺陷，不伪装成原有用例的同一输入。
+
+原有 181 项行为测试（核心/存储 105、React 76）、类型、构建、产物与隔离 tarball 全部通过。这说明现有回归集没有捕获上述问题，不代表库无缺陷。29 个新增 node:test 声明（核心 14、React 15）中，各有 1 个失败；React 补充在 18/19 各执行一次，不能重复累计独立用例数。
+
+完成三引擎 × 两个 React major × 开发/生产构建的 12 组浏览器常规检查；这 12 组的跨 realm 附加探针均复现 D01。26 段 README 可执行示例全部通过；固定种子模型执行 300040 个底层操作。未采集行/分支覆盖率，不把用例执行率当作代码覆盖率。
+
+| 模块 | 计划数 | 通过 | 失败 | 阻塞 |
+| --- | --- | --- | --- | --- |
+| 核心响应式 | 72 | 72 | 0 | 0 |
+| 持久化 | 40 | 40 | 0 | 0 |
+| React 基础 | 35 | 35 | 0 | 0 |
+| Chip / Model | 26 | 25 | 1 | 0 |
+| 加载状态 | 35 | 35 | 0 | 0 |
+| 类型与发布 | 16 | 16 | 0 | 0 |
+| 兼容与质量 | 16 | 13 | 1 | 2 |
+
+## 2. 被测版本、环境与完整性
+
+运行编号：2026-10-16_170124。开始：2026/10/16 17:01:59；报告生成：2026/10/16 17:33:38（Asia/Shanghai）。执行者：Codex 自动化测试与代码审查；维护者/发布负责人尚未签收。
+
+对象为 @canlooks/reactive@5.0.0 当前脏工作区，HEAD d0f7e04faa353b8572481067573f20e9d3f466ed。这不是该提交的干净检出。冻结并结束复核 78 份已有文件，源码、原有测试、配置和文档散列无变化。[原始差异](evidence/worktree.diff)、[源文件 SHA-256](evidence/source-sha256.json)、[冻结源快照](evidence/source-snapshot/package.json)、[结束完整性检查](evidence/source-integrity.json)可追溯。
+
+本轮 Windows tarball SHA-256：6a8ebf9249ac9eaa4e5158c7abde8f551f2666d20a3131caa1f1626cd965d485。[tarball](evidence/canlooks-reactive-5.0.0.tgz)含 90 个预期文件；Linux 另安装了这份同一 tarball 验证混合入口。未执行 npm publish。
+
+Linux 完整基线在 WSL 的独立源快照和 npm ci 环境执行；不是用 Windows node_modules 代替。浏览器使用专用 127.0.0.1 origin、独立 context 和 qa: 前缀 key，测试后只删除本轮数据。
+
+| 维度 | 实测配置 / 范围 |
+| --- | --- |
+| Windows | 10.0.26300 x64；Node v24.14.1；npm 11.19.0 |
+| 机器 | Intel(R) Core(TM) i7-14650HX，24 逻辑 CPU，31.6 GiB RAM；平衡电源计划 |
+| Linux | Ubuntu 26.04 LTS / WSL2 6.6.87.2；Node 24.14.1；npm 11.11.0 |
+| 工具 | TypeScript 7.0.2，tsx 4.23.13，jsdom 29.1.1，esbuild 0.28.2，localforage 1.10.0；Playwright Core 1.62.0 |
+| React 19 | react/react-dom/@types/react/@types/react-dom 19.3.0 |
+| React 18 | react/react-dom 18.3.1；@types/react 18.3.31，@types/react-dom 18.3.7 |
+| 锁与元数据 | [React18 lock](evidence/react-18-package-lock.json)；[React19 lock](evidence/react-19-package-lock.json)；[core-only lock](evidence/core-only-package-lock.json)；[完整环境](evidence/environment.json) |
+| 未证明范围 | 原生 OS IME/系统剪贴板粘贴；macOS 与 Safari 真机；移动浏览器；其他 Node 版本；完整浏览器最低版本支持承诺。 |
+
+## 3. 执行结果与判定口径
+
+退出码 1 的补充测试保留原始失败断言，属于报告中的缺陷证据；没有修改预期或生产代码来强行通过。原有命令、补充脚本与多环境重跑分层统计。包脚本内部的 full suite / 构建复跑不重复计入独立 181 项。
+
+Windows 初次 package 成功后会清除消费者，因此追加 package-archived.mjs：只改变证据保留、根路径定位并补上真实安装包深导入负例，保存消费者 lock/版本/完整 React 输出；原脚本没有被修改。
+
+首次运行中的夹具问题与产品缺陷分开：React 补充文件不在原 tsconfig include 内导致 JSX/装饰器转译错误，改为报告内独立配置；已卸载 Suspense 的测试 Promise 改用 act 结算。浏览器夹具改为等待真实提交/绘制边界，并只标识故意不匹配 hydration 的预期警告。README 示例按独立场景清理同名 storage 绑定。所有首次日志仍保留，D01/D02/D03 没有被这些夹具修正消除。
+
+Windows Firefox 首次 spawn UNKNOWN，记录为平台启动阻塞；在 Linux/WSL 安装匹配的 Firefox 后完成相同常规矩阵。该替代没有证明 Windows Firefox 可运行。最初 Linux shell PATH 引号与 /tmp 生命周期问题也保留为环境日志，不归因于库。
+
+| 检查 | 退出码 | 耗时 | 证据 |
+| --- | --- | --- | --- |
+| npm-test | 0 | 4.136 s | [完整日志](evidence/npm-test.log) |
+| build | 0 | 0.572 s | [完整日志](evidence/build.log) |
+| dist | 0 | 1.401 s | [完整日志](evidence/dist.log) |
+| package | 0 | 32.960 s | [完整日志](evidence/package.log) |
+| package-archived | 0 | 34.249 s | [完整日志](evidence/package-archived.log) |
+| supplement-core-final | 1 | 1.052 s | [完整日志](evidence/supplement-core-final.log) |
+| supplement-react-complete | 1 | 5.096 s | [完整日志](evidence/supplement-react-complete.log) |
+| supplement-react18 | 1 | 4.524 s | [完整日志](evidence/supplement-react18.log) |
+| readme-types-2 | 0 | 0.267 s | [完整日志](evidence/readme-types-2.log) |
+| readme-runtime-final | 0 | 1.034 s | [完整日志](evidence/readme-runtime-final.log) |
+| resources | 0 | 615.374 s | [完整日志](evidence/resources.log) |
+| benchmark | 0 | 0.751 s | [完整日志](evidence/benchmark.log) |
+| memory-confirm | 1 | 0.628 s | [完整日志](evidence/memory-confirm.log) |
+| browsers-complete | 0 | 9.558 s | [完整日志](evidence/browsers-complete.log) |
+| docs | 0 | 0.098 s | [完整日志](evidence/docs.log) |
+
+| Linux 检查 | 退出码 | 证据 |
+| --- | --- | --- |
+| ci | 0 | [日志](evidence/linux-ci.log) |
+| test | 0 | [日志](evidence/linux-test.log) |
+| build | 0 | [日志](evidence/linux-build.log) |
+| dist | 0 | [日志](evidence/linux-dist.log) |
+| package | 0 | [日志](evidence/linux-package.log) |
+| tarball-install | 0 | [日志](evidence/linux-tarball-install.log) |
+| tarball-core | 0 | [日志](evidence/linux-tarball-core.log) |
+| firefox | 0 | [日志](evidence/linux-firefox.log) |
+
+## 4. 浏览器、持久化与 SSR
+
+每组常规链路覆盖 Unicode/emoji 输入及 insertText、checkbox、单/多选、数字清空显式转换、Chip 局部刷新、两个加载任务乱序成功/失败、local/session 刷新与标签页边界、受控存储异常、IndexedDB 实际驱动、hydration 正/负对照、原生 ESM。包的浏览器构建解析记录证明没有选中 dist/node.js 或 dist/node-react.js。
+
+IndexedDB 使用独立 localforage 数据库，强制并检查驱动 asyncStorage；缓存值确为 JSON 字符串。adapter 日志证明纯恢复、迟到读取下本地优先、写失败后恢复、maxActiveWrites=1。受控异常来自专用页面注入，不声称已经填满真实用户存储空间。
+
+SSR 服务对 A/B HTTP 请求分别创建 store，纯渲染无 useWatch 回调；等待 hydration 提交后才接入 storage。浏览器 fixture 的 SSR 简单 p 元素由 React 19 生成，18/19 客户端验证一致输出；各 React major 自身的完整 SSR 行为另外由隔离包套件验证。复杂跨版本 SSR 互操作不在本结论内。
+
+[Windows 浏览器结构化结果](evidence/browser-results.json)、[Linux Firefox 结构化结果](evidence/browser-results-linux-firefox.json)保存版本、事件、I/O、预期 warning、负对照错误和跨 realm 探针。截图只是辅助，断言日志才是通过依据。原生 IME 与真实剪贴板未执行，因此 QUAL-001 整行阻塞。
+
+| 引擎 | 浏览器版本 | OS | React | 模式 | 常规断言 | 附加探针 |
+| --- | --- | --- | --- | --- | --- | --- |
+| chromium | 151.0.7922.34 | Windows 10.0.26300 | 18.3.1 | development | 常规场景通过 | D01 复现（漏通知） |
+| chromium | 151.0.7922.34 | Windows 10.0.26300 | 18.3.1 | production | 常规场景通过 | D01 复现（漏通知） |
+| chromium | 151.0.7922.34 | Windows 10.0.26300 | 19.3.0 | development | 常规场景通过 | D01 复现（漏通知） |
+| chromium | 151.0.7922.34 | Windows 10.0.26300 | 19.3.0 | production | 常规场景通过 | D01 复现（漏通知） |
+| webkit | 26.5 | Windows 10.0.26300 | 18.3.1 | development | 常规场景通过 | D01 复现（漏通知） |
+| webkit | 26.5 | Windows 10.0.26300 | 18.3.1 | production | 常规场景通过 | D01 复现（漏通知） |
+| webkit | 26.5 | Windows 10.0.26300 | 19.3.0 | development | 常规场景通过 | D01 复现（漏通知） |
+| webkit | 26.5 | Windows 10.0.26300 | 19.3.0 | production | 常规场景通过 | D01 复现（漏通知） |
+| firefox | 153.0 | Ubuntu 26.04 / WSL | 18.3.1 | development | 常规场景通过 | D01 复现（漏通知） |
+| firefox | 153.0 | Ubuntu 26.04 / WSL | 18.3.1 | production | 常规场景通过 | D01 复现（漏通知） |
+| firefox | 153.0 | Ubuntu 26.04 / WSL | 19.3.0 | development | 常规场景通过 | D01 复现（漏通知） |
+| firefox | 153.0 | Ubuntu 26.04 / WSL | 19.3.0 | production | 常规场景通过 | D01 复现（漏通知） |
+
+## 5. 压力、性能和资源
+
+性能组固定当前机器、3 次预热和 10 次测量；P95 为最近秩法的第 10 个样本。独占于本轮其他测试结束后的短基准保存在 benchmark-clean.json；数值包含脚本断言开销，仅建立当前版本基线，没有与历史已接受版本比较，不能据此认定 20% 回归。
+
+存储压力每个组合 5 轮、每轮 10000 次编辑。10k 字段的逐次修改需要反复扫描/编码整图，约 56 秒/轮；这是大对象高频使用的成本观察，不是既定 SLA 失败。建议业务合并同步批次，后续可评估增量快照；同时保持最终 JSON 和错误恢复语义。
+
+React 18/19 各 1000 轮挂载/卸载：旧 Model handler 不写入，遗留 load 拒绝，watch/公开 loading 不再发布；每 100 轮记录 heap，前/500/1000 轮取堆快照。堆采样有波动，不能把一次增长当泄漏。单独的 computed/getter 诊断通过多轮 GC、释放源对照和强保留路径确认 D02。
+
+storage 两组各 1000 个根在完成 I/O/丢弃根后均可回收，保留共享 child 不阻止回收。早期综合脚本中最后一个循环局部引用及 WeakRef 同 job 保活造成的 1 个存活样本，已用独立工厂函数和事件循环边界排除；最终专用证据为 memory.json。
+
+| 短基准 | 中位数 ms | P95 ms |
+| --- | --- | --- |
+| proxy/deep fields=1000 | 2.025 | 3.480 |
+| proxy/deep fields=10000 | 14.528 | 27.748 |
+| computed 100000 cached reads | 1.555 | 1.643 |
+| 10000 writes batch=false | 14.790 | 52.120 |
+| 10000 writes batch=true | 3.815 | 4.574 |
+| QUAL-008 sparse length=1e9 own indices=3 | 0.011 | 0.014 |
+| QUAL-008 depth=100 | 0.461 | 0.955 |
+| QUAL-008 depth=1000 | 4.384 | 5.937 |
+| JSON shared graph=false | 0.478 | 0.750 |
+| JSON shared graph=true | 0.156 | 0.198 |
+
+| 字段数 | 模式 | 每轮编辑 | 每轮 set 次数 | maxActive | 5轮中位耗时 ms |
+| --- | --- | --- | --- | --- | --- |
+| 1000 | sync-batch | 10000 | 1/1/1/1/1 | 0 | 6.45 |
+| 1000 | sync-unbatched | 10000 | 10000/10000/10000/10000/10000 | 0 | 5170.38 |
+| 1000 | async-pending | 10000 | 2/2/2/2/2 | 1 | 5065.47 |
+| 10000 | sync-batch | 10000 | 1/1/1/1/1 | 0 | 10.68 |
+| 10000 | sync-unbatched | 10000 | 10000/10000/10000/10000/10000 | 0 | 56045.18 |
+| 10000 | async-pending | 10000 | 2/2/2/2/2 | 1 | 56273.79 |
+
+| 资源对照 | 创建数 | 源保留时存活 | 释放源/完成 I/O 后存活 |
+| --- | --- | --- | --- |
+| computed 捕获载荷 | 1000 | 1000 | 0 |
+| 自动 getter 根 | 1000 | 1000 | 0 |
+| storage 共享 child | 1000 | 不保留根 | 0 |
+| storage 异步 I/O | 1000 | 等待完成 | 0 |
+
+## 6. 未完成项、已声明边界与发布门槛
+
+QUAL-001：需要具备原生中文输入法和系统剪贴板的人工桌面交互，记录 compositionstart/update/end、粘贴、最终 model/DOM 与转换次数。当前工具运行的 headless 自动输入不能代替该证据。
+
+QUAL-016：需要未参与开发的独立测试人员，在干净 Node 24 环境按交付材料演练和签收。本轮已做自动化文档校验和独立 Linux 安装，但不会自称完成独立人工验收。
+
+没有把明确不支持的 raw 写通知、结构枚举追踪、defineProperty 通知、核心 #private、跨 await 事务、Map 内部变化、storage flush/dispose/跨页自动同步、loading 取消/最后请求胜出等判为 BUG。macOS/Safari 与完整 OS 最低版本声明仍需维护者确定发布范围。
+
+优先修复 D02，再修复 D01；D03 先决定 null 的公开语义。修复后先复跑最小复现和资源对照，再按计划对核心、存储、React 18/19、类型、dist、tarball 及浏览器全面回归。不得以本报告的旧源码散列作为修复版本证据。
+
+| 退出标准 | 本轮判定 |
+| --- | --- |
+| 全部适用 P0/P1 与参数通过 | 未满足：UI-022、QUAL-010 失败；QUAL-001 阻塞 |
+| 基础自动化/类型/构建/tarball | 满足：Windows/Linux 完整命令退出 0 |
+| 公开导出/混合模块/无 React 核心 | 满足：六/十九导出、90 文件白名单、核心隔离通过 |
+| 状态/JSON/竞态 | 本轮常规用例满足；跨 realm 扩展场景有 D01 |
+| 卸载/资源 | 常规组件清理通过；D02 为 S1 资源缺陷 |
+| 真实浏览器和控制台 | 三引擎常规链路通过；原生 IME 与 Windows Firefox 启动环境仍未验证 |
+| 未关闭 S0/S1 = 0 | 未满足：D02 未修复 |
+| 性能/资源/可追溯签收 | 已有基线与证据；QUAL-016 独立人工签收未完成 |
+
+## 7. 复现与证据使用
+
+从项目根目录执行下列命令。测试对象必须与 source-sha256.json 一致。报告内脚本为额外测试夹具，不属于发布包；正式回归仍以原 npm scripts 为入口。失败脚本应在原代码上保留非零退出码。
+
+scripts/freeze.mjs、run-command.mjs 保存版本/命令证据；scripts/supplement-core.mjs 与 supplement-react.tsx 为补充场景；scripts/memory.mjs 与 heap-path.mjs 为保留链诊断；scripts/browser.mjs/browser-app.tsx 为浏览器矩阵；scripts/readme-extract.mjs/readme-runtime.tsx 为逐例验证；scripts/report.mjs 从同一数据生成两种报告。
+
+浏览器依赖在 .runtime 内隔离，未修改根 package.json/lock；可使用该目录 package-lock.json 重建。实际依赖包括 Playwright Core 1.62.0、React/DOM 18.3.1、本轮 tarball，React19 从工作区解析。浏览器二进制需匹配 Playwright 的 revision；Linux shell 使用专用临时/缓存路径。
+
+evidence/ 包含首轮和最终日志、消费者 lock、源快照/散列、tarball、构建解析记录、浏览器截图、GC/性能原始样本及堆快照。堆快照可用 Chromium DevTools Memory 面板加载；computed-retaining-path.json 提供已提取的保留路径。
+
+
+```powershell
+npm test
+npm run build
+npm run test:dist
+npm run test:package
+node --test --test-reporter=tap test/reports/2026-10-16_170124/scripts/supplement-core.mjs
+node node_modules/tsx/dist/cli.mjs --tsconfig test/reports/2026-10-16_170124/scripts/tsconfig.json --test --test-reporter=tap test/reports/2026-10-16_170124/scripts/supplement-react.tsx
+node --expose-gc test/reports/2026-10-16_170124/scripts/memory.mjs
+node test/validate-docs.mjs
+```
+
+## 8. 缺陷详情与修复建议
+
+### D02 · 弃用 computed / 自动 getter 被长生命周期源永久保留
+
+| 项目 | 内容 |
+| --- | --- |
+| 类别 / 等级 | 已确认缺陷 / S1 |
+| 定位 | src/effect.ts:194–201；src/computed.ts:18–20；src/reactive.ts:66–73 |
+| 触发条件 | 在长期存活的 store 上重复创建、读取后丢弃 computed；或创建读取该 store 的 getter 对象并丢弃。无需保留外壳，也无需活动 effect。 |
+| 预期 | 业务已不再持有的派生对象及捕获载荷可以回收；依赖图不应让每次临时派生无限累积。 |
+| 实际 | 专用进程 12 轮跨事件循环 GC：1000/1000 computed 载荷、1000/1000 getter 根仍存活；释放唯一共享源后均变为 0。同条件 storage 两组各 1000 个根均回收为 0。两轮独立资源诊断均复现。 |
+| 根因 | trackDep 将 computed 的 EffectNode 强引用加入源属性 Dep Set；节点强持有 fn/闭包。自动 getter 的 fn 还捕获 receiver，反向保留整个对象。WeakMap 以活跃源为 key 并不能释放它的强引用 value 图。堆路径为 source proxy → raw → targetDeps Map → Dep Set → EffectNode.fn → Context.payload。 |
+| 修复建议 | 优先调整派生节点的生命周期：源到无外部拥有者的 computed 节点使用可清扫弱引用；活跃 computed 外壳及真实消费者继续保证节点存活。自动 getter 同步采用该机制。不要只在 finalizer 的 holding 中强持有 fn/receiver；不要简单在最后 effect.stop 后清空所有 deps，这会使仍存活但暂时无消费者的缓存失效失灵。也可评估显式 scope/dispose，但这属于公共契约设计变更。 |
+| 临时规避 | 复用有限数量的 computed，避免在循环/重复渲染中临时创建并读取；需要手工生命周期时直接使用可 stop 的 effect/watch，或确保整个源及其派生图一起释放。 |
+| 修复后回归 | 保留源、丢弃外壳/最后消费者的 GC 与堆保留链；getter receiver 回收；仍活跃 computed 的惰性失效；分支回退、菱形依赖、stop、异常及 Suspense 的全部原用例。 |
+| 证据 | [memory-confirm.log](evidence/memory-confirm.log)；[memory.json](evidence/memory.json)；[computed-retaining-path.json](evidence/computed-retaining-path.json)；[heap-clean-retained.heapsnapshot](evidence/heap-clean-retained.heapsnapshot)；[heap-clean-released.heapsnapshot](evidence/heap-clean-released.heapsnapshot) |
+
+最小复现：
+
+```js
+import { reactive, computed } from './dist/esm/index.js'
+const source = reactive({ n: 0 })
+function temporary() {
+  const payload = { large: new Array(1000).fill(1) }
+  const weak = new WeakRef(payload)
+  const c = computed(() => source.n + payload.large[0])
+  void c.value
+  return weak
+}
+const refs = Array.from({ length: 1000 }, temporary)
+// 跨多轮 setImmediate + global.gc() 后，源仍存活时全部载荷保留。
+// 可直接执行 scripts/memory.mjs 获取三份堆快照和释放源的对照。
+```
+
+### D01 · 跨 realm 普通对象被误判为内建实例，静默失去响应式
+
+| 项目 | 内容 |
+| --- | --- |
+| 类别 / 等级 | 已确认缺陷 / S2 |
+| 定位 | src/reactive.ts:35–44、181；storage 同类判定点 src/storageSnapshot.ts:11 |
+| 触发条件 | 将 iframe.contentWindow 创建的普通对象，或 Node vm.runInNewContext 返回的普通对象传给 reactive。 |
+| 预期 | 普通对象得到代理；effect 首次值 0，随后经返回值写入 1 应同步收到 1。已声明边界只排除 Map/Date 等依赖内部槽的内建对象，没有排除另一个 realm 的普通对象。 |
+| 实际 | reactive(raw) === raw；effect 序列仅 [0]，实际值已变为 1。Node vm 两轮补充测试及 Chromium/Firefox/WebKit × React 18/19 × dev/prod 共 12 个 iframe 场景全部复现。 |
+| 根因 | 外部 realm 的 Object 构造函数与当前 Object 引用不同，ctor !== Object 成立；随后 isBuiltinConstructor 将它认作 native 并拒绝代理。isStorageRoot 也只比较当前 realm 的 Object.prototype，因此同类数据入口应一起审视。 |
+| 修复建议 | 加入不执行用户 getter 的 realm 安全普通对象/原型判定，识别外部 Object.prototype；不要只按 constructor.name 放行。对原生内部槽类仍保留拒绝代理策略，并统一 storage 的普通数据对象识别策略。 |
+| 临时规避 | 在当前 realm 将可序列化的数据克隆/重建后再 reactive；克隆会改变身份及部分类型，不能对任意对象机械 JSON 往返。 |
+| 修复后回归 | Node vm + 真实 iframe 的普通对象/嵌套对象/用户类；同 realm 对照；Array、null 原型；Map/Set/Date/URL/Headers 仍原样返回；身份缓存和危险键防护。 |
+| 证据 | [supplement-core-final.log](evidence/supplement-core-final.log)；[browser-results.json](evidence/browser-results.json)；[browser-results-linux-firefox.json](evidence/browser-results-linux-firefox.json) |
+
+最小复现：
+
+```js
+import vm from 'node:vm'
+import { reactive, effect } from '@canlooks/reactive'
+const raw = vm.runInNewContext('({ count: 0 })')
+const state = reactive(raw)
+const seen = []
+const stop = effect(() => seen.push(state.count))
+state.count = 1
+stop()
+console.log(state === raw, seen) // 当前 true, [0]；预期 false, [0, 1]
+```
+
+### D03 · Model 的 valueProp=null 静默回退，非法参数负例未拒绝
+
+| 项目 | 内容 |
+| --- | --- |
+| 类别 / 等级 | 契约差异，待维护者确认 / S3 |
+| 定位 | src/react/model.ts:84–85 |
+| 触发条件 | JavaScript 调用或运行时数据绕过类型约束，将 null 作为 valueProp；不是正常 TypeScript 正例。 |
+| 预期 | 测试计划 UI-022 要求非法 valueProp 拒绝；公开类型只允许 value/checked 或省略。本轮将 null 纳入非法值边界。 |
+| 实际 | "foo"、数字 1 均 TypeError，null 不抛错并按模型类型自动选择受控属性；React 18 与 19 均复现。无数据丢失证据。 |
+| 根因 | 使用 valueProp ?? default 后才校验 field；null 在校验前被折叠为默认值。README 没有单独明确 null 的运行时语义，所以此项不与已确认的两项实现缺陷混为一谈。 |
+| 修复建议 | 若遵循当前严格参数契约，先校验 valueProp !== undefined 且值不在 value/checked 时抛 TypeError，再计算默认属性；若产品希望接受 null，明确写入类型、README 和测试计划，经契约确认后再更新负例。 |
+| 临时规避 | 仅传 "value" / "checked"，或真正省略该属性。 |
+| 修复后回归 | undefined、null、空字符串、错误字符串、数字、合法两值；input/checkbox/custom control；SSR/hydration 和失败后合法绑定。 |
+| 证据 | [supplement-react-complete.log](evidence/supplement-react-complete.log)；[supplement-react18.log](evidence/supplement-react18.log) |
+
+最小复现：
+
+```js
+const state = reactive({ name: 'A' })
+// 在 JS/运行时数据层，以下 valueProp 为 null：
+renderToString(<Model source={() => state.name} valueProp={null}>
+  <input />
+</Model>)
+// 当前输出受控 input；严格非法值策略应抛 TypeError。
+```
+
+## 9. 240 条用例逐项执行记录
+
+以下状态以完整用例行判定。A 项依原有自动化映射，本轮完整套件重新执行；P/M 项用补充证据填实。原始前置、步骤、期望均保留。失败与阻塞没有被相关子项的通过覆盖。
+
+### 核心响应式
+
+| ID / 优先级 | 测试点 | 前置/数据 | 步骤 | 预期 | 本轮实际 / 状态 | 证据 |
+| --- | --- | --- | --- | --- | --- | --- |
+| CORE-001 / P0 | 立即执行、属性级依赖与重复读取 | count=1、message=hello；两个 effect 分别读取字段 | 1. 注册；2. 在 count effect 连读两次；3. 分别修改 count/message | 注册各执行一次；一次 count 修改只重跑对应 effect 一次；message 同理；赋值返回前已通知 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N01；[npm-test.log](evidence/npm-test.log) |
+| CORE-002 / P0 | 条件依赖和嵌套收集 | flag=true、a=1、b=10；外层读条件及 tail，内部另建 effect | 1. flag=false；2. 改 a、b、inner；3. 改 tail；每次重建内层前 stop 旧内层 | a 旧分支不触发；b 新分支触发；inner 只驱动内层；tail 仍属于外层；外层不会代管内层 stop | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N02；[npm-test.log](evidence/npm-test.log) |
+| CORE-003 / P0 | stop 幂等、排队取消和自停 | 先注册的 effect 可停止后注册 effect | 1. 触发后停止待执行节点；2. 回调内自停后继续读 tail；3. 重复 stop；4. 再改数据 | 已排队节点不执行；自停后读取不重新订阅；重复 stop 无异常；其他消费者照常执行 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N03；[npm-test.log](evidence/npm-test.log) |
+| CORE-004 / P0 | Object.is 和 raw/proxy 归一 | value=NaN、nested=raw | 1. 再写 NaN；2. nested 写同 raw 的 proxy；3. value 写 +0、-0 | 前两项不通知；NaN→+0、+0→-0 各通知一次；raw/proxy 不误判新对象 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N04；[npm-test.log](evidence/npm-test.log) |
+| CORE-005 / P0 | 缺失/undefined/删除/失败写入 | 空对象，fixed 为不可写不可配置；effect 读缺失 value | 1. value=undefined；2. 删除两次；3. Reflect.set/delete fixed | 缺失→存在 undefined、存在→缺失各通知；重复删除无通知；失败返回 false，fixed 保持 2 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N05；[npm-test.log](evidence/npm-test.log) |
+| CORE-006 / P0 | 深层代理身份、环、旧分支清理 | raw.child.n=1，raw.self=raw | 1. 重复 reactive(raw/proxy)；2. 读取 child/self；3. 替换 child；4. 修改旧 child 与新 child | 代理身份稳定，self===proxy；替换触发；旧 child 不再触发，新 child 正常触发；无递归溢出 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N06；[npm-test.log](evidence/npm-test.log) |
+| CORE-007 / P0 | 嵌套 batch、返回值、多字段去重 | a=1、b=10；effect 同读 a/b | 1. 外层 a=2，内层 a=3，回到1；2. 新批次 a=2→3、b=11；3. 批外连续 a++ 两次 | 内层结束不通知；回退批次无通知；变化批次只追加 [3,11]；返回值原样；批外两次各通知 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N07；[npm-test.log](evidence/npm-test.log) |
+| CORE-008 / P0 | 净变化包含属性存在性 | {value:1}，effect 读 value | 1. 同批删除再恢复1；2. 独立删除；3. 同批新增2再删除；4. 写 undefined | 步骤1/3不额外通知；步骤2通知；步骤4虽读取值仍 undefined，存在性改变仍通知 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N08；[npm-test.log](evidence/npm-test.log) |
+| CORE-009 / P1 | batch 内依赖及新 effect | effect 内通过 batch 读 a；外部 batch 内另建读 b 的 effect | 1. 修改 a；2. 批内新建 effect；3. stop 原 effect；4. 再改 b | batch 不屏蔽收集；新 effect 当场运行；停止项不在结算复活；b 净变化正常通知 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N09；[npm-test.log](evidence/npm-test.log) |
+| CORE-010 / P1 | 空批次与非法参数 | null、显式 undefined、1、字符串、布尔、symbol | 1. batch 空函数；2. batch/effect 传 null；3. reactive 显式传每个基本类型 | 空 batch 返回 undefined；非法调用 TypeError；reactive() 无参工厂与 reactive(undefined) 严格区分 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N10、N43；[npm-test.log](evidence/npm-test.log) |
+| CORE-011 / P0 | 首次 effect 失败自动清理 | effect 读 value 后抛 E；另一个正常 effect | 1. 捕获创建异常；2. 注册正常 effect；3. 改 value | 原样抛 E；失败 effect 总共运行一次；后续正常订阅更新，收集上下文未泄漏 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N11；[npm-test.log](evidence/npm-test.log) |
+| CORE-012 / P0 | 回调/通知多错误与恢复 | batch 错误 E0；两个更新 effect 抛 E1/E2；第三个记录值 | 1. batch 写1后抛 E0；2. 捕获；3. 写2；4. 单独 throw undefined | errors 为 [E0,E1,E2]；记录者仍看到1；写2正常；成功写入不回滚；单个 undefined 异常不被吞 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N12；[npm-test.log](evidence/npm-test.log) |
+| CORE-013 / P0 | flush 中再写与自递归抑制 | 先订阅 [source,derived]，后订阅 source→derived=source×2 | 1. source 0→1；2. 创建读写自身的 effect | 可观察 [0,0]→[1,0]→[1,2]，后续写是新批次；当前运行的 effect 不直接递归自身 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N13；[npm-test.log](evidence/npm-test.log) |
+| CORE-014 / P0 | setter 合并、异常与无隐式求值 | setter 同时写 a/b，值2时抛 E；getter 计数 | 1. 不读 getter 直接设置1；2. 设置2并捕获 | 观察者仅见 [1,1]、[2,2] 完整状态；getter 调用0；原 E 抛出，已写数据仍结算 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N14；[npm-test.log](evidence/npm-test.log) |
+| CORE-015 / P0 | 惰性计算与缓存 | count=1，double=count×2，getterCalls=0 | 1. 创建；2. 连读两次；3. count=2→3且不读；4. 再读；5. computed(null) | 调用次数0→1→1→2；结果2/6；无消费者时写入不主动求值；非法 getter TypeError | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N15；[npm-test.log](evidence/npm-test.log) |
+| CORE-016 / P0 | 计算分支隔离 | computed(flag?a:b)，消费者只读 computed | 1. true→false；2. a++；3. b++ | 序列1→10→11；消费者不因旧 a 变化运行；派生内部依赖不泄漏给外部 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N16；[npm-test.log](evidence/npm-test.log) |
+| CORE-017 / P0 | 链与菱形一次新鲜通知 | a=count+1，b=count×2，total=a+b，chain=total×10 | 1. effect 同读源和全部派生；2. count=2；3. batch 3→4 | 序列 [1,2,2,4,40]、[2,3,4,7,70]、[4,5,8,13,130]；无旧缓存或重复通知 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N17；[npm-test.log](evidence/npm-test.log) |
+| CORE-018 / P0 | 中途读取与净回退 | count=1，double、chain=double+1 | batch 中 count=2，读 chain，再恢复1；批后再读两层 | 中途为5；effect 不追加；批后 double=2、chain=3，不保留中间值 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N18；[npm-test.log](evidence/npm-test.log) |
+| CORE-019 / P1 | 结算不废弃最终有效缓存 | getter 每次改变依赖读取顺序，集合相同 | batch 写 count=2并读 final；批次结束让消费者读 | final=4；getter 总计只计算2次；依赖顺序变化不导致多一次重算 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N19；[npm-test.log](evidence/npm-test.log) |
+| CORE-020 / P0 | 恢复原分支后不漏净变化 | flag=true、a=1、b=10；computed 选分支 | batch 切到 b并读取；a=2；flag=true；结束后再改 a | 结束通知原分支最终2，后续 a 仍能触发；按原依赖判断变化 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N20；[npm-test.log](evidence/npm-test.log) |
+| CORE-021 / P0 | 临时分支变化不误通知 | 同 CORE-020 | batch 切 b并读，修改 b，flag 恢复；再独立改 a/b | 本批无原分支净变化则不通知；a 后续触发，临时 b 不触发 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N21；[npm-test.log](evidence/npm-test.log) |
+| CORE-022 / P0 | 无批后读取也恢复依赖 | 同上 | batch 切换/读取/恢复；不主动读 computed，直接改 a | a 修改仍驱动消费者；不能依赖批后手动读取修复订阅 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N22；[npm-test.log](evidence/npm-test.log) |
+| CORE-023 / P0 | 多层 computed 分支图恢复 | 内外两层 computed 均可切分支 | 批内切换读取再恢复；分别修改原/临时分支 | 上下游订阅双向一致，原分支有效、临时分支无多余通知；最终缓存正确 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N23；[npm-test.log](evidence/npm-test.log) |
+| CORE-024 / P1 | 批内首次计算的基线 | computed 创建时未读，批内首次读并订阅 | 首次求值后再变更并结算 | 首次实际收集的依赖成为该批基线；之后变化不丢、不误用空依赖 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N24；[npm-test.log](evidence/npm-test.log) |
+| CORE-025 / P0 | 分支恢复不复活 stop 节点 | 消费者订阅 computed | 批内切分支后 stop 消费者，再回退/结束；后续写源 | 停止节点不再执行；computed 依赖恢复不会重新激活消费者 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N25；[npm-test.log](evidence/npm-test.log) |
+| CORE-026 / P1 | 不按派生结果去重 | computed(count%2)，count=1 | count=3 | 消费者仍通知，新旧派生值均1；不是 computed 结果相等过滤 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N26；[npm-test.log](evidence/npm-test.log) |
+| CORE-027 / P0 | 计算失败重试和循环检测 | 首次/条件失败的 getter；直接及互相循环 computed | 1. 读失败；2. 修复再读；3. 读循环；4. 新建正常订阅 | 错误不缓存为成功；修复可重试；循环抛明确 Circular 错误；后续上下文正常 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N27；[npm-test.log](evidence/npm-test.log) |
+| CORE-028 / P0 | 抛错批次也恢复计算依赖 | 条件 computed，batch 中切分支读后抛 E | 捕获，修改最终有效分支 | 已完成修改按最终状态结算；后续依赖仍有效，无损坏队列 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N28；[npm-test.log](evidence/npm-test.log) |
+| CORE-029 / P0 | 自动 getter 缓存与 setter | count=1，get/set double | 连读 double；设 double=8；再次读取 | getter 惰性且缓存，setter 写 count=4使缓存失效；结果8，消费者收到新状态 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N29；[npm-test.log](evidence/npm-test.log) |
+| CORE-030 / P1 | 原型 getter 按 receiver 隔离 | 两对象共享原型 getter，数据值不同；原型也经代理 | 分别读两实例多次，改其中一个 | 缓存各自独立且 this 正确；改 A 不污染 B；代理原型不导致重包错误 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N30；[npm-test.log](evidence/npm-test.log) |
+| CORE-031 / P1 | getter 删除与替换 | 自有可配置 getter，已有消费者 | 删除 getter；经受支持的属性赋值恢复/替换数据；读取 | 属性消费者获得删除后的值和新数据；不以 defineProperty 本身须通知作为要求 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N31；[npm-test.log](evidence/npm-test.log) |
+| CORE-032 / P1 | Proxy 不变量 | 不可配置不可写对象属性；没有 getter 的固定访问器 | 读固定引用/空 getter；尝试失败写入 | 固定引用返回原对象，空 getter 为 undefined，无 Proxy invariant 异常；不强制深代理 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N32；[npm-test.log](evidence/npm-test.log) |
+| CORE-033 / P1 | 代理位于原型链的 receiver | parent proxy、Object.create(parent) 子对象 | 观察 parent；通过 child 写同名属性 | 写入落到子对象，不误通知父对象；父值不变 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N33；[npm-test.log](evidence/npm-test.log) |
+| CORE-034 / P1 | 内建对象保留身份 | Map/Set/Date/Promise/URL/Headers 等；置于响应式属性 | reactive(内建对象)并比较引用；对Map调用set；整体替换Map字段 | 各内建对象返回原引用；Map内部set可执行但不通知；整体替换Map通知 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N34；[npm-test.log](evidence/npm-test.log) |
+| CORE-035 / P1 | 类型判定无用户 getter 副作用 | 自定义 Symbol.toStringTag getter；类有同名数据标识 | reactive 并读写正常字段 | 不调用 tag getter 判代理资格；正常用户类仍可追踪 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N35；[npm-test.log](evidence/npm-test.log) |
+| CORE-036 / P1 | null 原型与 symbol | Object.create(null)，symbol key | 代理、订阅 symbol，修改值 | 值正常，原型不变，symbol 按属性通知 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N36；[npm-test.log](evidence/npm-test.log) |
+| CORE-037 / P0 | 数组索引/长度/截断 | [1,2,3]；分别观察 length、尾项、缺失索引 | 写越界索引、push、delete 索引、缩短 length | 隐式增长通知 length；删除索引不改变 length；截断通知实际被删索引和长度 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N37；[npm-test.log](evidence/npm-test.log) |
+| CORE-038 / P0 | 数组净回退 | [1,2,3]；观察 length 和索引2 | 1. batch push/pop；2. batch length=1再=3；3. 删除再恢复同索引同值 | 完整回退不通知；恢复 length 不恢复丢失的元素，索引2为 undefined且通知；存在性独立比较 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N38；[npm-test.log](evidence/npm-test.log) |
+| CORE-039 / P1 | length 派生中途读取 | computed(()=>list.length)，有消费者 | batch 内增长/截断并逐次读取，最后回退 | 中途派生立即更新；最终通知遵循净变化，不读旧 length 缓存 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N39；[npm-test.log](evidence/npm-test.log) |
+| CORE-040 / P1 | 稀疏数组与非规范索引 | 大 length、少量真实索引；键 01、-1、4294967295 | 缩短 length；读非规范键 | 仅处理真实数组索引；非规范键不作为 length 索引被误删，稀疏截断可完成 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N40；[npm-test.log](evidence/npm-test.log) |
+| CORE-041 / P1 | splice 与原生方法身份 | [1,2,3] | 核对 splice 身份；batch 内 splice 多次写入 | 保持原生数组方法；批内消费者一次看到终态；未包 batch 不承诺一次通知 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N41；[npm-test.log](evidence/npm-test.log) |
+| CORE-042 / P0 | @reactive 构造、实例与静态批次 | F4，构造参数1，方法连增两次 | new、instanceof、调用实例/静态方法、roundTrip | 构造参数和返回值正确；实例/静态各一次最终通知；往返无通知；原型正常 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N42；[npm-test.log](evidence/npm-test.log) |
+| CORE-043 / P0 | @reactive() 等价能力 | 与 CORE-042 同类定义但工厂形式 | 重复构造、getter 读取、方法和静态变化 | 与直接装饰器同语义；构造类型、缓存、批处理保留 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N43；[npm-test.log](evidence/npm-test.log) |
+| CORE-044 / P1 | reactive(Class) 与工厂身份 | 普通用户类 | 比较 reactive(Class)、reactive()(Class)、重复代理；构造调用 | 同一构造代理；参数与方法签名保留；行为和装饰器一致 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N44；[npm-test.log](evidence/npm-test.log) |
+| CORE-045 / P0 | 继承/super/互调最外层批次 | 父子类实例/静态方法，内部显式 batch | 子方法调用 super和其他方法，每层写两次 | 直到最外层结束才通知；共用原始基线；无重复包装通知 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N45；[npm-test.log](evidence/npm-test.log) |
+| CORE-046 / P1 | 继承 getter/方法接收对象 | 多实例、父子构造函数静态 getter | 交错读取和修改不同 receiver | 实例和静态缓存各自隔离，继承方法读取当前调用者数据 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N46；[npm-test.log](evidence/npm-test.log) |
+| CORE-047 / P1 | 包装身份、替换、动态 this | 取 method 两次，准备另一个接收对象 | 比较包装引用；替换原方法后重读；call/apply；无 receiver 调用 | 未替换时同一函数；替换后新包装；this由调用方式决定，不自动 bind | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N47；[npm-test.log](evidence/npm-test.log) |
+| CORE-048 / P1 | 不误包装普通函数属性 | 普通对象 method；reactive(new Store()) | 方法内通过代理写两次 | 不自动合并这两次写；直接代理实例仅代理属性，不等价于类构造装饰 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N48；[npm-test.log](evidence/npm-test.log) |
+| CORE-049 / P1 | 函数字段/getter返回函数边界 | 实例箭头/绑定字段、静态函数字段、getter返回函数 | 读取比较身份并调用；另经显式 batch写代理 | 不作为原型方法自动包装；构造捕获 raw 不被强制修正；受支持写入仍按显式 batch | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N49；[npm-test.log](evidence/npm-test.log) |
+| CORE-050 / P1 | 固定静态方法与 TS private | 不可写不可配置静态方法；TS private普通字段 | 读方法；调用 public方法改 private数据 | 不违反 Proxy 不变量；TS private 可追踪；不据此宣称核心支持 #private | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N50；[npm-test.log](evidence/npm-test.log) |
+| CORE-051 / P0 | 类方法失败后的结算 | 方法写状态后抛 E；观察者也可抛 | 调用失败方法，捕获，再调用成功方法 | 已写值通知；单错保真，多错包含业务及通知错误；实例可继续用 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N51；[npm-test.log](evidence/npm-test.log) |
+| CORE-052 / P1 | 方法内读取和数组批次 | effect 调用读取字段的方法；另一个方法修改数组 | 改被读字段；调用数组多写方法 | 方法包装不隔离 effect 收集；数组写入在方法边界一次结算 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N52；[npm-test.log](evidence/npm-test.log) |
+| CORE-053 / P0 | batch 不等待 Promise | async 回调在 await 前/后分别写两次 | 保存原 Promise与 batch返回值；分段控制完成 | 返回同一个 Promise；await前合并，await后独立通知，除非另加 batch | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N53；[npm-test.log](evidence/npm-test.log) |
+| CORE-054 / P1 | async方法/生成器/微任务/定时器 | 类 async方法、生成器迭代和排队回调 | 分段执行并观察每个阶段 | 仅当前同步调用栈共享批次；后续迭代/回调不延长旧 batch | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N54；[npm-test.log](evidence/npm-test.log) |
+| CORE-055 / P1 | effect 仅收集同步读 | effect 同步读 a、await或回调后读 b | 完成异步读取；分别修改 a/b | a 变化重跑，b 的异步读取不成为原 effect 依赖 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N55；[npm-test.log](evidence/npm-test.log) |
+| CORE-056 / P1 | 净变化逐属性判断 | NaN、±0、raw/proxy、两个嵌套字段 | 同批往返/交换引用/只改其中一字段 | 按 Object.is及归一后的属性状态比较，不做深相等；独立字段互不吞通知 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N56；[npm-test.log](evidence/npm-test.log) |
+| CORE-057 / P1 | 捕获内层异常不重置基线 | 外层 batch；内层写后抛并在外层捕获 | 继续外层写入/回退；另测单一通知错误 | 仍使用最外层初值，通知次数正确；单错严格等于原错误 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N57；[npm-test.log](evidence/npm-test.log) |
+| CORE-058 / P1 | 不可扩展与非法 length | preventExtensions对象、普通可变数组 | 添加属性失败；设置非法 length；再写合法数据 | JS失败语义正确，没有虚假通知或遗留批次；合法后续写仍通知 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N58；[npm-test.log](evidence/npm-test.log) |
+| CORE-059 / P0 | 更新期 computed失败不阻断其他人 | 一消费者读取可能抛错的 computed，另一人记录源 | 源触发失败；修复后再读/再改 | 其他消费者执行；computed可重试；错误不使队列永久停止 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N59；[npm-test.log](evidence/npm-test.log) |
+| CORE-060 / P1 | 自动 getter分支与静态回退 | 类 getter条件分支；静态 roundTrip | 批内切换并回退；后续改原分支；调用静态往返方法 | 原依赖恢复，静态回退无额外通知，缓存最终值正确 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N60；[npm-test.log](evidence/npm-test.log) |
+| CORE-061 / P1 | API 返回语义 | effect返回一个函数；batch返回对象/基本值 | stop effect；比较 batch原返回引用/类型 | effect回调返回函数不被自动调用，stop不是runner；batch原样返回 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N61、T-CORE；[npm-test.log](evidence/npm-test.log) |
+| CORE-062 / P0 | watch默认/immediate/void/配置 | source返回数值或undefined；缺省/空/false/true选项 | 创建；修改；创建后改options.immediate；stop | 默认只读一次不回调；true在返回前(initial,undefined)；后续old推进；undefined不是未初始化标记；改选项不补发 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N62；[npm-test.log](evidence/npm-test.log) |
+| CORE-063 / P0 | watch回调及选项读隔离 | 在外层effect建watch，callback/options getter读旁路字段 | 改旁路、源和外层专属字段 | 旁路不绑定watch或外层effect；source只订阅自身同步读取 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N63；[npm-test.log](evidence/npm-test.log) |
+| CORE-064 / P0 | watch分支/同值/对象引用 | source为条件、count%2、对象及嵌套字段 | 切分支；1→3；修改嵌套或替换对象 | 旧依赖解除；同结果仍回调(1,1)；仅返回对象不深监听；old对象不是历史快照 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N64；[npm-test.log](evidence/npm-test.log) |
+| CORE-065 / P1 | 批内immediate与同步写回 | batch内创建immediate watch；callback写自身源 | 记录创建前后顺序；批内变更/回退 | 首回调不等批次；当前watch不会直接自递归；后续按净变化结算 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N65；[npm-test.log](evidence/npm-test.log) |
+| CORE-066 / P0 | watch错误时旧值推进 | 首次source/callback抛；更新source/callback可控失败 | 分别失败后修复并改源 | 首次失败无残留订阅；更新source失败保留上次成功值；callback失败已保存本次新值，其他观察者继续 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N66；[npm-test.log](evidence/npm-test.log) |
+| CORE-067 / P0 | watch停止与聚合错误 | 多watch、可排队停止/自停，两个callback抛错 | 触发同批变化、捕获，再变更 | 被停项不执行；多错误保留；其他watch继续；后续队列可用 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: N67；[npm-test.log](evidence/npm-test.log) |
+| CORE-068 / P0 | Computed外壳只读与身份 | computed(()=>count×2)；对象/数组内保存它 | 尝试调用、直接赋value、Reflect.set；reactive(computed)；缓存命中后新建消费者 | 冻结外壳；Reflect.set=false，严格写/调用TypeError；无自动解包/二次代理；缓存命中也能订阅 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: X01；[npm-test.log](evidence/npm-test.log) |
+| CORE-069 / P1 | 计算结果引用与解构快照 | computed返回对象/函数/undefined；解构value | 读两次比较引用；修改结果对象；修改源；再读解构局部值 | 结果不自动代理/冻结；类型保持；提前解构仅旧值；消费者需在同步回调读.value | **通过**：对象结果可修改且同次缓存保留引用；函数/undefined 原样返回；解构值保持旧快照。 | P: X01、T-CORE；补充运行时对象结果与提前解构断言；[supplement-core-final.log](evidence/supplement-core-final.log) |
+| CORE-070 / P1 | raw和结构追踪范围 | raw/proxy同对象；effect分别只用in/Object.keys/for...in | 直接改raw；通过proxy新增/删除；另建显式读字段的effect | raw写无通知；仅结构枚举不因结构变更重跑；显式字段读仍通知；storage内部观察不扩大该契约 | **通过**：raw 写入、in/Object.keys/for...in 不触发结构订阅；代理字段写入正常通知。 | P: S08、N06；补充in/for...in及raw写入负向对照；[supplement-core-final.log](evidence/supplement-core-final.log) |
+| CORE-071 / P1 | 序列化以外的字符串/对象边界 | 空键、中文/emoji键、空数组、共享嵌套对象、0与false值 | 分别读写、重复代理、两个根共享子对象，批内回退 | 键/值原样保留；各真实读取依赖正确；共享对象代理一致；无truthy/falsy误判 | **通过**：空键、中文、emoji、symbol、false/0、空数组和跨根共享 child 身份及批内回退通过。 | P: N36、N04、X02；补充Unicode键和false/0参数表；[supplement-core-final.log](evidence/supplement-core-final.log) |
+| CORE-072 / P1 | watch输入验证与返回值非清理 | source/callback分别传null/undefined/数值，callback返回函数 | 每项单独调用；合法watch停止/更新 | 非函数TypeError，无残留；返回的stop幂等且不执行callback返回函数；后续合法watch正常 | **通过**：null/undefined/数字分别置于 source/callback 均拒绝；stop 幂等，回调返回函数未执行。 | P: N62、N66；补充全部非法参数和清理返回值运行时检查；[supplement-core-final.log](evidence/supplement-core-final.log) |
+
+### 持久化
+
+| ID / 优先级 | 测试点 | 前置/数据 | 步骤 | 预期 | 本轮实际 / 状态 | 证据 |
+| --- | --- | --- | --- | --- | --- | --- |
+| STORE-001 / P0 | 根入口storage可用 | 从核心入口导入 | 检查函数并创建同步内存store | 导出为function；不需要React；返回可用响应式对象 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: S01、D-STORAGE；[npm-test.log](evidence/npm-test.log) |
+| STORE-002 / P1 | 对象名为length的受保护字段 | 普通对象length分别为getter/不可枚举只读，count=0；缓存count=4,length=2 | 创建；读取length；count++ | length仍9；count恢复4；纯恢复不写；之后仅存count=5，不误用数组length特例 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: S02；[npm-test.log](evidence/npm-test.log) |
+| STORE-003 / P0 | 同步恢复、浅合并及本地行为保留 | F1默认初值；本地方法/getter/hidden/symbol；缓存试图覆盖它们 | 创建即读；重复读getter；调用方法 | 返回前count=8；enabled保留；profile.size消失；根===reactive(raw)；方法/getter/hidden/symbol保留，恢复不调用getter、不回写 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: S03；[npm-test.log](evidence/npm-test.log) |
+| STORE-004 / P0 | 缺失记录初存及key原样 | get返回null；name=' app:key ' | 外层batch创建count=1再写2；结束后写3 | get一次使用原样key；batch内set=0；边界写count=2一次；之后写3；不偷偷trim key | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: S04；[npm-test.log](evidence/npm-test.log) |
+| STORE-005 / P0 | 未读取字段深层新增/删除与分支替换 | child={}，业务不预读新键；持有旧child | 新增deep=1→2；删除；替换child；修改旧child；新child再新增 | 每次有效数据变化自动保存；旧分支不再引发写；新分支无需业务预读也生效 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: S05；[npm-test.log](evidence/npm-test.log) |
+| STORE-006 / P0 | 净变化/相同JSON/抛错批次 | count=1、child={value:1}、computed=count×2 | batch 2→3；batch4→3；raw/proxy互换；同JSON替换；写4后抛E | 变化批次仅最终JSON；净回退及同JSON替换不重复set；抛错仍保存4且原E保留；内存观察正常 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: S06；[npm-test.log](evidence/npm-test.log) |
+| STORE-007 / P0 | 根数组原位恢复和孔洞 | raw=[1,2,3]，缓存[9] | 创建；索引3=4；删0；length=1；batch push/pop；batch splice | 根代理不变；依次JSON [9,null,null,4]、[null,null,null,4]、[null]；回退不写；splice一次终态 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: S07；[npm-test.log](evidence/npm-test.log) |
+| STORE-008 / P0 | 等业务通知完成后保存 | count=0,mirror=0；watch将mirror设count×10；另有getter计数与Object.keys effect | count=1；新增字段 | 存储仅写含count=1,mirror=10的最终快照；不执行派生getter；普通枚举effect不被扩展为结构监听 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: S08；[npm-test.log](evidence/npm-test.log) |
+| STORE-009 / P1 | adapter及引用捕获隔离 | adapter get/set读other.dependency；外层effect创建store | 改other；经captureReference选择业务字段；写store再改other | 不额外绑定外层effect/store；引用仍指向业务字段；get/set读取不污染Model定位 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: S09；[npm-test.log](evidence/npm-test.log) |
+| STORE-010 / P1 | 共享子图、独立控制器 | 两个根/adapter共享child={value:0} | 改共享child；第一根替换child；再改第二根child | 初次两份都保存；替换后第一根不响应旧child；第二根继续；控制器不混用 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: S10；[npm-test.log](evidence/npm-test.log) |
+| STORE-011 / P0 | 异步读立即返回且禁写 | deferred get；结果分别null/有效缓存 | 创建后立即读并注册effect；断言pending；resolve后turn | pending读初值、set=0；null后保存初值；缓存后一次恢复通知且set=0；返回值不是Promise | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: S11；[npm-test.log](evidence/npm-test.log) |
+| STORE-012 / P0 | 整份本地状态优先 | 延迟读；初值有count/theme/nested/list/remove | pending中batch改count、nested、list并删remove；返回旧缓存 | 本地全树保留，theme不从旧缓存补入；删除不复活；读取完只保存本地最终JSON | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: S12；[npm-test.log](evidence/npm-test.log) |
+| STORE-013 / P0 | 净回退/跨批回退/等内容替换 | value={count:1}；延迟缓存count=8 | 三个独立用例：同批1→2→1；跨批1→2→1；替换{count:1} | 仅同批回退允许恢复8；另两项保留本地1并保存；冲突使用修改历史而非最终JSON相等 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: S13；[npm-test.log](evidence/npm-test.log) |
+| STORE-014 / P0 | 回填一批及业务追加写 | 初始a=b=1；缓存a=8,b=9；watch a==8时b=10 | resolve缓存，记录effect与writes | effect先见[1,1]、[8,9]，业务再见[8,10]；set仅最终{a:8,b:10}一次；不回声保存纯缓存 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: S14；[npm-test.log](evidence/npm-test.log) |
+| STORE-015 / P0 | 单写在途/最新等待/回到旧成功值 | 已存0；第一set受控不完成 | count=1→2→3→0；先断言调用；完成第一、再第二 | 第一只写1；等待阶段不并发；完成后必须写0；中间2/3合并；maxActiveWrites=1、最终磁盘0 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: S15；[npm-test.log](evidence/npm-test.log) |
+| STORE-016 / P0 | 写失败重试与无无限循环 | delayedWriter已存0 | 写1，等待中改2→3；第一reject；第二reject；turn后改4并resolve | 失败后继续最新3；无新状态不再自动重试；改4能保存；成功基线不因失败推进，maxActive=1 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: S16；[npm-test.log](evidence/npm-test.log) |
+| STORE-017 / P0 | 编码失败丢弃过期pending | {count:0,extra:0}，写1在途；等待count=2 | extra=BigInt；完成在途；再extra=0 | 编码失败清除旧pending，不能续写过时快照；修复后保存{count:2,extra:0}，无永久去重屏蔽 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: S17；[npm-test.log](evidence/npm-test.log) |
+| STORE-018 / P0 | 读reject保留旧记录 | 旧磁盘count=9，初值1，deferred读 | pending中count=2；reject；turn；再count=3 | 内存2保留，磁盘9不立刻覆盖，set=0；新修改后保存3；诊断phase=get | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: S18；[npm-test.log](evidence/npm-test.log) |
+| STORE-019 / P0 | 非法缓存/根形状/危险键 | 每次独立预置空串、null文本、数值、字符串、[]、损坏JSON、__proto__、嵌套constructor | 创建对象根，检查数据和原型；再合法修改count | 整份拒绝，初值保留、无初始化set；原型不污染；新变化可写合法快照 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: S19；[npm-test.log](evidence/npm-test.log) |
+| STORE-020 / P1 | 同步get/set错误与诊断失败 | get throw；第一次set throw；console.warn可抛 | 创建；count=1→2；再注入编码错误并修复 | 内存通知0→1→2正常；报告get/set；logger失败不破坏队列；数据修复后仍可存 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: S20；[npm-test.log](evidence/npm-test.log) |
+| STORE-021 / P0 | 纯数据投影/不执行getter或toJSON | NaN、-0、undefined、function、symbol、数组孔洞/Infinity、危险getter/toJSON；payload可变 | 首存；逐项payload=BigInt/环/Date/Map/Set/Promise/类/Computed；改另一个tail；修复payload | getter/toJSON调用0；省略对象不可JSON字段，数组转null，NaN转null，-0转0；非法图不覆盖好记录；修复可恢复保存 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: S21；[npm-test.log](evidence/npm-test.log) |
+| STORE-022 / P1 | null原型与无环共享图 | null原型根a/b共用同子对象 | 存储后改a.value | 原型保持null，a/b内存共用；JSON两处保存等值；无误判循环；重新解析JSON不保留别名身份 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: S22；[npm-test.log](evidence/npm-test.log) |
+| STORE-023 / P0 | 恢复预检无半修改 | count可写但另字段只读；不可扩展根；锁length/尾索引数组 | 缓存同时尝试合法和非法修改 | 整份拒绝，所有初值和数组内容不变；不先修改count再失败；phase=restore | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: S23；[npm-test.log](evidence/npm-test.log) |
+| STORE-024 / P0 | 回填业务异常保真与绑定释放 | effect在恢复到8时抛E；同步与异步两条路径 | 同步创建失败后stop业务effect再重建；异步resolve后再改9 | 同步原E抛出并释放绑定，重建成功；异步phase=hydrate且原E保留，store后续可用；不误归为decode错误 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: S24；[npm-test.log](evidence/npm-test.log) |
+| STORE-025 / P0 | 参数和绑定唯一性 | 非对象根/类/Computed；无name/空白name/错误type/坏adapter；一个已绑定raw | 逐项非法调用；同根同后端/key重复；改key/adapter；同后端key绑第二根 | TypeError在新增I/O前发生；重复合法绑定同proxy、只get一次；冲突拒绝；不同key合法 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: S25；[npm-test.log](evidence/npm-test.log) |
+| STORE-026 / P1 | 内部停止/迟到回调保护 | 白盒stopStorage；读/写deferred | 停止两次；完成旧read/write；再写proxy；另建同后端key绑定 | 停止幂等；不恢复、不续pending、不重订阅；可新建；不要求取消已经发出的adapter I/O | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: S26；[npm-test.log](evidence/npm-test.log) |
+| STORE-027 / P1 | PromiseLike与then异常 | 非Promise thenable重复resolve/reject；then getter抛 | get返回thenable；turn；另测get/set then getter失败 | 只同化一次且只接受首次结果；不提前同步回填；诊断阶段get/set正确；无未处理拒绝 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: S27；[npm-test.log](evidence/npm-test.log) |
+| STORE-028 / P1 | 每次调用独立识别同步/异步 | 同步get；set1同步、set2延迟、set3同步 | 依次写1/2/3；完成2 | 先调用[1,2]；3等2完成；最终[1,2,3]；不能由getter或第一次set推断后续模式 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: S28；[npm-test.log](evidence/npm-test.log) |
+| STORE-029 / P0 | local/session默认与隔离 | jsdom同源两后端相同含空格key分别存2/8 | 默认store与session store创建；分别修改 | 默认local；返回前已恢复；缓存缺默认字段不回写；两个后端互不污染；key原样 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: B01；[npm-test.log](evidence/npm-test.log) |
+| STORE-030 / P0 | 浏览器数组初存/缓存原位恢复 | local缺失；session缓存[9] | 新建[1,2,3]并batch splice/push；另用reactive数组恢复 | local创建快照并写最终[3,4]；session原proxy恢复为[9]、长度一致 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: B02；[npm-test.log](evidence/npm-test.log) |
+| STORE-031 / P1 | adapter优先，不触碰浏览器getter | local/session getter均计数并抛；显式adapter | 设置type=session仍传adapter，创建并修改 | 浏览器getter访问0；adapter正常get/set且this正确 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: B03、S03；[npm-test.log](evidence/npm-test.log) |
+| STORE-032 / P1 | 存储getter被禁用及显式再绑定 | localStorage getter抛SecurityError | 创建后内存修改；恢复getter；显式storage同root再修改 | 降级内存、报告access；恢复环境不自动触发；显式调用才绑定并继续存储 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: B04；[npm-test.log](evidence/npm-test.log) |
+| STORE-033 / P1 | QuotaExceededError不破坏响应式 | Storage.setItem模拟配额错误，之后恢复可写 | 初始化及修改各失败；恢复后再修改 | 每次实际失败有诊断；无忙重试；effect持续收到数据；恢复后保存最新值 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: B05；[npm-test.log](evidence/npm-test.log) |
+| STORE-034 / P0 | SSR无window不使用Node全局storage | 删除window；globalThis.localStorage getter抛且计数 | 创建不同name内存store并修改；还原环境 | 不访问Node全局storage，访问次数0；无持久化占位绑定；只返回响应式初值 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: B06；[npm-test.log](evidence/npm-test.log) |
+| STORE-035 / P0 | 外部storage+RC/Chip/Model+StrictMode | 客户端render前创建store，F3 StrictMode | 修改store、真实输入改Model；卸载组件后再改store | UI与最终JSON一致；卸载只停React订阅，仍保存外部store；无重复绑定 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: F01；[npm-test.log](evidence/npm-test.log) |
+| STORE-036 / P0 | 异步恢复驱动React与表单 | 初值state、延迟缓存；已提交RC/Chip/Model | resolve有效缓存；再输入新值 | 恢复统一通知DOM/控件；纯恢复不回写；随后表单编辑保存新状态 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: F02；[npm-test.log](evidence/npm-test.log) |
+| STORE-037 / P1 | 缓存不是业务schema校验 | 初值count:number；缓存count='eight'，带未知普通字段 | 创建并检查；另用自定义adapter先验证/迁移再返回字符串 | 默认接受合法JSON字段，不承诺number校验；自定义迁移按自身协议生效；不得编写默认丢弃字符串的错误预期 | **通过**：合法 JSON 的 count="eight" 和未知字段按数据恢复；adapter 显式迁移后为数字 8。 | M: F1；记录实际字段类型及adapter迁移结果；[supplement-core-final.log](evidence/supplement-core-final.log) |
+| STORE-038 / P1 | 非法adapter返回值与this | get返回undefined/数字/普通对象；set同步返回非undefined值；then计数 | 每项独立运行，记录get/set this和阶段；随后合法操作 | 非法get报告decode，非法同步set报告set；记录不被错误确认成功；this为adapter；then只读一次 | **通过**：非法 get 返回值报告 decode；非法同步 set 报告 set；this 为 adapter，then getter 各读取一次。 | P: S03、S20、S27；补充非法返回值及then getter读取次数；[supplement-core-final.log](evidence/supplement-core-final.log) |
+| STORE-039 / P0 | 所有危险键和继承setter防护 | 以defineProperty构建__proto__/constructor/prototype数据键，根/深层/数组元素各一份；Object.prototype临时setter测试在独立进程 | 编码、解码各测三键；恢复将命中继承setter的字段 | 拒绝危险数据投影，无原型污染；继承setter不被执行，预检失败不半恢复；finally恢复全局描述符 | **通过**：三危险键 × 根/嵌套/数组元素 × 编码/解码共 18 组；继承 setter 独立进程测试无执行及半恢复。 | P: S19、S21、S23；补充prototype/编码方向/继承setter矩阵；[supplement-core-final.log](evidence/supplement-core-final.log) |
+| STORE-040 / P1 | JSON细节与重新初始化默认字段 | Unicode/换行字符串、±Infinity、数组命名属性；初值可删除字段x=1 | 保存后JSON.parse；删x并保存；释放测试绑定，用同初值重新创建 | 字符串等值；无限数null；数组命名属性不保存；缺失x由初值重新补回且纯恢复不回写，长期空值应显式null | **通过**：中文/emoji/换行、±Infinity→null、数组命名属性忽略；删除默认字段后重载补回且纯恢复不写回。 | P: S03、S07、S21；补充Unicode、数组命名属性及重载删除默认字段；[supplement-core-final.log](evidence/supplement-core-final.log) |
+
+### React 基础
+
+| ID / 优先级 | 测试点 | 前置/数据 | 步骤 | 预期 | 本轮实际 / 状态 | 证据 |
+| --- | --- | --- | --- | --- | --- | --- |
+| REACT-001 / P0 | 别名、统一分发、包装缓存、非法类别 | 同步函数、类、已包装对象；外部memo/forwardRef/lazy、async函数、错误类型 | 对三组别名与RC/RFC/RCC包装结果比较；重复包装；逐项传非法组件 | RC/RFC/RCC各等于其全名；RC函数与RFC同一包装；重复本库包装不叠加；函数/类合法分发，非法类别TypeError | **通过**：真实 memo/forwardRef/lazy、async、null/undefined/数字/对象全部拒绝；重复本库包装保持身份。 | P: R01；补充真实memo/forwardRef/lazy对象的非法包装矩阵；[supplement-react-complete.log](evidence/supplement-react-complete.log)；[supplement-react18.log](evidence/supplement-react18.log) |
+| REACT-002 / P0 | 自动memo不屏蔽有效更新 | RC函数读store、React state、context，记录render增量 | 相同props父更新；对象/函数引用变化；store/state/context分别变化 | 相同props跳过；真实props变化正常；store/state/context仍驱动正确DOM，不因memo漏更新 | **通过**：相同对象与函数引用跳过渲染；替换引用、store 更新正确显示；React 18/19 补充复测通过。 | P: R02；补充对象和函数引用更换的memo比较断言；[supplement-react-complete.log](evidence/supplement-react-complete.log)；[supplement-react18.log](evidence/supplement-react18.log) |
+| REACT-003 / P0 | props仅watch读取与无二次render | props.count=1；JSX不读或同时读；useWatch记录参数 | 一次父级更新count=2 | watch恰收到(2,1)，回调读props为2；受控render只增1，无同源补渲染 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: R03；[npm-test.log](evidence/npm-test.log) |
+| REACT-004 / P0 | props派生候选缓存 | computed/getter链依赖props，已有已提交缓存 | 父级1→2；render和watch读取派生值 | 本次render即用新props；成功提交后采用新缓存；不需要第二次修正render | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: R04；[npm-test.log](evidence/npm-test.log) |
+| REACT-005 / P1 | props视图身份、浅层只读、存在性 | props含对象/函数/children、缺失字段、NaN、±0 | 连续提交；检查代理身份/嵌套引用；尝试写/删/define；新增undefined、删键、改±0 | 同挂载代理稳定；浅层原引用；顶层拒写，不修改冻结React props；按存在性/Object.is通知 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: R05；[npm-test.log](evidence/npm-test.log) |
+| REACT-006 / P0 | props选择source和最新闭包 | props决定watch读store.a或b，callback带label | 父级切分支/label并提交；改旧/新字段 | 此次props回调仍保留上一成功oldValue；新闭包生效；旧分支解绑，新分支更新 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: R06；[npm-test.log](evidence/npm-test.log) |
+| REACT-007 / P0 | 外层batch包含多次props提交 | 已watch props.count=1 | batch内提交2再3；另一batch提交4再3；每次flushSync受控提交 | 正常变化一次(3,1)；回退无回调；结算前静默刷新不得吞旧值 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: R10；[npm-test.log](evidence/npm-test.log) |
+| REACT-008 / P0 | useReactive身份/useWatch提交时序 | inline初值、immediate watch，StrictMode对照 | 首次render/提交；重渲染换initial/options；卸载再写；重新挂载 | render不调用watch callback；layout setup按immediate执行；同挂载不重置/补发；卸载停止，重挂载新基线 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: R07；[npm-test.log](evidence/npm-test.log) |
+| REACT-009 / P0 | render到subscribe之间变化 | layout中可修改store；新分支未在旧提交订阅 | 首次render读取后、订阅前改源；切新分支后窗口中再改 | 版本复查发现候选过期，最终显示最新值；不能长期停留旧首帧 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: R08；[npm-test.log](evidence/npm-test.log) |
+| REACT-010 / P0 | Suspense保留已提交props/缓存/回调 | 已提交A；新props B的transition被受控Promise挂起 | 挂起期间读已保存props、触发watch、读computed；随后释放并提交B | 挂起候选不发布、不改oldValue或缓存；旧事件读A；提交后才读B并通知正确一次 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: R09；[npm-test.log](evidence/npm-test.log) |
+| REACT-011 / P0 | props回调写入和通知中同步提交 | useWatch props变更时写local/store；React listener可flushSync提交 | 更新props并观察DOM/通知序列 | own-props去重只消除已覆盖来源；callback真实写入仍驱动必要后续更新，无丢失重入 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: R11；[npm-test.log](evidence/npm-test.log) |
+| REACT-012 / P1 | 候选收集不订阅、快照失效 | 白盒Observer，未subscribe的attempt读取a | 仅render候选后改a；比较snapshot；再subscribe/commit | 收集期间无永久订阅；无变化snapshot稳定；订阅前失效被发现 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: R17；[npm-test.log](evidence/npm-test.log) |
+| REACT-013 / P0 | owner来源确认隔离 | 两observer、普通store更新同时排队 | 确认A已提交props原因，保留B或普通store原因 | 仅A自身已覆盖原因被清除；其他owner/store通知不被吞 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: R18；[npm-test.log](evidence/npm-test.log) |
+| REACT-014 / P0 | notify节点依赖与重排队 | 白盒notify节点订阅字段，通知中写新数据 | 连续变化及通知内再次写 | notify不清空已提交依赖、不直接调用组件函数；可再次入队，最终读最新值 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: R19；[npm-test.log](evidence/npm-test.log) |
+| REACT-015 / P0 | 外层batch中的props快照确认 | own-props提交发生于未结束batch | 提交后但结算前多次读取snapshot；结束batch | 已覆盖的own-props版本不制造额外失效；真正新来源仍能触发 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: R28；[npm-test.log](evidence/npm-test.log) |
+| REACT-016 / P0 | 类ref/PureComponent/生命周期/实例隔离 | 两个包装类实例，static标记、props watch，生命周期日志 | props更新/字段变化/卸载；比较ref、prevProps、构造/方法参数 | ref为原类实例，instanceof/静态成员保留；生命周期参数正常；实例订阅独立；手工watch自行stop | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: R12；[npm-test.log](evidence/npm-test.log) |
+| REACT-017 / P1 | shouldComponentUpdate语义 | SCU=false类；有/无活动props消费者；另有外部store | 父props浅变；同props；外部store变；forceUpdate | 原SCU被调用；有活动props消费者且浅变时放行一次；其他遵守SCU；外部依赖更新不被阻断 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: R13；[npm-test.log](evidence/npm-test.log) |
+| REACT-018 / P1 | PureComponent的key/ref普通state字段 | state={key:1,ref:2}，RC(PureComponent) | setState key=3，再ref=4 | DOM依次3:2、3:4；不能把state的key/ref当React特殊props忽略 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: F22；[npm-test.log](evidence/npm-test.log) |
+| REACT-019 / P0 | SSR及hydrate基线 | 无window SSR；immediate useWatch；相同客户端初值 | renderToString；改服务端store；hydrateRoot；客户端更新 | SSR不建watch、不callback；相同初值无hydration警告；首次客户端提交按immediate建立基线，不补历史变化 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: R14；[npm-test.log](evidence/npm-test.log) |
+| REACT-020 / P1 | 普通组件useWatch静默刷新 | 未经RC的函数组件，source捕获普通props/context | 改普通props/context并提交；再改响应式源 | 无响应式变化时不伪造回调；source绑定与callback更新到最新提交，之后使用新闭包 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: R15；[npm-test.log](evidence/npm-test.log) |
+| REACT-021 / P0 | 排队watch旧值不被先行渲染覆盖 | 同轮较早消费者触发同步React提交；watch尚排队 | 触发源变化，记录watch next/previous | 静默refresh不吞队列、不提前改oldValue；只收到应有新旧值 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: R16；[npm-test.log](evidence/npm-test.log) |
+| REACT-022 / P0 | 首次挂起/抛错不得初始化watch | 初次render在useWatch之后挂起或抛错 | 执行失败render，改store，再解除挂起成功挂载 | 未提交期间callback=0、无残留订阅；成功提交才按配置初始化 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: R21；[npm-test.log](evidence/npm-test.log) |
+| REACT-023 / P0 | 后续setup失败清理已建watch | 一个组件多个immediate useWatch，后一个首次callback抛E | 挂载失败；之后修改所有source | 之前已初始化句柄也全部停止，无遗留回调，即使React尚未注册各自cleanup | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: R22；[npm-test.log](evidence/npm-test.log) |
+| REACT-024 / P1 | 外层batch内immediate setup时机 | batch内同步挂载组件/useWatch immediate | 记录setup内与batch结束顺序 | immediate在setup当场执行，不推迟到外层batch结束，也不递归重复初始化 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: R27；[npm-test.log](evidence/npm-test.log) |
+| REACT-025 / P0 | render分支与事件/子节点依赖隔离 | 父RC按flag读a或b；事件读c；独立子读d | 切分支并提交；分别改a/b/c/d | 父只响应当前render依赖；事件读和独立子组件读不进入父订阅；旧分支清理 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: R20；[npm-test.log](evidence/npm-test.log) |
+| REACT-026 / P0 | 类生命周期字段/context及挂载窗口 | 类字段形式生命周期，context，StrictMode；挂载前窗口修改 | mount/unmount/mount重放；改store/context | 用户生命周期正常、窗口变化最终可见；重连后有效订阅一份，卸载后停止 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: R23；[npm-test.log](evidence/npm-test.log) |
+| REACT-027 / P0 | 类props整槽通知与历史引用 | this.props.count手工watch；只改其他props；记录prevProps和forceUpdate | 父props多次更新、同值外壳对照 | 整槽浅变可回调相同count；旧props引用保持历史；不额外forceUpdate同源props更新 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: R24；[npm-test.log](evidence/npm-test.log) |
+| REACT-028 / P1 | 局部状态独立/显式共享 | 两组件分别inline初值；另两组件共享raw | 各自写状态；父级重渲染换initial | inline互不干扰；共享raw同代理且互相可见；本次挂载忽略新initial | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: R25；[npm-test.log](evidence/npm-test.log) |
+| REACT-029 / P1 | 解构值与props引用语义 | RC(props)，const {count}=props；另读props.count和对象字段 | 父级提交count及嵌套引用变化 | source闭包中的解构值不建立props订阅；视图字段读取可监听；嵌套引用不深复制 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: R26；[npm-test.log](evidence/npm-test.log) |
+| REACT-030 / P0 | 所有类入口直接字段响应 | RC/ReactiveComponent/RCC/ReactiveClassComponent分别包类；普通count字段 | 无loading装饰器，挂载后count++ | 四入口都更新DOM，不需额外reactive；不能仅在加载字段场景验证类字段能力 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: L01；[npm-test.log](evidence/npm-test.log) |
+| REACT-031 / P0 | 类字段深层身份/实例/净回退 | 两实例字段含对象/数组；明确共享raw的对照 | 深层改动、整体替换、同值、batch回退及多写 | 普通实例独立；共享raw共享；深层proxy稳定；多写一次通知，回退无通知 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: L03；[npm-test.log](evidence/npm-test.log) |
+| REACT-032 / P1 | 类描述符/symbol/空键/#private | configurable普通字段、readonly/hidden/symbol/空键、访问器、#private方法；另有不可配置可写字段 | 包装、读取/写入，调用原方法；构造非法字段类 | ref/this为原实例，#private方法可用；枚举性/只读保留；已有访问器和固定只读不变；不可配置可写字段TypeError含键 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: L04；[npm-test.log](evidence/npm-test.log) |
+| REACT-033 / P0 | 桥接字段贯通全部消费者 | 原实例字段被effect/watch/computed/Chip/Model使用 | 通过字段与Model修改；观察父/片段计数 | 所有消费者见同一状态；片段/控件可独立更新，未读取字段的父不增render；外部手工订阅仍需stop | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: L05；[npm-test.log](evidence/npm-test.log) |
+| REACT-034 / P1 | React保留字段与loading共存 | state/context/refs、PureComponent、props watch与busy字段 | setState、context/props更新、业务任务开始完成 | React字段不被普通用户字段接管；各类更新正常；props去重不误屏蔽busy更新 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: L12；[npm-test.log](evidence/npm-test.log) |
+| REACT-035 / P1 | RC类方法无自动批次及getter边界 | 类count/a/b和普通getter；普通原型方法连续写两次 | 用外部effect计数，调用普通方法；显式batch对照；重复读getter | 普通方法两次独立通知，显式batch一次；类getter不承诺computed缓存；不依赖动态新增/删除字段响应 | **通过**：普通方法两次写入通知两次，显式 batch 一次；getter 重读两次求值，18/19 一致。 | P: L03、L04；补充普通方法通知次数和getter非缓存对照；[supplement-react-complete.log](evidence/supplement-react-complete.log)；[supplement-react18.log](evidence/supplement-react18.log) |
+
+### Chip / Model
+
+| ID / 优先级 | 测试点 | 前置/数据 | 步骤 | 预期 | 本轮实际 / 状态 | 证据 |
+| --- | --- | --- | --- | --- | --- | --- |
+| UI-001 / P0 | 四个片段工厂无副作用/身份稳定 | chip/strictChip/asyncChip/asyncStrictChip传计数回调 | 在render外调用；条件/列表生成element；随后挂载 | 工厂只创建element、不调用回调/Hook；type分别为对应组件；相同key保持组件身份 | **通过**：四工厂调用时零 children 执行；条件/列表挂载各一次，相同 key 重渲染不重挂载。 | P: F23、D-REACT；补充条件/列表及相同key挂载次数；[supplement-react-complete.log](evidence/supplement-react-complete.log)；[supplement-react18.log](evidence/supplement-react18.log) |
+| UI-002 / P0 | A/B局部更新与父隔离 | 父只创建两个Chip，子回调分别读a/b；计数parent/A/B | 改a；改b；同批a往返 | 改a仅A更新、改b仅B更新；父不增render；净回退不更新片段 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: F23；[npm-test.log](evidence/npm-test.log) |
+| UI-003 / P1 | 普通Chip采纳新闭包 | children捕获父普通label | 父label A→B后提交，再改片段store | 采用B闭包，父更新造成一次正常片段更新，无自身props补渲染 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: F24；[npm-test.log](evidence/npm-test.log) |
+| UI-004 / P1 | Strict忽略父props但响应自身/context | Chip.Strict及strictChip；闭包label与reactive count/context | 父换label；再改count/context；最后换key | 父更新被跳过的新闭包不替换旧闭包；count/context仍更新；换key后使用新label | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: F24；[npm-test.log](evidence/npm-test.log) |
+| UI-005 / P0 | 分支/嵌套子组件/卸载隔离 | Chip按flag读a/b，嵌套Chip与独立子组件；StrictMode | 切flag，改旧/新分支，卸载后改值 | 仅当前分支有效；子订阅不混入父；StrictMode最终一份有效订阅，卸载无回调 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: F26；[npm-test.log](evidence/npm-test.log) |
+| UI-006 / P0 | Strict读取稳定props视图及派生值 | RC父props.count，Strict Chip读props与computed | 父props更新并确认own-props来源 | Strict仍因响应式props/派生依赖更新；父去重不吞片段更新；终值正确 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: F25、F13；[npm-test.log](evidence/npm-test.log) |
+| UI-007 / P0 | Async首次fallback与最新数据 | AsyncChip/AsyncChip.Strict，fallback文本；SSR和hydrate | SSR；客户端layout阶段读取；激活前改store；effect后读取 | SSR/首帧为fallback且children未执行/未订阅；effect后首次读最新值；默认工厂fallback为null | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: F27；[npm-test.log](evidence/npm-test.log) |
+| UI-008 / P1 | Async未提交树与StrictMode | 初次挂起/卸载的Async gate；StrictMode重放 | 激活前终止；另正常挂载、重连、更新 | 未提交树不激活/不遗留订阅；正常重连可更新；无定时器或“等待网络Promise”语义 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: F28；[npm-test.log](evidence/npm-test.log) |
+| UI-009 / P1 | 非同步children与失败render | 非函数、async函数、返回Promise/thenable；普通同步null/text/Fragment/array | 分别render；抛错/挂起后改源 | 非同步输入TypeError；失败候选不订阅；合法同步ReactNode正常渲染；回调内Hook不属于支持写法 | **通过**：null/text/Fragment/array 同步 ReactNode 可用；自定义 thenable 被 TypeError 拒绝。 | P: F29；补充合法ReactNode参数表及返回自定义thenable；[supplement-react-complete.log](evidence/supplement-react-complete.log)；[supplement-react18.log](evidence/supplement-react18.log) |
+| UI-010 / P0 | useModel身份/重渲染/初值函数 | 字符串、布尔、对象、函数字面值模型，普通父+Chip | 真实输入；提取onChange直接调用；直接写value；换initial重渲染 | 模型和onChange稳定；初值函数作为数据不调用；当前值不重置；Chip更新而父不因Hook自动刷新 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: F14；[npm-test.log](evidence/npm-test.log) |
+| UI-011 / P0 | 普通target对象不是事件 | model对象值含target:{value:'data'}，另有函数值 | onChange传对象/函数 | 第一个参数完整作为新数据；不当事件读取target.value，不当React updater执行函数 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: F14、F18；[npm-test.log](evidence/npm-test.log) |
+| UI-012 / P0 | Model/defineModel真实双向输入 | state.name=Alice；单input含key/ref/data-*和defaultValue；另TextInput refer | 挂载；输入Bob；外部设Carol | 初值Alice；两控件同步Bob/Carol；ref指同input且卸载清空；业务props保留；覆盖受控value并移除defaultValue，无受控警告 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: F15；[npm-test.log](evidence/npm-test.log) |
+| UI-013 / P0 | 一次写入与原回调顺序 | Model转换可计数；原onChange读state.name并写extra | 派发一次事件 | 转换一次→模型写一次→原回调一次且完整原参数；回调已见新值；extra写与模型同batch，仅最终一次业务通知 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: F15、F18；[npm-test.log](evidence/npm-test.log) |
+| UI-014 / P0 | 事件时重新定位嵌套目标 | Model source=()=>state.user.name，保存稳定handler和旧user | 同batch替换user，立刻handler('X') | 写当前user.name，旧user不变；不使用render时保存的过期位置 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: F17；[npm-test.log](evidence/npm-test.log) |
+| UI-015 / P0 | Suspense事件配置仅取已提交版本 | 已提交first/old转换与callback；候选second/new挂起 | 候选期间调用旧handler；成功提交后再调用同handler | 未提交时只写first，用old转换/callback；提交后写second用new配置；handler身份稳定 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: F17；[npm-test.log](evidence/npm-test.log) |
+| UI-016 / P0 | 原生控件提取与null显示 | checkbox(undefined,显式checked)、radio(false)、textarea(null)、单选、多选(undefined)、number(3) | 挂载检查；click/input/change；number显式postValue | checked=false、文本=''、多选=[]仅用于显示不回写；事件得布尔/字符串/字符串数组；数字显式转12；checkbox提交value保留 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: F16；[npm-test.log](evidence/npm-test.log) |
+| UI-017 / P1 | 自定义值/valueProp/完整参数 | 布尔value控件、对象控件、金额控件onChange(number,unit) | 显式valueProp=value；传对象；defineModel转换4,'kg'为8 | 布尔不误注入checked；对象按数据；转换/原回调完整参数；label等必填业务props保留 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: F18；[npm-test.log](evidence/npm-test.log) |
+| UI-018 / P0 | 转换/写入/回调失败与净回退 | state.value=1；转换抛E、字段只读、callback抛E/恢复原值 | 四模式独立触发一次事件 | 转换/写失败不调原callback；callback失败不回滚已写2；callback把3恢复2时本批无净通知；错误原样保留 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: F19；[npm-test.log](evidence/npm-test.log) |
+| UI-019 / P1 | 合法属性位置矩阵 | nested.x、数组0、symbol、空键、缺失可扩展字段 | 对每项captureReference读取后write；挂载Model对照 | 只写指定终端；0/空键不被当未绑定；可新增缺失字段；不按“值相同”猜测位置 | **通过**：nested、数组 0、symbol、空键、缺失字段的真实 DOM input 事件均写到正确位置。 | P: X02；内部矩阵已覆盖，补充这些位置的真实Model事件集成；[supplement-react-complete.log](evidence/supplement-react-complete.log)；[supplement-react18.log](evidence/supplement-react18.log) |
+| UI-020 / P0 | 可写getter与一次setter | reactive对象get/set name，getter内部读其他字段 | captureReference/Model指向name；写新值 | setter只执行一次，getter内部读不劫持目标；正确更新backing字段和消费者 | **通过**：Model DOM 输入触发可写 getter 的 setter 恰好一次，backing 字段正确。 | P: X03；白盒已覆盖，补充Model DOM集成；[supplement-react-complete.log](evidence/supplement-react-complete.log)；[supplement-react18.log](evidence/supplement-react18.log) |
+| UI-021 / P0 | 无效/只读/派生/歧义引用 | 常量、raw属性、Computed缓存命中、只读props/getter、算术/多字段/不连续链、不可扩展缺失字段 | 每项捕获/Model渲染；失败后执行合法引用写入 | 可识别非法表达式TypeError，无错写；收集/定位上下文恢复；不要求识别所有碰巧同值的运算，selector必须直接选择可赋值位置 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: X04、F20；[npm-test.log](evidence/npm-test.log) |
+| UI-022 / P1 | 子element形状与valueProp校验 | null/text/数组/多个元素/Fragment/portal/file input；非法valueProp | 逐项渲染独立错误边界；再渲染单有效input | 非法形状/协议拒绝，file不尝试写value；合法单控件正常；错误不污染后续绑定 | **失败**：元素形状与非 null 非法 valueProp 拒绝；valueProp=null 被静默当作缺省，严格负例失败（D03，契约待确认）。 | P: F20；补充portal、多元素、非法valueProp矩阵；[supplement-react-complete.log](evidence/supplement-react-complete.log)；[supplement-react18.log](evidence/supplement-react18.log) |
+| UI-023 / P0 | StrictMode重连与遗留handler失效 | Model/useModel已提交并保留onChange | StrictMode setup/cleanup后输入；卸载；调用遗留handler | 重连可写；卸载后不改状态、不执行子原回调；真正新实例不被旧handler影响 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: F21、F14、F17；[npm-test.log](evidence/npm-test.log) |
+| UI-024 / P1 | SSR只输出受控值 | SSR单input/checkbox/select及Model getter+setter计数；无window | renderToString；记录setter/callback；客户端同值hydrate再输入 | SSR输出当前值，setter/callback=0，无永久观察订阅；匹配hydrate无warning，提交后才能处理事件 | **通过**：SSR input/checkbox/select 输出正确，setter/callback 零执行；匹配 hydrate 后输入调用各一次，无 warning。 | P: R14、F20；补充Model专属SSR副作用计数与hydrate链路；[supplement-react-complete.log](evidence/supplement-react-complete.log)；[supplement-react18.log](evidence/supplement-react18.log) |
+| UI-025 / P1 | currentTarget/target与跨文档事件 | 来自另一个同源Document的input，真实Event或具备事件方法的参数 | currentTarget有效时与target不同；currentTarget无效时target为原生控件；事件结束后检查 | 调用期间同步读取有效currentTarget优先，否则target；用控件自身ownerDocument识别；普通数据对象保持原样 | **通过**：第二个 jsdom Window 的真实 Event：有效 currentTarget 优先，否则使用 target；结束后 currentTarget=null 不影响已取值；普通对象保留为数据。 | M: F3；用真实iframe或独立jsdom Window，捕获值与回调参数；[supplement-react-complete.log](evidence/supplement-react-complete.log)；[supplement-react18.log](evidence/supplement-react18.log) |
+| UI-026 / P1 | defineModel保持业务协议与挂载 | 自定义函数/类控件，必填label，value/onChange(number,unit)；保留key切换 | 外部值更新、输入、同key重渲染、换key；比较调用参数 | 业务props/children正常；同key无意外重挂载；换key按React重建；不承诺HOC静态复制/React18 ref转发/任意泛型保真 | **通过**：defineModel 类控件保留 label/children/onChange(7,"kg")；相同 key 不重挂，换 key 按 React 重建。 | P: F15、F18、T-REACT；补充类控件运行时和key重挂载；[supplement-react-complete.log](evidence/supplement-react-complete.log)；[supplement-react18.log](evidence/supplement-react18.log) |
+
+### 加载状态
+
+| ID / 优先级 | 测试点 | 前置/数据 | 步骤 | 预期 | 本轮实际 / 状态 | 证据 |
+| --- | --- | --- | --- | --- | --- | --- |
+| LOAD-001 / P0 | 所有初值及乱序计数 | initial分别省略/false/true/0/2；两个deferred | 挂载不调用；load0、load1；先完成1再失败0 | 不自动执行业务；stacks 0→1→2→1→0；数字loading=n+stacks；布尔最后false，初始true未调用前仍true | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: F03；[npm-test.log](evidence/npm-test.log) |
+| LOAD-002 / P1 | 返回对象/load稳定与初值不重置 | 同一挂载、保存对象与解构load | 开始两任务；父重渲染initial=99；完成 | 对象/load严格同引用；不重置计数或模式；解构load不需要this | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: F03；[npm-test.log](evidence/npm-test.log) |
+| LOAD-003 / P0 | 普通值/Promise/thenable与只读外壳 | fn分别返回普通值、Promise、thenable | 提交后调用load；检查返回与Reflect.set loading/stacksCount | 始终Promise<Awaited<R>>，值正确；外壳只读；不承诺原Promise身份 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: F04；[npm-test.log](evidence/npm-test.log) |
+| LOAD-004 / P0 | 业务同步/异步/then访问失败 | fn同步抛E、Promise.reject(E)、then getter抛E | 逐项load并等待reject；随后成功调用 | 单错误原对象；每次只释放本token；最终false/0，之后可成功，不永久loading | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: F04；[npm-test.log](evidence/npm-test.log) |
+| LOAD-005 / P0 | 开始/业务/结束多错误 | 订阅者分别开始抛E1、结束抛E3；业务抛E2 | load并捕获；关闭故障再调用 | 业务仍启动；finally释放；AggregateError.errors=[E1,E2,E3]，无错误丢失；下次成功 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: F05；[npm-test.log](evidence/npm-test.log) |
+| LOAD-006 / P0 | immediate/props watch可用句柄与最新函数 | 组件先声明useWatch，随后useModel/useLoading；fn捕获label | 首次immediate执行；props count/label更新 | setup前句柄已激活；首次A1!、下一次B2!；旧load引用使用最新已提交fn；Model同步可写 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: F06；[npm-test.log](evidence/npm-test.log) |
+| LOAD-007 / P0 | 候选闭包隔离与在途固定 | A提交后load1；B候选挂起；再load2；C成功提交后load3 | 统一释放等待Promise | 结果依次A1/A2/C3；B不泄漏；在途1不因C改用新函数；计数归零 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: F07；[npm-test.log](evidence/npm-test.log) |
+| LOAD-008 / P0 | 卸载停止发布/保留调用结果/新挂载独立 | numeric baseline2；一个在途请求，保存旧对象 | 卸载；调用遗留load；新挂载；完成旧请求42 | 遗留调用拒绝且fn不启动；旧请求仍返回42；旧公开值冻结在断开时快照，新实例仍2/0，无跨实例发布 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: F08；[npm-test.log](evidence/npm-test.log) |
+| LOAD-009 / P0 | StrictMode重连、SSR和双Hook隔离 | 两个Hook，a初始true；layout只启动一次；SSR纯render | SSR；StrictMode挂载/清理/重连；完成a | SSR业务调用0；重连不重复业务；a计数恢复真实未完成数，b不受影响；清理窗口调用拒绝 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: F09；[npm-test.log](evidence/npm-test.log) |
+| LOAD-010 / P1 | 内部记账/业务读不泄漏依赖 | 外层effect只显式读trigger并调用load；fn读other | 完成；other++；trigger++ | other和loading内部发布不使外层重复执行；trigger变化才新调用 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: F10；[npm-test.log](evidence/npm-test.log) |
+| LOAD-011 / P0 | Suspense隐藏期间结算与恢复 | baseline2、任务未完；已挂载树同步挂起隐藏 | 隐藏后调用load；完成旧任务；恢复同树 | 隐藏期间新调用拒绝；旧请求完成但公开计数不发布；重连刷新为2/0，不保留假请求 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: F11；[npm-test.log](evidence/npm-test.log) |
+| LOAD-012 / P0 | commit失败统一断开句柄 | Model/loading创建后immediate useWatch抛E，ErrorBoundary兜底 | 挂载失败；调用遗留model.onChange与load | Model无写入；load拒绝且业务调用0；不依赖后续尚未安装的React cleanup | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: F12；[npm-test.log](evidence/npm-test.log) |
+| LOAD-013 / P0 | props/Strict Chip/Model/load提交链 | props.count切到2；watch调用load(value×已提交count)并写name | 更新props，等待请求，再输入Model | load结果4，Strict Chip显示2:false，input=2；own-props确认不吞子更新，后续输入3写回 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: F13；[npm-test.log](evidence/npm-test.log) |
+| LOAD-014 / P1 | 非法初值/回调及首次提交前 | initial=-1/小数/NaN/±Infinity/超安全整数，fn非函数；首次render保存load后挂起；另仅挂载MAX_SAFE_INTEGER不启动任务 | 参数各独立SSR/挂载；调用未提交load；检查业务次数 | 非法参数TypeError；首次提交前拒绝、不启动fn；最大安全整数作为初值可接受；不将未约定的累计溢出行为写成保证 | **通过**：所有非法数值及非函数拒绝，MAX_SAFE_INTEGER 初值接受；首次 Suspense 未提交句柄拒绝且业务次数零。 | P: F04、F09；补充非函数、-Infinity、未提交保留句柄及最大合法初值；[supplement-react-complete.log](evidence/supplement-react-complete.log)；[supplement-react18.log](evidence/supplement-react18.log) |
+| LOAD-015 / P0 | 导出边界 | React子入口与根入口 | 检查loading导出；类型层从根尝试导入 | 仅React入口有loading；根入口不泄漏；十九个React导出准确 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: L02、D-REACT、T-REACT；[npm-test.log](evidence/npm-test.log) |
+| LOAD-016 / P0 | 布尔/数字字段基线 | RC类busy初值false/true/0/3，原型async方法 | 提交后调用/等待；记录方法同步部分看到的busy | 开始即见true或n+1；结束布尔false、数字回n；未调用的true保留；不额外返回Hook状态对象 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: L06；[npm-test.log](evidence/npm-test.log) |
+| LOAD-017 / P0 | 同字段多方法/互调共享token | 方法fetch和other共用busy；other调用fetch | 同时直接fetch0及other1；先完成1后0 | other及内层fetch各登记token，总并发3；完成1释放其两层，仍保留0的token；最后回基线 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: L06；[npm-test.log](evidence/npm-test.log) |
+| LOAD-018 / P1 | 动态this、参数和结果 | 方法含必填/默认/rest参数 | instance.method、call、bind；另解构后无receiver调用 | this为原实例，参数/成功值保留；无receiver拒绝，不自动bind；返回Promise不要求身份相同 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: L06、T-REACT；[npm-test.log](evidence/npm-test.log) |
+| LOAD-019 / P0 | 每次选择一次并固定字段 | selector由闭包选择left或right且计次 | 调用A选择left；切选择right开始B；乱序完成 | 每次source仅1次，完成时不重选；各自归还原字段token，不因闭包变化串字段 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: L07；[npm-test.log](evidence/npm-test.log) |
+| LOAD-020 / P1 | 继承、多实例与Hook隔离 | 父类装饰方法，子类super，两个实例和独立useLoading | 启动并交错完成三任务 | 实例/字段/Hook计数互相独立；继承结果与this保留 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: L07；[npm-test.log](evidence/npm-test.log) |
+| LOAD-021 / P0 | JS返回值、thenable、错误聚合 | 运行时桥接普通值/thenable/同步抛/拒绝/then getter；状态订阅抛 | 逐项调用；开始+业务+结束同时失败；再恢复 | 普通值/thenable按await；每token释放；单E原样；多错按开始/业务/结束顺序；业务不被开始发布失败阻断 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: L08；[npm-test.log](evidence/npm-test.log) |
+| LOAD-022 / P0 | selector拒绝非法定位/变更 | 常量、缺字段、取反、多次/多字段读、nested、getter、readonly、props/state、调用方法；set/delete/define/枚举等 | 每项独立调用装饰方法，记录业务次数/字段 | 可识别非法表达式TypeError且业务0次；临时ctx只读；不把ctx当业务this；字段保持初值 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: L09；[npm-test.log](evidence/npm-test.log) |
+| LOAD-023 / P1 | selector异常与追踪上下文恢复 | source读后抛E；外部effect/Model引用捕获中调用；字段之后被重定义 | 修复selector合法调用；改旁路字段；重定义被管理字段再调用 | source E保真；合法调用恢复；内部/业务同步读不污染外层依赖或引用；重定义字段被拒绝 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: L09；[npm-test.log](evidence/npm-test.log) |
+| LOAD-024 / P0 | 非法数字、容量溢出及首次失败不锁模式 | initial=NaN/Infinity/-1/0.5/MAX_SAFE_INTEGER；另MAX_SAFE_INTEGER-1 | 分别调用；非法首次后改0重试；边界已占一token再启动第二个 | 非法值TypeError/容量RangeError在业务前；无token泄漏；修复可调用；再启动会溢出时拒绝且原请求计数不变 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: L10；[npm-test.log](evidence/npm-test.log) |
+| LOAD-025 / P0 | 活动字段写保护 | stack请求在途；持有实例与Model handler | 直接赋0、Model赋0、引用write0；同值写；模式改布尔 | 不同值/模式在修改前抛错；业务原token不受影响；同值写安全，不追加通知 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: L10；[npm-test.log](evidence/npm-test.log) |
+| LOAD-026 / P1 | 空闲基线调整与模式固定 | 首组完成后stack为数字基线 | 空闲改5并发下一组；再写负数或布尔；布尔组对照 | 下一组从5计数并回5；非法值/跨模式拒绝；未被loading使用的普通字段不加此限制 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: L10；[npm-test.log](evidence/npm-test.log) |
+| LOAD-027 / P0 | 通知回调重入与部分失败 | watch stack==1时发第二请求 | 启动第一；第二失败；第一成功 | token先登记再发布，观察序列0→1→2→1→0；第二失败不释放第一；无重复减计数 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: L11；[npm-test.log](evidence/npm-test.log) |
+| LOAD-028 / P1 | props/React原生状态并存 | PureComponent，state/context/refs，busy字段与props watch | 更新props及state/context；加载开始/结束 | props正常一次更新；原生机制正常；loading变化仍可刷新，不被去重/SCU屏蔽 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: L12；[npm-test.log](evidence/npm-test.log) |
+| LOAD-029 / P0 | componentDidMount可启动及StrictMode重连 | 用户didMount中有防重复条件；子layout改count | StrictMode挂载/断开/重连；完成任务 | didMount调用合法；库不重复业务；字段窗口变化补齐；任务与普通字段后续都响应 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: L13；[npm-test.log](evidence/npm-test.log) |
+| LOAD-030 / P0 | 隐藏树保留活动集合与空闲调整 | 数字基线2；三个分支：隐藏时仍active、已settled、settled后手改5 | 隐藏后尝试新调用；按分支完成/调整；恢复同实例 | 隐藏不发布或forceUpdate，新调用拒绝；恢复分别显示3/2/5；不会重新执行业务；最终基线正确 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: L14；[npm-test.log](evidence/npm-test.log) |
+| LOAD-031 / P0 | 卸载与新实例隔离 | 旧实例请求在途，外部watch旧busy | 卸载；旧实例再调用；新挂载；完成旧请求 | 旧调用拒绝；旧请求仍兑现；不发布旧busy结束值、不更新新实例；新实例初值false | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: L15；[npm-test.log](evidence/npm-test.log) |
+| LOAD-032 / P0 | 构造/render/首次未提交/SSR禁调用 | 装饰方法业务次数计数；构造和render中尝试；SSR/hydration/首次Suspense | 所有拒绝Promise由测试捕获；正常提交后合法事件调用对照 | 拒绝无业务调用、无假loading；SSR保留初值；识别到render上下文时拒绝；合法提交后可用 | **通过**：同一类实例构造/render 调用拒绝；成功提交后相同方法返回 7，busy 正常归零。 | P: L16；禁止阶段已覆盖，补充同一实例合法事件恢复对照；[supplement-react-complete.log](evidence/supplement-react-complete.log)；[supplement-react18.log](evidence/supplement-react18.log) |
+| LOAD-033 / P0 | 挂载/提交失败和卸载抛错先断开 | didMount启动请求后抛E，willUnmount也抛；forceUpdate计数 | ErrorBoundary处理；旧实例改count、调用run、完成在途 | 观察/连接已同步释放；旧run拒绝；完成不发布/forceUpdate；用户清理异常不留下库订阅 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: L17；[npm-test.log](evidence/npm-test.log) |
+| LOAD-034 / P1 | 装饰目标/传统语法校验 | static/getter/arrow/render/lifecycle/constructor、重复装饰、Stage3、未RC类 | 应用装饰器或调用方法 | 不支持目标TypeError，重复/Stage3明确失败；未包装类调用拒绝；普通业务原型方法合法 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: L18、T-REACT；[npm-test.log](evidence/npm-test.log) |
+| LOAD-035 / P1 | symbol/空字符串字段与props监听 | RCC类symbol布尔字段和空键数字2；props watch启动两任务 | props count1→2；观察字段/forceUpdate/结果；完成 | symbol/空键均可定位；已提交props回调可启动；自身props不额外通知，加载字段必要更新保留 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: L19；[npm-test.log](evidence/npm-test.log) |
+
+### 类型与发布
+
+| ID / 优先级 | 测试点 | 前置/数据 | 步骤 | 预期 | 本轮实际 / 状态 | 证据 |
+| --- | --- | --- | --- | --- | --- | --- |
+| PKG-001 / P0 | 源码和测试编译 | 当前锁定依赖；strict、experimentalDecorators | npm test中的typecheck/typecheck:test/typecheck:react | 全部退出0；noUnusedLocals/noImplicitOverride等配置有效；没有以any绕过公共API类型 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: BUILD、T-CORE、T-REACT；[npm-test.log](evidence/npm-test.log)；[dist.log](evidence/dist.log)；[package-archived.log](evidence/package-archived.log) |
+| PKG-002 / P0 | reactive/batch/类构造泛型 | types/esm.mts、commonjs.cts；对象和装饰类 | 核对对象属性、构造参数、方法参数、batch返回推断；负例错误赋值/构造 | .mts/.cts保持精确类型；错误用法产生预期诊断，不退化为any | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: T-CORE；[npm-test.log](evidence/npm-test.log)；[dist.log](evidence/dist.log)；[package-archived.log](evidence/package-archived.log) |
+| PKG-003 / P0 | Computed只读.value迁移 | computed.mts/.cts | 正例标量/对象/undefined/函数/嵌套；反例value赋值、computed()旧调用、watch(computed) | value类型T正确，仅外壳只读；负例有错；watch要求读取闭包 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: T-CORE；[npm-test.log](evidence/npm-test.log)；[dist.log](evidence/dist.log)；[package-archived.log](evidence/package-archived.log) |
+| PKG-004 / P1 | watch/useWatch immediate重载 | 缺省/false/true/boolean变量/WatchOptions或undefined | 编译new/old推断和不处理undefined的负例 | 默认/false旧值T；可能immediate时旧值T或undefined；void可用；错误callback类型与选项拒绝；useWatch返回void | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: T-CORE、T-REACT；[npm-test.log](evidence/npm-test.log)；[dist.log](evidence/dist.log)；[package-archived.log](evidence/package-archived.log) |
+| PKG-005 / P0 | storage结构类型、无DOM依赖 | storage.mts/.cts；lib ES2022、types=[]；sync/async/PromiseLike adapter | 编译对象/数组推断；缺name、错type、根基本值、坏getter/setter返回等负例 | 状态保留T；正例全部通过；反例确有诊断；无需DOM/React/localforage声明 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: T-CORE；[npm-test.log](evidence/npm-test.log)；[dist.log](evidence/dist.log)；[package-archived.log](evidence/package-archived.log) |
+| PKG-006 / P1 | localforage薄包装 | 开发依赖localforage；getItem<string>，async setItem等待后void返回 | typecheck:test包含storage-localforage.ts；错误直接Promise<string> setter对照 | 推荐包装可编译，错误返回类型被拒绝；不据此声称真实IndexedDB已验证 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: T-LF、T-CORE；[npm-test.log](evidence/npm-test.log)；[dist.log](evidence/dist.log)；[package-archived.log](evidence/package-archived.log) |
+| PKG-007 / P0 | React组件类型与Hook命名 | 18/19匹配类型；esm/commonjs/jsx | 编译RC/RFC必填props、RCC构造/ref/静态；useReactive对象返回；旧useState导入负例 | JSX必填属性保留；不返回tuple；旧useState未导出；各别名类型一致 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: T-REACT；[npm-test.log](evidence/npm-test.log)；[dist.log](evidence/dist.log)；[package-archived.log](evidence/package-archived.log) |
+| PKG-008 / P1 | Chip/Model/defineModel类型 | features.mts/.cts/.tsx；文本/布尔/数组/数字模型、带label的控件 | 正反例编译：children函数、source/refer、postValue返回、完整tuple、必填业务props、数字事件 | 支持输入通过；数字model直接传DOM事件拒绝；错误转换/缺props拒绝；onChange只读 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: T-REACT；[npm-test.log](evidence/npm-test.log)；[dist.log](evidence/dist.log)；[package-archived.log](evidence/package-archived.log) |
+| PKG-009 / P1 | useLoading类型 | fn必填/多参数/同步值/Promise；初始true/false/0/2/联合类型 | 推断load返回与loading类型；写stacksCount、错参数、误认为常量类型的负例 | 返回Promise<Awaited<R>>；参数tuple保持；布尔/数字拓宽，联合保持；状态只读 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: T-REACT；[npm-test.log](evidence/npm-test.log)；[dist.log](evidence/dist.log)；[package-archived.log](evidence/package-archived.log) |
+| PKG-010 / P1 | @loading传统方法类型 | loading.mts/.cts/.tsx，显式泛型/ctx注解/简写 | 编译可选/rest/泛型/重载/继承/静态成员/JSX；同步方法/箭头/getter/错字段负例 | 方法签名保留；类型层拒绝同步方法等；显式ctx类型检查拼写；不要求简写反推完整类字段 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: T-REACT；[npm-test.log](evidence/npm-test.log)；[dist.log](evidence/dist.log)；[package-archived.log](evidence/package-archived.log) |
+| PKG-011 / P0 | 构建布局与两个Node桥 | dist允许重建；使用当前tsconfig | npm run build；检查esm/cjs所有js/d.ts及cjs/package.json和node.js/node-react.js | 产物齐全；CJS目录type=commonjs；桥接导出与源码一致，target ES2022；只清理项目生成目录 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: BUILD、PKG；[npm-test.log](evidence/npm-test.log)；[dist.log](evidence/dist.log)；[package-archived.log](evidence/package-archived.log) |
+| PKG-012 / P0 | 公开导出准确、纯CJS可用 | 构建完成；ESM/CJS消费者 | test:dist；CJS加--no-experimental-require-module | 根恰reactive/effect/computed/batch/watch/storage；React十九个及别名准确；require不依赖实验性加载ESM | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: D-CORE、D-REACT；[npm-test.log](evidence/npm-test.log)；[dist.log](evidence/dist.log)；[package-archived.log](evidence/package-archived.log) |
+| PKG-013 / P0 | 混合入口共享内核/绑定 | Node import核心+require React、反方向；同raw/Computed/storage | 对比API引用、proxy身份；跨格式订阅/批次/存储/组件；另独立运行原生ESM图 | Node两个方向共用内核和绑定；原生ESM核心与React配套使用成功；不混用原生ESM与Node桥而要求同内核 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: D-CORE、D-STORAGE、D-REACT；[npm-test.log](evidence/npm-test.log)；[dist.log](evidence/dist.log)；[package-archived.log](evidence/package-archived.log) |
+| PKG-014 / P0 | 真实tarball与可选依赖隔离 | test:package联网；临时core-only/react18/react19消费者 | dry-run白名单→实际pack/install→行为和类型；安装前全局window/storage getter抛错；清空NODE_PATH | 核心无React/DOM/localforage也成功；模块导入不读浏览器全局；React18/19完整行为均通过；包仅dist/README/package/LICENSE，当前90文件 | **通过**：本轮完整自动化及对应类型/产物检查通过；按原 A 映射直接断言判定，未把其他环境或探索场景自动计入通过。 | A: PKG；[npm-test.log](evidence/npm-test.log)；[dist.log](evidence/dist.log)；[package-archived.log](evidence/package-archived.log) |
+| PKG-015 / P1 | README示例与迁移说明可执行 | README核心、装饰器、storage/localforage、RC、Model、两loading示例 | 复制至最小TS/TSX消费者；fetch示例用可控mock；按例操作；核对.value/useReactive名称 | 示例类型及结果与文档一致；无旧computed()/库useState残留；依赖安装说明准确，不进行真实网络业务请求 | **通过**：逐段提取 README 的 26 个可执行代码块，严格类型和运行断言全部通过；fetch/localforage 示例用可控夹具。 | P: T-LF、D-CORE、D-REACT；需逐个摘录README示例完整复跑；[readme-types-2.log](evidence/readme-types-2.log)；[readme-runtime-final.log](evidence/readme-runtime-final.log) |
+| PKG-016 / P1 | 内部API/深导入不可误发布 | 六/十九导出列表；stopStorage/toRaw/captureReference等内部符号；exports只有根和/react | 类型负例导入内部符号；安装包尝试受exports限制的深路径；检查无源码/测试/工作区私有文件入包 | 公共入口不导出内部符号；未声明子路径按Node exports拒绝；包文件遵循白名单，测试文档不进入发布包 | **通过**：真实 tarball 的 require/import 深路径均 ERR_PACKAGE_PATH_NOT_EXPORTED；内部符号未公开，90 文件白名单通过。 | P: T-CORE、PKG；补充安装包深路径运行时拒绝断言；[package-archived.log](evidence/package-archived.log) |
+
+### 兼容与质量
+
+| ID / 优先级 | 测试点 | 前置/数据 | 步骤 | 预期 | 本轮实际 / 状态 | 证据 |
+| --- | --- | --- | --- | --- | --- | --- |
+| QUAL-001 / P1 | 三引擎真实表单与局部更新 | 目标Chromium/Firefox/WebKit确切版本；React18/19各一页面；Model/Chip/加载按钮 | 输入中文/emoji、粘贴、IME组合输入；切checkbox/单/多选；数字输入清空；只改Chip A；启动两个任务乱序完成 | 最终model、DOM、回调参数一致；文本不丢/截断，依React事件语义不凭空重复转换；数字空值由显式postValue策略处理；父/兄弟更新符合用例；无非预期warning | **阻塞**：三引擎 × React 18/19 × dev/prod 常规表单、Unicode/emoji、Chip、乱序 loading 已执行；未操作原生 OS 中文 IME，也未验证系统剪贴板真实粘贴，整行阻塞。 | M: 真实浏览器交互；留事件序列、录像/截图与console；[browsers-complete.log](evidence/browsers-complete.log)；[linux-firefox.log](evidence/linux-firefox.log) |
+| QUAL-002 / P1 | 原生local/session刷新与边界 | 专用同源页面与key；local/session分别写不同值 | 修改后刷新同页；新建独立标签页；关闭对应会话后重新访问；另一页改local | 同页恢复各自记录；local跨页可读，session按浏览器会话语义隔离；库不自动监听跨标签更新，不期待实时合并 | **通过**：原生 local/session 同页刷新、独立新标签、关闭原标签后重开；local 共享且 session 隔离；跨页修改不自动同步内存。 | M: 浏览器Storage面板与刷新日志；浏览器复制标签行为须单独记录；[browsers-complete.log](evidence/browsers-complete.log)；[linux-firefox.log](evidence/linux-firefox.log) |
+| QUAL-003 / P1 | 浏览器禁止存储/配额/恢复 | 专用测试origin；权限阻断或受控抛SecurityError/QuotaExceededError；不写满真实用户空间 | 初始化失败；仍编辑；恢复权限/后端；显式重建或新变化 | 内存持续工作；诊断阶段正确；读失败不立刻覆盖；恢复按公开规则继续；无无限重试/假成功 | **通过**：真实浏览器环境注入 SecurityError / QuotaExceededError，内存可继续编辑，恢复后写入成功；没有实际填满磁盘或修改用户浏览器权限。 | P: B04、B05；补充真实浏览器策略与配额环境；[browsers-complete.log](evidence/browsers-complete.log)；[linux-firefox.log](evidence/linux-firefox.log) |
+| QUAL-004 / P1 | 真实localforage/IndexedDB | 独立数据库、强制IndexedDB驱动，F1包装 | 首次无缓存→编辑→等待adapter完成→刷新恢复；延迟get期间编辑；模拟set拒绝后恢复 | 实际后端为IndexedDB；保存JSON字符串不二次编码；刷新等值；本地优先和单写在途成立；Promise<void>包装正确 | **通过**：强制 asyncStorage/IndexedDB 驱动，保存 JSON 字符串、纯刷新恢复、迟到读取与本地编辑冲突、写失败恢复及 maxActive=1 通过。 | P: T-LF、S11、S15；当前只有类型/模拟adapter，真实驱动待执行；[browsers-complete.log](evidence/browsers-complete.log)；[linux-firefox.log](evidence/linux-firefox.log) |
+| QUAL-005 / P1 | 真浏览器SSR/hydration及请求隔离 | SSR服务每请求新store；A/B不同初值；匹配客户端快照；持久化在hydrate后接入 | 并发请求A/B，hydrate；提交后启用storage；更新/卸载；另做不匹配快照负对照 | A/B无串数据；匹配快照无hydration警告；SSR无订阅/自动任务；负对照警告归应用初值不一致，不假称库自动解决 | **通过**：Node HTTP SSR 独立 A/B 请求；浏览器等待提交后 hydrate 更新及启用 storage；匹配无错误，不匹配负对照产生预期错误。SSR 夹具为 React 19 的简单 p 元素，18/19 客户端均验证；既有包级 SSR 在各自 React major 内执行。 | P: R14、L16、F27；补充真实服务/浏览器和双请求；[browsers-complete.log](evidence/browsers-complete.log)；[linux-firefox.log](evidence/linux-firefox.log) |
+| QUAL-006 / P1 | 同包跨OS与打包器消费 | 同一tarball；Linux Node24，目标macOS；团队实际构建工具固定版本 | 各运行完整基线命令；浏览器production bundle中导入两入口；查看产物解析 | 无路径大小写/扩展名/模块解析问题；浏览器不选Node专用桥；production UI行为一致；无React核心消费者仍可用 | **通过**：Windows 与 Ubuntu/WSL Node 24 全基线命令通过；同一 Windows tarball 在 Linux 消费成功；esbuild dev/prod 和原生浏览器 ESM 使用默认浏览器入口。macOS/Safari 未验证。 | M: 归档每环境退出码、构建配置、依赖锁与包散列；[linux-test.log](evidence/linux-test.log)；[linux-build.log](evidence/linux-build.log)；[linux-dist.log](evidence/linux-dist.log)；[linux-package.log](evidence/linux-package.log)；[linux-tarball-core.log](evidence/linux-tarball-core.log) |
+| QUAL-007 / P2 | 代理/缓存/通知性能 | 固定机器；1k/10k字段，getter计数，10k写 | 计时首proxy、深层首次/重复读；computed连读100k次；batch与不batch各写10k次 | 未读不求值；未失效重复读getter只1次；单effect未batch 10k净写对应10k通知，batch仅1次；无与无关字段订阅规模相同的通知膨胀；记录性能基线 | **通过**：3 次预热 + 10 次计时；computed 100k 读取只求值 1 次；10k 写入普通/batch 通知 10000/1；10k 无关订阅只有目标字段 1 次通知。 | M: Node performance.now与次数断言，按本页门槛评审；[benchmark.log](evidence/benchmark.log)；[supplement-core-final.log](evidence/supplement-core-final.log) |
+| QUAL-008 / P2 | 稀疏数组和深层图资源边界 | length=1e9、自有索引3个；深度100/1000对象，禁止序列化超大稀疏数组 | 核心数组length缩短；只对可控小体积图存储；逐级读取深层对象 | 核心截断与真实索引数关联，不遍历1e9孔洞；无异常长阻塞；深度结果如实记录；不推导无限深JSON能力 | **通过**：length=1e9、3 个自有索引截断通过；深度 100/1000 代理与 JSON 存储通过，未推导无限深度支持。 | P: N40；补充规模/耗时和递增深度资源观察；[benchmark.log](evidence/benchmark.log) |
+| QUAL-009 / P1 | 存储扫描/等待队列有界 | 1k/10k字段，5轮每轮10k编辑；set一直pending至轮末 | 同步batch、未batch、异步在途分别测；轮末完成请求 | 同绑定maxActive=1；异步等待只留最终快照，未因1万次编辑积累1万次set；最后磁盘等最新JSON；扫描耗时/输出大小独立记录 | **通过**：1k/10k 字段 × 同步批量/同步逐次/异步在途 × 5 轮，每轮 10k 编辑；写入数 1/10000/2，异步 maxActive=1，最终 JSON 正确。 | P: S15、S16；补充高频压力和堆/队列有界证据；[resources.log](evidence/resources.log) |
+| QUAL-010 / P1 | stop/unmount长期订阅清理 | 预热；1,000轮创建/停止effect/watch及挂载/卸载RC/Chip/Model/loading；每轮完成deferred | 每轮结束再写旧源/调旧handler；每100轮记录计数和堆 | 停止后回调0、卸载后库发布0；新实例正常；无随轮数增加的活跃监听；若堆增长检查保留链后再判泄漏 | **失败**：effect/watch stop 1000 轮及 React 18/19 各 1000 轮 RC/Chip/Model/loading 卸载行为通过，各保留 3 份堆快照；扩展 derived 生命周期测试发现 1000 个弃用 computed 和 getter 根持续保留（D02）。 | M: 生命周期循环脚本、业务计数、至少3次堆快照对比；[supplement-react-complete.log](evidence/supplement-react-complete.log)；[supplement-react18.log](evidence/supplement-react18.log)；[memory-confirm.log](evidence/memory-confirm.log) |
+| QUAL-011 / P2 | storage弱引用/共享子图回收 | 两组：丢弃根但保留共享child；丢弃根且I/O最终完成；测试不得保留根于日志/数组 | 循环创建不同key的root、丢弃引用；完成I/O；诊断环境允许时触发GC、抓堆 | 不以单次未GC判失败；若控制器经长期强引用不可回收则报泄漏，保留链可复现；不得依赖FinalizationRegistry触发保证正确性 | **通过**：两组各 1000 个 storage 根：共享 child 保留/异步 I/O 完成后，多轮 GC 均 0 根存活；仅作诊断证据，不承诺 GC 时限。 | M: Node --expose-gc诊断或浏览器堆；仅测试弱引用生命周期；[memory-confirm.log](evidence/memory-confirm.log) |
+| QUAL-012 / P1 | 固定种子属性/批次模型测试 | 种子1～100，每种子1,000步；操作set/delete/nested batch；数据限纯标量/简单数组 | 普通JS模型与proxy执行同操作；每外层批次保存前后自有描述符；读固定字段的effect记录 | 终态与JS模型一致；按Object.is/存在性预测通知；同批回退零通知；失败保存seed/序列，缩减最小复现；不让预测模型调用库内部函数 | **通过**：种子 1～100 × 1000 外层批次，实际 300040 个 set/delete 操作，嵌套 batch、NaN、±0、属性存在性及简单数组全部与独立 JS 模型一致。 | M: 新增独立模型脚本后执行；目前未实现此随机套件；[supplement-core-final.log](evidence/supplement-core-final.log) |
+| QUAL-013 / P0 | 数据污染/异常后可恢复的组合 | 初值含合法数据；缓存根/嵌套/数组元素注入三危险键；日志收集器可抛 | 对编码/解码矩阵执行，再换合法数据和正常logger；执行其他store与effect | 原型不变、好记录未被坏快照覆盖、无半恢复；修复后保存/通知；一个store失败不影响另一个；诊断不主动附完整状态 | **通过**：18 组危险键编码/解码与继承 setter、会抛错的 logger，修复后正常保存；多 store 错误隔离对照通过。 | P: S19、S20、S21、S23；补充完整三键方向组合及多store对照；[supplement-core-final.log](evidence/supplement-core-final.log) |
+| QUAL-014 / P0 | 用户完整编辑/加载/持久化链路 | 外部storage{name:'A',count:1}；RC显示computed double；Model编辑name；useWatch派生mirror；useLoading加载数据 | 改name为中文；batch count2→3；两load乱序成功/失败；等adapter落盘后重载；卸载后改外部store | 名称/3/6及mirror、回调旧值正确；加载数归零；最终JSON等内存投影；重载恢复；卸载只停UI；不自动套用“最后请求胜出”业务规则 | **通过**：Model 中文编辑、watch mirror、count 2→3 / computed 6、两任务乱序成功/失败、落盘重载和卸载后继续持久化通过。 | P: F01、F02、F13；补充多模块完整链路与重载；[supplement-react-complete.log](evidence/supplement-react-complete.log)；[supplement-react18.log](evidence/supplement-react18.log) |
+| QUAL-015 / P1 | 失败隔离与后续连续运行 | 多store、多RC、多个watch；故障仅作用于一个adapter/一个callback | 连续50轮注入错误→捕获→修复；其他实例每轮持续写入 | 原错误/聚合顺序可定位，无未处理拒绝；正常实例没有漏更新；失败实例修复后可恢复；无跨实例状态污染 | **通过**：50 轮 adapter/watch 错误与恢复，以及 React 18/19 多 RC 与多 watch 并行对照；正常实例无漏更新，原 callback 错误保真。 | P: N12、S20、L08；补充反复故障及并行消费者组合；[supplement-core-final.log](evidence/supplement-core-final.log)；[supplement-react-complete.log](evidence/supplement-react-complete.log)；[supplement-react18.log](evidence/supplement-react18.log) |
+| QUAL-016 / P2 | 文档与交付可复现 | 一名未参与开发的测试人员，干净Node24环境，仅本交付包 | 按计划装依赖、跑自动化、定位一个失败和一个P/M用例、填报告；运行validate-docs | 无需口头补充即可定位源测试/预期/命令；链接有效、ID唯一、181项均映射；缺信息登记文档缺陷；不把P/M当自动通过 | **阻塞**：文档校验通过，Linux 干净 npm ci 和隔离消费可复现；要求的“未参与开发的独立测试人员”交付演练无法由本代理代签，整行阻塞。 | M: 独立交付演练及文档校验日志；[docs.log](evidence/docs.log)；[linux-ci.log](evidence/linux-ci.log) |
+
+
+## 10. 统计与证据索引
+
+| 优先级 | 总数 | 通过 | 失败 | 阻塞 |
+| --- | --- | --- | --- | --- |
+| P0 | 140 | 140 | 0 | 0 |
+| P1 | 96 | 93 | 2 | 1 |
+| P2 | 4 | 3 | 0 | 1 |
+
+执行率 = (通过 + 失败) / 240；通过率 = 通过 / (通过 + 失败)。需求—用例映射完整性由 validate-docs 验证，不等于需求所有环境均已通过。
+
+[原始测试计划](../../TEST_PLAN.md) · [自动化索引](../../AUTOMATION.md) · [机器可读结果](results.json) · [证据清单](evidence/manifest.json)

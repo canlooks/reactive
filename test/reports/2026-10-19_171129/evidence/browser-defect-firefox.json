@@ -1,0 +1,62 @@
+[
+  {
+    "engine": "firefox",
+    "browserVersion": "153.0",
+    "major": 18,
+    "actual": {
+      "success": false,
+      "actualLength": 2,
+      "tailPresent": false,
+      "computed": 4,
+      "seen": [
+        4
+      ],
+      "disk": "[10,20,30,40]",
+      "dom": "4:40:4"
+    },
+    "expected": {
+      "success": false,
+      "actualLength": 2,
+      "tailPresent": false,
+      "computed": 2,
+      "seen": [
+        4,
+        2
+      ],
+      "disk": "[10,20]",
+      "dom": "2:undefined:2"
+    },
+    "status": "failed",
+    "assertion": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  {\n    actualLength: 2,\n+   computed: 4,\n+   disk: '[10,20,30,40]',\n+   dom: '4:40:4',\n-   computed: 2,\n-   disk: '[10,20]',\n-   dom: '2:undefined:2',\n    seen: [\n      4,\n-     2\n    ],\n    success: false,\n    tailPresent: false\n  }\n"
+  },
+  {
+    "engine": "firefox",
+    "browserVersion": "153.0",
+    "major": 19,
+    "actual": {
+      "success": false,
+      "actualLength": 2,
+      "tailPresent": false,
+      "computed": 4,
+      "seen": [
+        4
+      ],
+      "disk": "[10,20,30,40]",
+      "dom": "4:40:4"
+    },
+    "expected": {
+      "success": false,
+      "actualLength": 2,
+      "tailPresent": false,
+      "computed": 2,
+      "seen": [
+        4,
+        2
+      ],
+      "disk": "[10,20]",
+      "dom": "2:undefined:2"
+    },
+    "status": "failed",
+    "assertion": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  {\n    actualLength: 2,\n+   computed: 4,\n+   disk: '[10,20,30,40]',\n+   dom: '4:40:4',\n-   computed: 2,\n-   disk: '[10,20]',\n-   dom: '2:undefined:2',\n    seen: [\n      4,\n-     2\n    ],\n    success: false,\n    tailPresent: false\n  }\n"
+  }
+]

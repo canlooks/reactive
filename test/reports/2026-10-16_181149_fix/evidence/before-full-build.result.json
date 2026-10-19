@@ -1,0 +1,13 @@
+{
+  "name": "before-full-build",
+  "command": "node",
+  "args": [
+    "test/reports/2026-10-16_181149_fix/evidence/before/scripts/build.mjs"
+  ],
+  "cwd": "E:\\projects\\@canlooks\\reactive",
+  "started": "2026-10-16T10:32:24.163Z",
+  "ended": "2026-10-16T10:32:24.619Z",
+  "durationMs": 456,
+  "exitCode": 0,
+  "signal": null
+}

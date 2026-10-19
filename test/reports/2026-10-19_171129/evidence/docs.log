@@ -1,0 +1,7 @@
+START 2026-10-19T09:12:20.711Z
+CWD E:\projects\@canlooks\reactive
+COMMAND node test/validate-docs.mjs
+
+Validated 11 Markdown files, 242 detailed cases, 187 mapped automated tests; 39 cases need additional execution.
+
+END 2026-10-19T09:12:20.807Z EXIT 0

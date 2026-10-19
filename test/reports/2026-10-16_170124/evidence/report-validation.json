@@ -1,0 +1,15 @@
+{
+  "cases": 240,
+  "uniqueIds": 240,
+  "localLinks": 359,
+  "brokenLinks": [],
+  "failedFilter": 2,
+  "defectSearch": 1,
+  "allRestored": 240,
+  "mobileWidth": {
+    "scroll": 390,
+    "client": 390
+  },
+  "pageErrors": [],
+  "validatedAt": "2026-10-16T09:33:45.949Z"
+}

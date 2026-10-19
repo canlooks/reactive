@@ -1,0 +1,13 @@
+{
+  "name": "docs",
+  "command": "node",
+  "args": [
+    "test/validate-docs.mjs"
+  ],
+  "cwd": "E:\\projects\\@canlooks\\reactive",
+  "started": "2026-10-16T09:12:28.955Z",
+  "ended": "2026-10-16T09:12:29.053Z",
+  "durationMs": 98,
+  "exitCode": 0,
+  "signal": null
+}

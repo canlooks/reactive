@@ -1,0 +1,127 @@
+START 2026-10-16T09:09:58.717Z
+CWD E:\projects\@canlooks\reactive
+COMMAND node --expose-gc node_modules/tsx/dist/cli.mjs --tsconfig test/reports/2026-10-16_170124/scripts/tsconfig.json --test --test-reporter=tap test/reports/2026-10-16_170124/scripts/supplement-react.tsx
+
+TAP version 13
+# Subtest: REACT-001 external wrappers and invalid categories matrix
+ok 1 - REACT-001 external wrappers and invalid categories matrix
+  ---
+  duration_ms: 1.5056
+  type: 'test'
+  ...
+# Subtest: REACT-002 memo object and function identity changes
+ok 2 - REACT-002 memo object and function identity changes
+  ---
+  duration_ms: 26.892
+  type: 'test'
+  ...
+# Subtest: REACT-035 ordinary class methods and getters do not batch or cache
+ok 3 - REACT-035 ordinary class methods and getters do not batch or cache
+  ---
+  duration_ms: 4.9073
+  type: 'test'
+  ...
+# Subtest: UI-001 factory identities conditional list mounting and stable keys
+ok 4 - UI-001 factory identities conditional list mounting and stable keys
+  ---
+  duration_ms: 5.2593
+  type: 'test'
+  ...
+# Subtest: UI-009 legal synchronous nodes and custom thenable rejection
+ok 5 - UI-009 legal synchronous nodes and custom thenable rejection
+  ---
+  duration_ms: 4.6882
+  type: 'test'
+  ...
+# Subtest: UI-019 UI-020 Model DOM events target every property and setter once
+ok 6 - UI-019 UI-020 Model DOM events target every property and setter once
+  ---
+  duration_ms: 18.6753
+  type: 'test'
+  ...
+# Subtest: UI-022 all invalid element shapes portal file and valueProp
+not ok 7 - UI-022 all invalid element shapes portal file and valueProp
+  ---
+  duration_ms: 3.7302
+  type: 'test'
+  location: 'E:\\projects\\@canlooks\\reactive\\test\\reports\\2026-10-16_170124\\scripts\\supplement-react.tsx:1:5492'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected exception (TypeError).'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  stack: |-
+    TestContext.<anonymous> (E:\projects\@canlooks\reactive\test\reports\2026-10-16_170124\scripts\supplement-react.tsx:49:39)
+    Test.runInAsyncScope (node:async_hooks:228:14)
+    Test.run (node:internal/test_runner/test:1118:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+    Test.postRun (node:internal/test_runner/test:1247:19)
+    Test.run (node:internal/test_runner/test:1175:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:787:7)
+  ...
+# Subtest: UI-024 Model server values side effects and hydrate input
+ok 8 - UI-024 Model server values side effects and hydrate input
+  ---
+  duration_ms: 9.7102
+  type: 'test'
+  ...
+# Subtest: UI-025 genuine cross-document events currentTarget priority and target fallback
+ok 9 - UI-025 genuine cross-document events currentTarget priority and target fallback
+  ---
+  duration_ms: 9.3881
+  type: 'test'
+  ...
+# Subtest: UI-026 defineModel class protocol children keys and stable mount
+ok 10 - UI-026 defineModel class protocol children keys and stable mount
+  ---
+  duration_ms: 4.1173
+  type: 'test'
+  ...
+# A suspended resource finished loading inside a test, but the event was not wrapped in act(...).
+# When testing, code that resolves suspended data should be wrapped into act(...):
+# act(() => {
+#   /* finish loading suspended data */
+# });
+# /* assert on the output */
+# This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+# A suspended resource finished loading inside a test, but the event was not wrapped in act(...).
+# When testing, code that resolves suspended data should be wrapped into act(...):
+# act(() => {
+#   /* finish loading suspended data */
+# });
+# /* assert on the output */
+# This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+# Subtest: LOAD-014 invalid fn all numeric edges uncommitted handle and MAX_SAFE_INTEGER
+ok 11 - LOAD-014 invalid fn all numeric edges uncommitted handle and MAX_SAFE_INTEGER
+  ---
+  duration_ms: 3.3627
+  type: 'test'
+  ...
+# Subtest: LOAD-032 same class instance rejects constructor/render then accepts committed event
+ok 12 - LOAD-032 same class instance rejects constructor/render then accepts committed event
+  ---
+  duration_ms: 2.2569
+  type: 'test'
+  ...
+# Subtest: QUAL-014 integrated Model watch computed concurrent load persist reload unmount
+ok 13 - QUAL-014 integrated Model watch computed concurrent load persist reload unmount
+  ---
+  duration_ms: 6.0395
+  type: 'test'
+  ...
+# Subtest: QUAL-010 1000 RC Chip Model loading mount/unmount cycles
+ok 14 - QUAL-010 1000 RC Chip Model loading mount/unmount cycles
+  ---
+  duration_ms: 929.1969
+  type: 'test'
+  ...
+1..14
+# tests 14
+# suites 0
+# pass 13
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2004.942
+
+END 2026-10-16T09:10:00.864Z EXIT 1

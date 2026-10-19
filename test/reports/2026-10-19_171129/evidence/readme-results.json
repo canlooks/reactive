@@ -1,0 +1,303 @@
+[
+  {
+    "id": 1,
+    "line": 13,
+    "lang": "ts",
+    "file": "example-1.mts",
+    "names": [],
+    "fixture": "",
+    "status": "passed"
+  },
+  {
+    "id": 2,
+    "line": 18,
+    "lang": "js",
+    "file": "example-2.cjs",
+    "names": [],
+    "fixture": "",
+    "status": "passed"
+  },
+  {
+    "id": 3,
+    "line": 29,
+    "lang": "ts",
+    "file": "example-3.mts",
+    "names": [
+      "state",
+      "double",
+      "stop"
+    ],
+    "fixture": "",
+    "status": "passed"
+  },
+  {
+    "id": 5,
+    "line": 83,
+    "lang": "ts",
+    "file": "example-5.mts",
+    "names": [
+      "raw",
+      "state"
+    ],
+    "fixture": "",
+    "status": "passed"
+  },
+  {
+    "id": 6,
+    "line": 104,
+    "lang": "ts",
+    "file": "example-6.mts",
+    "names": [
+      "state",
+      "stop"
+    ],
+    "fixture": "",
+    "status": "passed"
+  },
+  {
+    "id": 7,
+    "line": 124,
+    "lang": "ts",
+    "file": "example-7.mts",
+    "names": [
+      "state",
+      "double",
+      "label"
+    ],
+    "fixture": "",
+    "status": "passed"
+  },
+  {
+    "id": 8,
+    "line": 149,
+    "lang": "ts",
+    "file": "example-8.mts",
+    "names": [
+      "state"
+    ],
+    "fixture": "",
+    "status": "passed"
+  },
+  {
+    "id": 9,
+    "line": 170,
+    "lang": "ts",
+    "file": "example-9.mts",
+    "names": [
+      "state",
+      "double",
+      "result"
+    ],
+    "fixture": "",
+    "status": "passed"
+  },
+  {
+    "id": 10,
+    "line": 199,
+    "lang": "ts",
+    "file": "example-10.mts",
+    "names": [
+      "state",
+      "stop"
+    ],
+    "fixture": "",
+    "status": "passed"
+  },
+  {
+    "id": 11,
+    "line": 220,
+    "lang": "ts",
+    "file": "example-11.mts",
+    "names": [
+      "state",
+      "draft"
+    ],
+    "fixture": "",
+    "status": "passed"
+  },
+  {
+    "id": 12,
+    "line": 252,
+    "lang": "ts",
+    "file": "example-12.mts",
+    "names": [
+      "records",
+      "adapter",
+      "state"
+    ],
+    "fixture": "",
+    "status": "passed"
+  },
+  {
+    "id": 13,
+    "line": 265,
+    "lang": "ts",
+    "file": "example-13.mts",
+    "names": [
+      "adapter",
+      "state"
+    ],
+    "fixture": "",
+    "status": "passed"
+  },
+  {
+    "id": 14,
+    "line": 308,
+    "lang": "tsx",
+    "file": "example-14.tsx",
+    "names": [
+      "settings",
+      "Settings"
+    ],
+    "fixture": "",
+    "status": "passed"
+  },
+  {
+    "id": 16,
+    "line": 332,
+    "lang": "tsx",
+    "file": "example-16.tsx",
+    "names": [
+      "store",
+      "Counter"
+    ],
+    "fixture": "",
+    "status": "passed"
+  },
+  {
+    "id": 17,
+    "line": 355,
+    "lang": "tsx",
+    "file": "example-17.tsx",
+    "names": [
+      "Counter"
+    ],
+    "fixture": "",
+    "status": "passed"
+  },
+  {
+    "id": 18,
+    "line": 392,
+    "lang": "tsx",
+    "file": "example-18.tsx",
+    "names": [
+      "Example"
+    ],
+    "fixture": "Wrap Hook fragment in a component with local useReactive state",
+    "status": "passed"
+  },
+  {
+    "id": 19,
+    "line": 405,
+    "lang": "tsx",
+    "file": "example-19.tsx",
+    "names": [
+      "View"
+    ],
+    "fixture": "",
+    "status": "passed"
+  },
+  {
+    "id": 20,
+    "line": 445,
+    "lang": "tsx",
+    "file": "example-20.tsx",
+    "names": [
+      "Index"
+    ],
+    "fixture": "",
+    "status": "passed"
+  },
+  {
+    "id": 21,
+    "line": 461,
+    "lang": "tsx",
+    "file": "example-21.tsx",
+    "names": [
+      "data",
+      "Delayed"
+    ],
+    "fixture": "",
+    "status": "passed"
+  },
+  {
+    "id": 22,
+    "line": 482,
+    "lang": "tsx",
+    "file": "example-22.tsx",
+    "names": [
+      "TextInput",
+      "Form"
+    ],
+    "fixture": "",
+    "status": "passed"
+  },
+  {
+    "id": 23,
+    "line": 517,
+    "lang": "tsx",
+    "file": "example-23.tsx",
+    "names": [
+      "Quantity"
+    ],
+    "fixture": "",
+    "status": "passed"
+  },
+  {
+    "id": 24,
+    "line": 545,
+    "lang": "tsx",
+    "file": "example-24.tsx",
+    "names": [
+      "UserLoader"
+    ],
+    "fixture": "",
+    "status": "passed"
+  },
+  {
+    "id": 25,
+    "line": 587,
+    "lang": "tsx",
+    "file": "example-25.tsx",
+    "names": [
+      "DataLoader"
+    ],
+    "fixture": "",
+    "status": "passed"
+  },
+  {
+    "id": 27,
+    "line": 665,
+    "lang": "ts",
+    "file": "example-27.mts",
+    "names": [
+      "Store",
+      "store"
+    ],
+    "fixture": "",
+    "status": "passed"
+  },
+  {
+    "id": 28,
+    "line": 714,
+    "lang": "ts",
+    "file": "example-28.mts",
+    "names": [
+      "state",
+      "pending"
+    ],
+    "fixture": "",
+    "status": "passed"
+  },
+  {
+    "id": 29,
+    "line": 744,
+    "lang": "ts",
+    "file": "example-29.mts",
+    "names": [
+      "list"
+    ],
+    "fixture": "",
+    "status": "passed"
+  }
+]

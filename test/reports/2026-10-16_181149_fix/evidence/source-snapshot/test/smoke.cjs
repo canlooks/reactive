@@ -1,0 +1,20 @@
+const api = require('@canlooks/reactive')
+const verifyPackage = require('./smoke-assertions.cjs')
+const verifyStorage = require('./storage-smoke.cjs')
+
+verifyPackage(api)
+const assert = require('node:assert/strict')
+const React = require('react')
+const { renderToString } = require('react-dom/server')
+const reactApi = require('@canlooks/reactive/react')
+const state = api.reactive({ count: 1 })
+const View = reactApi.RFC(() => {
+    assert.equal(reactApi.useReactive(state), state)
+    reactApi.useWatch(() => state.count, () => assert.fail('SSR must not initialize watch'), { immediate: true })
+    return React.createElement('div', null, state.count)
+})
+assert.equal(renderToString(React.createElement(View)), '<div>1</div>')
+assert.equal(reactApi.RC(View), View)
+verifyStorage(api).then(() => {
+    console.log('CommonJS require: six core exports, storage, React subentry, SSR and decorators passed.')
+}).catch(error => { console.error(error); process.exitCode = 1 })

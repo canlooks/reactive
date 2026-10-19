@@ -1,0 +1,28 @@
+
+> @canlooks/reactive@5.0.0 build
+> node scripts/build.mjs
+
+
+  dist/cjs/effect.js                   17.7kb
+  dist/cjs/storage.js                  10.3kb
+  dist/cjs/reactive.js                  8.7kb
+  dist/cjs/storageSnapshot.js           7.1kb
+  dist/cjs/react/loadingDecorator.js    6.2kb
+  dist/cjs/react/model.js               5.1kb
+  dist/cjs/react/classComponent.js      5.0kb
+  dist/cjs/react/observer.js            4.8kb
+  dist/cjs/react/props.js               4.7kb
+  dist/cjs/react/classState.js          4.3kb
+  dist/cjs/react/loading.js             3.4kb
+  dist/cjs/react/chip.js                3.0kb
+  dist/cjs/computed.js                  2.9kb
+  dist/cjs/watch.js                     2.7kb
+  dist/cjs/reference.js                 2.7kb
+  dist/cjs/react/functionComponent.js   2.7kb
+  dist/cjs/react/index.js               2.5kb
+  dist/cjs/react/hooks.js               2.5kb
+  dist/cjs/react/commit.js              2.0kb
+  dist/cjs/index.js                     1.4kb
+  ...and 1 more output file...
+
+⚡ Done in 9ms

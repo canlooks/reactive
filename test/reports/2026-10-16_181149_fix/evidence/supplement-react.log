@@ -1,0 +1,106 @@
+START 2026-10-16T10:19:25.342Z
+CWD E:\projects\@canlooks\reactive
+COMMAND node node_modules/tsx/dist/cli.mjs --tsconfig test/reports/2026-10-16_181149_fix/scripts/tsconfig.json --test --test-reporter=tap test/reports/2026-10-16_181149_fix/scripts/supplement-react.tsx
+
+TAP version 13
+# Subtest: REACT-001 external wrappers and invalid categories matrix
+ok 1 - REACT-001 external wrappers and invalid categories matrix
+  ---
+  duration_ms: 0.895
+  type: 'test'
+  ...
+# Subtest: REACT-002 memo object and function identity changes
+ok 2 - REACT-002 memo object and function identity changes
+  ---
+  duration_ms: 23.7602
+  type: 'test'
+  ...
+# Subtest: REACT-035 ordinary class methods and getters do not batch or cache
+ok 3 - REACT-035 ordinary class methods and getters do not batch or cache
+  ---
+  duration_ms: 6.1755
+  type: 'test'
+  ...
+# Subtest: UI-001 factory identities conditional list mounting and stable keys
+ok 4 - UI-001 factory identities conditional list mounting and stable keys
+  ---
+  duration_ms: 6.9766
+  type: 'test'
+  ...
+# Subtest: UI-009 legal synchronous nodes and custom thenable rejection
+ok 5 - UI-009 legal synchronous nodes and custom thenable rejection
+  ---
+  duration_ms: 5.1426
+  type: 'test'
+  ...
+# Subtest: UI-019 UI-020 Model DOM events target every property and setter once
+ok 6 - UI-019 UI-020 Model DOM events target every property and setter once
+  ---
+  duration_ms: 22.319
+  type: 'test'
+  ...
+# Subtest: UI-022 all invalid element shapes portal file and valueProp
+ok 7 - UI-022 all invalid element shapes portal file and valueProp
+  ---
+  duration_ms: 1.5372
+  type: 'test'
+  ...
+# Subtest: UI-024 Model server values side effects and hydrate input
+ok 8 - UI-024 Model server values side effects and hydrate input
+  ---
+  duration_ms: 8.6842
+  type: 'test'
+  ...
+# Subtest: UI-025 genuine cross-document events currentTarget priority and target fallback
+ok 9 - UI-025 genuine cross-document events currentTarget priority and target fallback
+  ---
+  duration_ms: 8.651
+  type: 'test'
+  ...
+# Subtest: UI-026 defineModel class protocol children keys and stable mount
+ok 10 - UI-026 defineModel class protocol children keys and stable mount
+  ---
+  duration_ms: 4.2622
+  type: 'test'
+  ...
+# Subtest: LOAD-014 invalid fn all numeric edges uncommitted handle and MAX_SAFE_INTEGER
+ok 11 - LOAD-014 invalid fn all numeric edges uncommitted handle and MAX_SAFE_INTEGER
+  ---
+  duration_ms: 3.0761
+  type: 'test'
+  ...
+# Subtest: LOAD-032 same class instance rejects constructor/render then accepts committed event
+ok 12 - LOAD-032 same class instance rejects constructor/render then accepts committed event
+  ---
+  duration_ms: 1.8894
+  type: 'test'
+  ...
+# Subtest: QUAL-014 integrated Model watch computed concurrent load persist reload unmount
+ok 13 - QUAL-014 integrated Model watch computed concurrent load persist reload unmount
+  ---
+  duration_ms: 6.3804
+  type: 'test'
+  ...
+# Subtest: QUAL-010 1000 RC Chip Model loading mount/unmount cycles
+ok 14 - QUAL-010 1000 RC Chip Model loading mount/unmount cycles
+  ---
+  duration_ms: 3456.1323
+  type: 'test'
+  ...
+# Subtest: QUAL-015 50 recovery rounds with multiple RC stores watchers and adapter failures
+ok 15 - QUAL-015 50 recovery rounds with multiple RC stores watchers and adapter failures
+  ---
+  duration_ms: 21.1509
+  type: 'test'
+  ...
+1..15
+# tests 15
+# suites 0
+# pass 15
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4617.5078
+
+END 2026-10-16T10:19:30.121Z EXIT 0

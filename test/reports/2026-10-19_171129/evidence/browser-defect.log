@@ -1,0 +1,10 @@
+START 2026-10-19T09:16:25.243Z
+CWD E:\projects\@canlooks\reactive
+COMMAND node test/reports/2026-10-19_171129/scripts/browser-defect.mjs
+
+chromium 18 failed {"success":false,"actualLength":2,"tailPresent":false,"computed":4,"seen":[4],"disk":"[10,20,30,40]","dom":"4:40:4"}
+chromium 19 failed {"success":false,"actualLength":2,"tailPresent":false,"computed":4,"seen":[4],"disk":"[10,20,30,40]","dom":"4:40:4"}
+webkit 18 failed {"success":false,"actualLength":2,"tailPresent":false,"computed":4,"seen":[4],"disk":"[10,20,30,40]","dom":"4:40:4"}
+webkit 19 failed {"success":false,"actualLength":2,"tailPresent":false,"computed":4,"seen":[4],"disk":"[10,20,30,40]","dom":"4:40:4"}
+
+END 2026-10-19T09:16:26.686Z EXIT 1

@@ -1,0 +1,15 @@
+{
+  "name": "supplement-core",
+  "command": "node",
+  "args": [
+    "--test",
+    "--test-reporter=tap",
+    "test/reports/2026-10-16_170124/scripts/supplement-core.mjs"
+  ],
+  "cwd": "E:\\projects\\@canlooks\\reactive",
+  "started": "2026-10-16T09:05:06.483Z",
+  "ended": "2026-10-16T09:05:07.518Z",
+  "durationMs": 1035,
+  "exitCode": 1,
+  "signal": null
+}
